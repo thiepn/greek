@@ -16,5 +16,10 @@ window.KOINE_PRONUNCIATION_DATA=Object.freeze({
     {id:'modern.iotacism',profile:'modern',prompt:'Which set shares /i/ in Modern Greek?',choices:['ι η υ ει οι','ε αι η','ο ω ου'],answer:0,focus:'Modern iotacism'},
     {id:'erasmian.distinction',profile:'erasmian',prompt:'Which principle best describes this app’s Erasmian profile?',choices:['It preserves classroom spelling distinctions','It reconstructs one exact first-century dialect','It uses Modern Greek phonology'],answer:0,focus:'Academic convention, not historical reconstruction'}
   ],
+  listeningComprehension:[
+    {id:'listen.john1.1a',text:'Ἐν ἀρχῇ ἦν ὁ λόγος',prompt:'Which word is the finite verb you heard?',choices:['ἦν','ἀρχῇ','λόγος'],answer:0,source:'John 1:1 excerpt'},
+    {id:'listen.1john4.8',text:'ὁ θεὸς ἀγάπη ἐστίν',prompt:'Which word functions as the copular verb?',choices:['θεός','ἀγάπη','ἐστίν'],answer:2,source:'1 John 4:8 excerpt'},
+    {id:'listen.phil4.4',text:'χαίρετε ἐν κυρίῳ πάντοτε',prompt:'Which form carries the command?',choices:['χαίρετε','κυρίῳ','πάντοτε'],answer:0,source:'Philippians 4:4 excerpt'}
+  ],
   audioPolicy:{historicalProfiles:'No Modern Greek TTS is presented as historical Koinē/Erasmian reference audio.',modernTts:'Uses a browser-provided el-GR voice when available; voice quality is platform-dependent.',recording:'Learner microphone recordings stay local in the browser and are never uploaded by BG12.'}
 });
