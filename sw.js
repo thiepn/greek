@@ -1,6 +1,7 @@
 /* Koinē Path BG13 service worker */
 'use strict';
-const PWA_VERSION='bg13.0.0';
+importScripts('./generated/pwa-version.js');
+const PWA_VERSION=self.KOINE_PWA_BUILD||'bg13-dev';
 const SHELL_CACHE=`koine-shell-${PWA_VERSION}`;
 const RUNTIME_CACHE=`koine-runtime-${PWA_VERSION}`;
 const CORPUS_PREFIX='koine-corpus-';
