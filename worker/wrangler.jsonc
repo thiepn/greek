@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "koine-path-ai-tutor",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-21",
+  "workers_dev": true,
+  "vars": {
+    "OPENAI_MODEL": "gpt-5.6-terra",
+    "ALLOWED_ORIGINS": "https://thiepn.dev,https://www.thiepn.dev,https://thiepn.github.io"
+  },
+  "secrets": {
+    "required": ["OPENAI_API_KEY"]
+  },
+  "ratelimits": [
+    {
+      "name": "TUTOR_RATE_LIMITER",
+      "namespace_id": "86082101",
+      "simple": { "limit": 20, "period": 60 }
+    }
+  ],
+  "observability": { "enabled": true }
+}

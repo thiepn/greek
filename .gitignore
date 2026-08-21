@@ -1,1 +1,5 @@
 generated/
+worker/.dev.vars
+worker/.env
+worker/.env.*
+worker/node_modules/

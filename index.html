@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#f3efe7">
-  <meta name="description" content="Interactive Biblical Greek learning with lessons, morphology, vocabulary SRS, full Greek New Testament reading, syntax training, adaptive review, and mastery tracking.">
+  <meta name="koine-ai-endpoint" content="">
+  <meta name="description" content="Interactive Biblical Greek learning with lessons, morphology, vocabulary SRS, full Greek New Testament reading, syntax training, grounded tutoring, adaptive review, and mastery tracking.">
   <title>Koinē Path — Biblical Greek</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="curriculum.css">
@@ -13,6 +14,7 @@
   <link rel="stylesheet" href="vocabulary.css">
   <link rel="stylesheet" href="reader.css">
   <link rel="stylesheet" href="syntax-lab.css">
+  <link rel="stylesheet" href="ai-tutor.css">
 </head>
 <body>
 <div class="app">
@@ -61,7 +63,7 @@
         <div class="panel translation-panel"><button class="btn" id="show-translation">Translation assistance</button><p id="translation" hidden>Translation assistance is passage-dependent.</p></div>
       </section>
 
-      <section id="tutor" class="view"><div class="eyebrow">Socratic tutor</div><h1>Ask, then reason.</h1><p class="lede">The current tutor is deterministic and course-aware. A secure AI backend can replace it later.</p><div class="panel"><div id="chat" class="chat"><div class="bubble ai">Ask about a case, article, noun ending, present active verb, or a reader passage.</div></div><div class="chat-input"><textarea id="tutor-input" placeholder="Why is ἀρχῇ dative?"></textarea><button class="btn primary" id="send-tutor">Ask</button></div></div></section>
+      <section id="tutor" class="view"><div class="eyebrow">Tutor</div><h1>Loading grounded tutor…</h1></section>
 
       <section id="review" class="view"><div class="eyebrow">Adaptive review</div><h1>Fix what failed.</h1><p class="lede">Prototype review items remain visible here while the canonical engine separately tracks error type, unit, recurrence, and remediation priority.</p><div class="panel" id="review-list"></div></section>
 
@@ -84,6 +86,7 @@
 <script src="morphology-lab.js"></script>
 <script src="vocabulary-engine.js"></script>
 <script src="syntax-lab.js"></script>
+<script src="ai-tutor.js"></script>
 <script src="app.js"></script>
 <script src="canonical-reader.js"></script>
 <script src="curriculum-ui.js"></script>
@@ -91,5 +94,6 @@
 <script src="morphology-lab-ui.js"></script>
 <script src="vocabulary-ui.js"></script>
 <script src="syntax-lab-ui.js"></script>
+<script src="ai-tutor-ui.js"></script>
 </body>
 </html>
