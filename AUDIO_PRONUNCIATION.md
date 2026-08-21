@@ -49,9 +49,18 @@ The Audio view provides:
 - free-text Greek pronunciation workbench;
 - alphabet/sound-system orientation;
 - profile distinction drills;
+- listening-only comprehension items when an honest audio source exists;
 - Modern Greek browser speech when available;
 - local microphone shadowing and replay;
 - listening/playback statistics separate from BG3 mastery.
+
+## Listening-only comprehension
+
+BG12 includes short reviewed listening items whose Greek text remains hidden until the learner answers.
+
+At present these can play only under the **Modern Greek** profile with an installed `el-GR` browser voice. Under Reconstructed Koinē or Erasmian, the app explicitly withholds playback rather than recycling a Modern voice and pretending it belongs to the selected historical/classroom profile.
+
+Listening answers are stored only in the pronunciation subsystem and never become BG3 grammar mastery evidence.
 
 ## Microphone privacy
 
@@ -93,9 +102,10 @@ BG3 currently models concept, recognition, application, and reading-transfer com
 - profile;
 - playback rate;
 - pronunciation-drill attempts/correct;
+- listening-comprehension attempts/correct;
 - playback counts;
 - recording-session count;
-- bounded drill history.
+- bounded drill/listening history.
 
 It does not store microphone audio.
 
