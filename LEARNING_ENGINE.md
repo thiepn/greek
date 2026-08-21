@@ -17,6 +17,7 @@ Persistent browser key: `koine-path-learning-v3`
 The state contains:
 
 - one record for every canonical curriculum unit;
+- persistent stage-pass records;
 - four mastery dimensions per unit;
 - evidence counts and timestamps;
 - mastery/review dates;
@@ -70,21 +71,29 @@ Evidence updates scores gradually through a weighted moving update. Evidence cou
 Unit access is deterministic.
 
 - Unit 1 is available initially.
-- Within a stage, each unit requires the preceding unit to be mastered.
-- The first unit of a later stage requires the preceding **stage gate** to pass.
+- Within a stage, each unit requires the preceding unit to have been mastered at least once.
+- The first unit of a later stage requires the preceding **stage gate** to have been passed.
 
-This means a learner can inspect later material in the product UI if we choose to allow previewing, but canonical progression does not mark it available until prerequisites are satisfied.
+A later review-due state does not erase historical progression. The engine may recommend review aggressively, but it does not re-lock curriculum that the learner already legitimately reached.
 
 ## Stage gates
 
-A stage passes only when:
+A stage gate is passed for the first time only when:
 
-- every unit in the stage is currently mastered;
+- every unit in the stage satisfies current mastery evidence requirements;
 - average unit composite is at least **85**;
 - average recognition is at least **88**;
-- no mastery dimension anywhere in the stage is below **75**.
+- no mastery dimension anywhere in the stage is below **75**;
+- every preceding stage gate has already passed.
 
-Stage gates therefore prevent compensation where excellent performance in one area hides a serious weakness in another.
+The pass timestamp is persistent. After a gate has passed, later decay may make individual units review-due, but the historical gate remains passed.
+
+The UI therefore distinguishes:
+
+- **passed** — the learner legitimately cleared the gate;
+- **currently strong** — current decayed evidence still satisfies the gate metrics.
+
+This avoids two bad extremes: permanent mastery with no review, and punitive re-locking of later curriculum whenever a review date arrives.
 
 ## Decay and review
 
@@ -102,6 +111,11 @@ Decay starts only after a dimension-specific grace period:
 Decay is capped so old knowledge becomes review-worthy rather than being treated as if the learner had never encountered it.
 
 Newly mastered units receive a review checkpoint after 14 days. Successful later evidence expands the checkpoint interval up to 120 days. BG3 deliberately does **not** claim to implement a mature SRS algorithm; later SRS work may replace this scheduling policy without changing the mastery schema.
+
+A unit can therefore have both:
+
+- a historical `masteredAt` timestamp; and
+- a current `review` status because its effective evidence has aged or its scheduled checkpoint is due.
 
 ## Error taxonomy
 
