@@ -5,7 +5,9 @@ on:
     paths:
       - 'scripts/build-full-corpus.mjs'
       - 'scripts/validate-full-corpus.mjs'
+      - 'scripts/check-reader-syntax.mjs'
       - 'canonical-reader.js'
+      - 'vocabulary-ui.js'
       - 'reader.css'
       - 'index.html'
       - '.github/workflows/full-corpus-validation.yml'
@@ -25,6 +27,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Check reader runtime syntax
+        run: node scripts/check-reader-syntax.mjs
       - name: Build pinned full NT corpus
         run: node scripts/build-full-corpus.mjs
       - name: Validate complete corpus
