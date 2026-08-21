@@ -1,13 +1,23 @@
 (()=>{
   const data=window.KOINE_MORPHOLOGY_DATA,api=window.KoineMorphologyLab,learning=window.KOINE_LEARNING_ENGINE,host=document.querySelector('#drill');
   if(!data||!api||!host)return;
-  const lab=new api.MorphologyLab({data,learningEngine:learning});
+  const learningAdapter=learning?{
+    getUnit:id=>learning.getUnit(id),
+    snapshot:()=>learning.snapshot(),
+    recordHint:x=>learning.recordHint(x),
+    recordEvidence:x=>{
+      const unit=learning.getUnit(x.unitId);
+      if(unit?.accessible)return learning.recordEvidence(x);
+      return learning.recordExposure({unitId:x.unitId,itemId:x.itemId,source:'morphology-lab-preview'});
+    }
+  }:null;
+  const lab=new api.MorphologyLab({data,learningEngine:learningAdapter});
   window.KOINE_MORPHOLOGY_LAB=lab;
 
   host.innerHTML=`
     <div class="eyebrow">Morphology laboratory · BG4</div>
     <h1>Recognize the form before translating it.</h1>
-    <p class="lede">Parsing, form building, minimal contrasts, and principal-part recognition feed the canonical BG3 mastery and remediation engine.</p>
+    <p class="lede">Parsing, form building, minimal contrasts, and principal-part recognition feed the canonical BG3 mastery and remediation engine when their curriculum unit is unlocked.</p>
     <div class="morph-toolbar">
       <div class="morph-modes" role="group" aria-label="Exercise mode">
         <button data-morph-mode="parse">Parse</button><button data-morph-mode="build">Build</button><button data-morph-mode="contrast">Contrast</button><button data-morph-mode="principal">Principal parts</button>
@@ -33,6 +43,7 @@
           <div><span>Best</span><strong id="morph-best">0</strong></div>
         </div>
         <div class="morph-rule"></div><h3>How adaptation works</h3><p>Weak families, review-due units, and units with recurring BG3 errors receive higher probability. Recently seen forms are temporarily down-weighted.</p>
+        <div class="morph-rule"></div><small>Locked-unit practice remains exploratory exposure. Canonical mastery evidence is written only after that unit is accessible.</small>
         <div class="morph-rule"></div><small>Source: reviewed pedagogical paradigms. Corpus-derived status is tracked separately; forms are not falsely labeled as NT occurrences.</small>
       </aside>
     </div>`;
@@ -46,7 +57,7 @@
     const pa=document.querySelector('#p-attempts'),pc=document.querySelector('#p-correct');if(pa)pa.textContent=s.attempts;if(pc)pc.textContent=s.correct;
   }
   function renderQuestion(q){
-    question=q;answered=false;$('#morph-mode-label').textContent=modeName(q.mode);$('#morph-unit').textContent=`Unit ${q.unitId}`;$('#morph-prompt').textContent=q.prompt;$('#morph-display').textContent=q.display;$('#morph-subprompt').textContent=q.subprompt||'';$('#morph-feedback').textContent='';$('#morph-feedback').className='feedback';$('#morph-help').textContent='Attempt first; assistance lowers evidence value.';
+    question=q;answered=false;const unit=learning?.getUnit(q.unitId);$('#morph-mode-label').textContent=modeName(q.mode);$('#morph-unit').textContent=`Unit ${q.unitId}${unit&&!unit.accessible?' · preview':''}`;$('#morph-prompt').textContent=q.prompt;$('#morph-display').textContent=q.display;$('#morph-subprompt').textContent=q.subprompt||'';$('#morph-feedback').textContent='';$('#morph-feedback').className='feedback';$('#morph-help').textContent=unit&&!unit.accessible?'Preview practice: this unit is locked, so answers record exposure rather than canonical mastery.':'Attempt first; assistance lowers evidence value.';
     $('#morph-options').innerHTML=q.options.map(o=>`<button data-option="${o.id}">${o.label}</button>`).join('');
     $('#morph-options').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>submit(b.dataset.option)));
     host.querySelectorAll('[data-morph-mode]').forEach(b=>b.classList.toggle('active',b.dataset.morphMode===lab.state.mode));$('#morph-focus').value=lab.state.focus;
