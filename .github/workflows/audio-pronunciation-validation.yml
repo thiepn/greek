@@ -1,0 +1,60 @@
+name: Audio Pronunciation Validation
+
+on:
+  pull_request:
+    paths:
+      - 'data/pronunciation-profiles.js'
+      - 'pronunciation-engine.js'
+      - 'pronunciation-ui.js'
+      - 'pronunciation-fluency-bridge.js'
+      - 'pronunciation.css'
+      - 'AUDIO_PRONUNCIATION.md'
+      - 'index.html'
+      - 'scripts/test-pronunciation-engine.cjs'
+      - '.github/workflows/audio-pronunciation-validation.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'data/pronunciation-profiles.js'
+      - 'pronunciation-engine.js'
+      - 'pronunciation-ui.js'
+      - 'pronunciation-fluency-bridge.js'
+      - 'pronunciation.css'
+      - 'AUDIO_PRONUNCIATION.md'
+      - 'index.html'
+      - 'scripts/test-pronunciation-engine.cjs'
+      - '.github/workflows/audio-pronunciation-validation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Test pronunciation engine
+        run: node scripts/test-pronunciation-engine.cjs
+      - name: Check browser runtime syntax
+        run: |
+          node --check pronunciation-engine.js
+          node --check pronunciation-ui.js
+          node --check pronunciation-fluency-bridge.js
+          node --check data/pronunciation-profiles.js
+      - name: Preserve historical-audio boundary
+        run: |
+          grep -q "profile!='modern'\|profile!=='modern'" pronunciation-engine.js
+          grep -q "Modern Greek TTS is not substituted" pronunciation-engine.js
+      - name: Preserve mastery boundary
+        run: |
+          ! grep -q "recordEvidence" pronunciation-engine.js
+          ! grep -q "recordEvidence" pronunciation-ui.js
+          ! grep -q "recordEvidence" pronunciation-fluency-bridge.js
+      - name: Preserve microphone privacy boundary
+        run: |
+          grep -q "getUserMedia" pronunciation-ui.js
+          grep -q "MediaRecorder" pronunciation-ui.js
+          ! grep -q "fetch(" pronunciation-ui.js
