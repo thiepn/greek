@@ -1,0 +1,26 @@
+const assert=require('node:assert/strict');
+const {AdaptiveReviewEngine,MemoryStorage,memoryEstimate,viewForUnit}=require('../adaptive-review.js');
+const now=new Date('2026-08-21T12:00:00Z');
+function unit(id,over={}){const last=id===7?'2026-07-20T12:00:00Z':'2026-08-18T12:00:00Z';return{id,title:`Unit ${id}`,accessible:id<=44,attempts:id===1?0:4,composite:id===7?64:82,status:id===7?'review':'in-progress',reviewDue:id===7,reviewIntervalDays:14,lastActivityAt:last,dimensions:{concept:{effective:80,threshold:80,evidence:2,lastAt:last},recognition:{effective:id===7?62:84,threshold:85,evidence:4,lastAt:last},application:{effective:80,threshold:80,evidence:3,lastAt:last},reading:{effective:76,threshold:75,evidence:2,lastAt:last}},...over}}
+const units={};for(let i=1;i<=50;i++)units[i]=unit(i,{accessible:i<=44,attempts:i===1?0:4,reviewDue:false,status:'in-progress',composite:82});units[7]=unit(7);units[39]=unit(39,{reviewDue:true,composite:70});
+const state={remediation:[{unitId:7,type:'case_confusion',occurrences:4,itemId:'a',source:'morphology-lab',status:'open',lastAt:'2026-08-20T12:00:00Z'},{unitId:7,type:'case_confusion',occurrences:2,itemId:'b',source:'reader-parse',status:'open',lastAt:'2026-08-21T08:00:00Z'},{unitId:39,type:'syntax_relation',occurrences:2,itemId:'c',source:'syntax-lab',status:'open',lastAt:'2026-08-19T12:00:00Z'}],errors:{case_confusion:{units:{'7':6}},syntax_relation:{units:{'39':2}}}};
+let evidenceWrites=0;
+const learning={snapshot:()=>JSON.parse(JSON.stringify(state)),getUnit:id=>JSON.parse(JSON.stringify(units[id])),getDashboard:()=>({recommendation:{unitId:12,title:'Continue Unit 12',reason:'Next prerequisite'}}),recordEvidence:()=>{evidenceWrites++}};
+const dueCards=[{id:'v1',front:'λόγος',lemma:'λόγος',unitId:10,dueAt:'2026-08-10T00:00:00Z',state:'review',lapses:1,leech:false},{id:'v2',front:'καί',lemma:'καί',unitId:4,dueAt:'2026-08-21T00:00:00Z',state:'relearning',lapses:7,leech:true},{id:'v3',front:'θεός',lemma:'θεός',unitId:10,dueAt:'2026-08-20T00:00:00Z',state:'review',lapses:0,leech:false}];
+const vocab={due:()=>JSON.parse(JSON.stringify(dueCards)),stats:()=>({due:3,leeches:1})};
+const morph={stats:()=>({byFamily:{'second-declension':{attempts:10,correct:6},'present-active':{attempts:5,correct:5}}})};
+const syntax={stats:()=>({units:{38:{attempts:4,accuracy:90},39:{attempts:5,accuracy:60},40:{attempts:0,accuracy:null}}})};
+const engine=new AdaptiveReviewEngine({learningEngine:learning,vocabularyEngine:vocab,morphologyLab:morph,syntaxEngine:syntax,storage:new MemoryStorage(),clock:()=>now});
+assert.equal(viewForUnit(39),'syntax');assert.equal(viewForUnit(47),'read');
+const mem=memoryEstimate(units[7],now);assert(mem.risk>.5);assert(mem.stabilityDays>0);
+const clusters=engine.errorClusters();assert.equal(clusters[0].type,'case_confusion');assert.equal(clusters[0].occurrences,6);
+const rem=engine.remediationTasks();assert.equal(rem[0].meta.escalation,'persistent');
+const vt=engine.vocabularyTasks();assert(vt.find(x=>x.meta.leech).priority>vt.find(x=>x.meta.cardId==='v3').priority);
+const mt=engine.morphologyTasks();assert.equal(mt.length,1);assert.match(mt[0].title,/second declension/i);
+const st=engine.syntaxTasks();assert.equal(st.length,1);assert.equal(st[0].unitId,39);
+const plan=engine.plan({minutes:10});assert(plan.estimatedMinutes<=10.15);assert(plan.tasks.length>1);assert(new Set(plan.tasks.map(x=>x.domain)).size>=2,'mixed plan should interleave domains');
+assert.equal(plan.tasks[0].kind,'remediation','persistent remediation should lead the queue');
+const before=evidenceWrites;const started=engine.startSession(10);assert(started.sessionId);assert(engine.markVisited(started.tasks[0].id));assert.equal(evidenceWrites,before,'session navigation must not write mastery');const finished=engine.finishSession();assert(finished.finishedAt);assert.equal(engine.snapshot().history.length,1);
+engine.setDailyMinutes(35);assert.equal(engine.snapshot().settings.dailyMinutes,35);
+state.remediation=[];dueCards.splice(0);morph.stats=()=>({byFamily:{}});syntax.stats=()=>({units:{}});Object.values(units).forEach(u=>{u.reviewDue=false;u.composite=90;Object.values(u.dimensions).forEach(d=>{d.effective=90;d.lastAt='2026-08-21T11:00:00Z'})});const next=engine.recommendedNext();assert.equal(next.kind,'new-learning');assert.equal(next.unitId,12);
+console.log('BG9 adaptive review tests passed.');

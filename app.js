@@ -2,7 +2,7 @@ const learning=window.KOINE_LEARNING_ENGINE;
 if(!learning) throw new Error('KOINE_LEARNING_ENGINE must load before app.js');
 let state=learning.getPrototypeState();
 let currentDrill=null,selectedWord=null,sessionAttempts=0,sessionCorrect=0;
-function save(){learning.updatePrototypeState(state);renderAll();if(window.renderLearningEngineUI)window.renderLearningEngineUI();}
+function save(){learning.updatePrototypeState(state);renderAll();if(window.renderLearningEngineUI)window.renderLearningEngineUI();window.refreshAdaptiveReview?.();}
 
 const lessonEvidence={
   alphabet:{unitId:1,dimension:'concept',errorType:'declension_pattern'},
@@ -66,7 +66,7 @@ document.querySelector('#show-translation').addEventListener('click',()=>{learni
 
 function addReview(form,answer,reason,unitId=null,errorType=null){if(!state.review.some(r=>r.form===form))state.review.push({form,answer,reason,unitId,errorType})}
 function renderReview(){
-  const el=document.querySelector('#review-list');if(!state.review.length){el.innerHTML='<div class="empty">No review items. Wrong drill answers and difficult reader words will appear here.</div>';return}
+  const el=document.querySelector('#review-list');if(!el)return;if(!state.review.length){el.innerHTML='<div class="empty">No review items. Wrong drill answers and difficult reader words will appear here.</div>';return}
   el.innerHTML=state.review.map((r,i)=>`<div class="review-item"><div><strong class="greek">${r.form}</strong><small>${r.reason} · ${r.answer}</small></div><button class="btn" data-clear="${i}">Got it now</button></div>`).join('');
   el.querySelectorAll('[data-clear]').forEach(b=>b.addEventListener('click',()=>{const item=state.review[Number(b.dataset.clear)];if(item?.unitId)learning.recordEvidence({unitId:item.unitId,dimension:'recognition',correct:true,hintLevel:'none',itemId:`review.${item.form}`,source:'prototype-review'});state.review.splice(Number(b.dataset.clear),1);save()}));
 }
@@ -74,7 +74,7 @@ function renderReview(){
 function tutorReply(q){const s=q.toLowerCase();if(s.includes('ἀρχ')||s.includes('dative'))return 'Start with the preposition ἐν. What case does ἐν normally govern in this construction? Use that before looking at the noun ending.';if(s.includes('λόγ')||s.includes('logos'))return 'Look immediately to the article ὁ. What gender, number, and case does ὁ mark? Then compare the -ος ending.';if(s.includes('article')||s.includes('τοῦ')||s.includes('τῇ'))return 'Treat the article as a morphology label. First identify case, then number, then gender.';if(s.includes('verb')||s.includes('λύ'))return 'Ignore translation for a moment. Identify the ending first: -ω, -εις, -ει, -ομεν, -ετε, or -ουσι(ν). What person and number does it signal?';return 'Try to identify one concrete clue first: article, ending, preposition, or verb stem. Tell me which clue you see, and we can reason from it.'}
 document.querySelector('#send-tutor').addEventListener('click',sendTutor);document.querySelector('#tutor-input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendTutor()}});
 function sendTutor(){const input=document.querySelector('#tutor-input'),q=input.value.trim();if(!q)return;const chat=document.querySelector('#chat');chat.insertAdjacentHTML('beforeend',`<div class="bubble user">${escapeHtml(q)}</div><div class="bubble ai">${tutorReply(q)}</div>`);input.value=''}
-function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[c]))}
 
 function renderProgress(){
   const dash=learning.getDashboard(),mastery=Math.round(dash.mastered/dash.total*100),reading=Math.round(window.KoineLearning.flattenCurriculum(window.KOINE_CURRICULUM).reduce((s,u)=>s+learning.getUnit(u.id).dimensions.reading.effective,0)/dash.total);
