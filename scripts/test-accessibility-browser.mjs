@@ -28,7 +28,9 @@ async function axe(page,label){
   const {context,page}=await openContext({width:390,height:844},{mobile:true});
   const trigger=page.getByRole('button',{name:'Menu'});assert.equal(await trigger.isVisible(),true,'mobile menu trigger must be visible');await trigger.click();
   const dialog=page.locator('#mobile-nav-dialog');assert.equal(await dialog.evaluate(el=>el.open),true,'mobile nav should use an open modal dialog');assert.equal(await trigger.getAttribute('aria-expanded'),'true');
-  await page.keyboard.press('Escape');assert.equal(await dialog.evaluate(el=>el.open),false);assert.equal(await trigger.getAttribute('aria-expanded'),'false');assert.equal(await page.evaluate(()=>document.activeElement?.classList.contains('mobile-nav-trigger')),true,'closing mobile navigation should restore trigger focus');
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(()=>{const dialog=document.querySelector('#mobile-nav-dialog'),trigger=document.querySelector('.mobile-nav-trigger');return dialog&&!dialog.open&&trigger?.getAttribute('aria-expanded')==='false'&&document.activeElement===trigger});
+  assert.equal(await dialog.evaluate(el=>el.open),false);assert.equal(await trigger.getAttribute('aria-expanded'),'false');assert.equal(await page.evaluate(()=>document.activeElement?.classList.contains('mobile-nav-trigger')),true,'closing mobile navigation should restore trigger focus');
   const visibleTargets=await page.locator('button:visible,select:visible,input:visible,summary:visible').evaluateAll(nodes=>nodes.map(el=>({tag:el.tagName,cls:el.className,w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height,text:(el.textContent||el.getAttribute('aria-label')||'').trim().slice(0,40)})).filter(x=>!String(x.cls).includes('word')&&!String(x.cls).includes('fluency-token')&&(x.w<24||x.h<24)));
   assert.deepEqual(visibleTargets,[],`visible non-inline pointer targets under 24px: ${JSON.stringify(visibleTargets)}`);
   await axe(page,'mobile Today');await context.close();
