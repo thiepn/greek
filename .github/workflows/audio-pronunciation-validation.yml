@@ -6,6 +6,7 @@ on:
       - 'data/pronunciation-profiles.js'
       - 'pronunciation-engine.js'
       - 'pronunciation-ui.js'
+      - 'pronunciation-listening-ui.js'
       - 'pronunciation-fluency-bridge.js'
       - 'pronunciation.css'
       - 'AUDIO_PRONUNCIATION.md'
@@ -18,6 +19,7 @@ on:
       - 'data/pronunciation-profiles.js'
       - 'pronunciation-engine.js'
       - 'pronunciation-ui.js'
+      - 'pronunciation-listening-ui.js'
       - 'pronunciation-fluency-bridge.js'
       - 'pronunciation.css'
       - 'AUDIO_PRONUNCIATION.md'
@@ -42,16 +44,19 @@ jobs:
         run: |
           node --check pronunciation-engine.js
           node --check pronunciation-ui.js
+          node --check pronunciation-listening-ui.js
           node --check pronunciation-fluency-bridge.js
           node --check data/pronunciation-profiles.js
       - name: Preserve historical-audio boundary
         run: |
           grep -q "profile!='modern'\|profile!=='modern'" pronunciation-engine.js
           grep -q "Modern Greek TTS is not substituted" pronunciation-engine.js
+          grep -q "currently has browser audio only for Modern Greek" pronunciation-listening-ui.js
       - name: Preserve mastery boundary
         run: |
           ! grep -q "recordEvidence" pronunciation-engine.js
           ! grep -q "recordEvidence" pronunciation-ui.js
+          ! grep -q "recordEvidence" pronunciation-listening-ui.js
           ! grep -q "recordEvidence" pronunciation-fluency-bridge.js
       - name: Preserve microphone privacy boundary
         run: |
