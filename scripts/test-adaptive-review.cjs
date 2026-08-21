@@ -11,7 +11,7 @@ const vocab={due:()=>JSON.parse(JSON.stringify(dueCards)),stats:()=>({due:3,leec
 const morph={stats:()=>({byFamily:{'second-declension':{attempts:10,correct:6},'present-active':{attempts:5,correct:5}}})};
 const syntax={stats:()=>({units:{38:{attempts:4,accuracy:90},39:{attempts:5,accuracy:60},40:{attempts:0,accuracy:null}}})};
 const engine=new AdaptiveReviewEngine({learningEngine:learning,vocabularyEngine:vocab,morphologyLab:morph,syntaxEngine:syntax,storage:new MemoryStorage(),clock:()=>now});
-assert.equal(viewForUnit(39),'syntax');assert.equal(viewForUnit(47),'fluency');
+assert.equal(viewForUnit(39),'syntax');assert.equal(viewForUnit(47),'fluency');assert.equal(viewForUnit(48),'exegesis');assert.equal(viewForUnit(50),'exegesis');
 const mem=memoryEstimate(units[7],now);assert(mem.risk>.5);assert(mem.stabilityDays>0);
 const clusters=engine.errorClusters();assert.equal(clusters[0].type,'case_confusion');assert.equal(clusters[0].occurrences,6);
 const rem=engine.remediationTasks();assert.equal(rem[0].meta.escalation,'persistent');
