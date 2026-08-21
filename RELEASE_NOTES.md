@@ -1,12 +1,53 @@
 # Koinē Path — Release candidate notes
 
-## 1.0.0-rc.1
+## 1.0.0-rc.2 — BG16-B001 course-complete candidate
 
-This candidate represents the complete **BG1–BG16 platform stack** through final automated release certification. It is a release candidate for the application platform, not yet a certified `v1.0.0` product release.
+RC2 resolves the only v1 product blocker found by the original BG16 certification pass. The structured Learn workspace now implements the entire canonical **50-unit Biblical Greek course** rather than five prototype lessons.
+
+### Course completion
+
+- all Units 1–50 use the exact canonical curriculum order and titles;
+- every unit has a learning objective and at least three substantive teaching movements;
+- every unit includes worked Greek forms/patterns;
+- every unit contains an explicit safeguard against common grammatical, lexical, discourse, or textual-critical overreading;
+- every unit returns to a named Scripture passage with a reading/application task;
+- exactly **150 deterministic checkpoints** (three per unit) integrate with the canonical mastery/remediation engine;
+- inaccessible future units remain readable in preview mode but cannot generate canonical mastery evidence;
+- the obsolete five-prototype lesson bootstrap has been removed from `app.js`;
+- the production Learn UI is responsive and preserves visible keyboard focus.
+
+### Certified content snapshot
+
+BG16-B001 certified-content fingerprint:
+
+`e654a810fca0c9fbfa88c8808fa275204fba5a3806ac5ffd4f052a4ef0e9e445`
+
+That snapshot passed:
+
+- the complete 50-unit / 150-checkpoint course contract;
+- BG15 content safeguards;
+- 130 modeled morphology parses;
+- vocabulary/SRS regressions;
+- 34 reviewed syntax exercises and passage references;
+- 15 reading-fluency checkpoints;
+- 27 exegesis cases and 5 pinned edition-comparison cases;
+- pronunciation/listening regressions;
+- the pinned 27-book / 7,927-verse / 137,554-token / 5,461-lemma GNT rebuild and validation.
+
+### RC2 release verdict policy
+
+After the final cross-browser BG16 workflow passes:
+
+- technical verdict: **`TECHNICAL_RC_CERTIFIED`**;
+- product verdict: **`V1_RELEASE_CERTIFIED`**;
+- open v1 blockers: **0**;
+- production verdict: **`PENDING_MAIN_DEPLOYMENT`** until the accepted stack is merged to `main` and verified publicly.
+
+The candidate remains explicit about its claim boundaries: internal deterministic/editorial QA is not independent external scholarly peer review; remote AI requires a separately deployed secure Worker; historical pronunciation packs are not falsely represented as recorded audio; and manual VoiceOver/TalkBack/NVDA certification has not been claimed.
 
 ### Major systems present
 
-- canonical 50-unit curriculum architecture and mastery/prerequisite model;
+- complete canonical 50-unit course plus mastery/prerequisite model;
 - pinned full 27-book Greek New Testament reader with morphology, lemmas, frequency and lexical-distribution data;
 - adaptive morphology laboratory with explicit contextless syncretism;
 - vocabulary/SRS engine with reader-generated cards;
@@ -18,39 +59,17 @@ This candidate represents the complete **BG1–BG16 platform stack** through fin
 - pronunciation/audio workspace with explicitly separated historical profiles and Modern Greek TTS;
 - installable PWA, per-book/full-corpus offline downloads and revision-aware cache management;
 - responsive mobile shell and automated accessibility/reflow regression gates;
-- BG15 deterministic scholarly-content fingerprinting;
-- BG16 clean-state, migration, cross-browser and offline release-candidate certification.
+- deterministic certified-content and release-candidate fingerprinting;
+- clean-state, migration, cross-browser and offline release certification.
 
-### Frozen scholarly-content input
+## 1.0.0-rc.1 — Historical platform candidate
 
-BG15 certified-content fingerprint:
+RC1 certified the BG1–BG16 technical platform but correctly returned **`V1_RELEASE_BLOCKED`** because Learn contained only five interactive prototype lessons. That blocker was registered as `BG16-B001` and is resolved by RC2.
+
+RC1 frozen content fingerprint:
 
 `81f780289ed6d8719463092af9392fb5be85293aab20c50b26d0aa6758f130c5`
 
-Reader corpus revision:
+RC1 release-candidate fingerprint:
 
-`aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d`
-
-### Current product verdict
-
-**Technical release candidate:** eligible for certification after the BG16 workflow passes.
-
-**v1.0.0 product release:** **BLOCKED**.
-
-The canonical course has 50 planned units, but the structured Learn workspace still contains only five interactive prototype foundation lessons. The substantial morphology, vocabulary, reader, syntax, fluency, exegesis, audio and review systems do not replace the missing unit-by-unit teaching content.
-
-The required completion work is defined in `KNOWN_LIMITATIONS.md` as `BG16-B001`.
-
-### Deployment status
-
-The BG1–BG16 stack remains unmerged while these notes are written. GitHub Pages deploys from `main`, so production certification is pending until an accepted release candidate is merged and the exact deployed SHA is verified publicly.
-
-### Claims intentionally not made
-
-This candidate does not claim:
-
-- that remote OpenAI-backed tutoring is deployed;
-- that reconstructed historical pronunciation has a complete recorded audio pack;
-- that every NT verse has reviewed syntax/exegesis annotations;
-- that VoiceOver, TalkBack and NVDA have been manually certified on physical target devices;
-- that a green automated suite constitutes independent scholarly peer review.
+`6e70ef0d9cc5038e284da2ea6fb8ca830ef7a6fb03dc32aa96f82fdf432e0468`
