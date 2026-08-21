@@ -29,7 +29,7 @@
 
   function saveReader(){localStorage.setItem(STORAGE_KEY,JSON.stringify(readerState));}
   function defaultReaderLevel(){const stage=learning.getDashboard().currentStage;return stage?.reader?.slice(-1)[0]||'R0';}
-  function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[c]));}
+  function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
   function parseMorph(code){
     code=String(code||'--------').padEnd(8,'-');
     return {person:/[123]/.test(code[0])?Number(code[0]):null,tense:TENSE[code[1]]||null,voice:VOICE[code[2]]||null,mood:MOOD[code[3]]||null,case:CASE[code[4]]||null,number:NUMBER[code[5]]||null,gender:GENDER[code[6]]||null,degree:DEGREE[code[7]]||null};
