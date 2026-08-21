@@ -10,6 +10,7 @@ const BOOKS=[
 
 const ensure=async p=>fs.mkdir(p,{recursive:true});
 const nfc=s=>s.normalize('NFC');
+function codepointCompare(a,b){const A=Array.from(a),B=Array.from(b),n=Math.min(A.length,B.length);for(let i=0;i<n;i++){const x=A[i].codePointAt(0),y=B[i].codePointAt(0);if(x!==y)return x-y}return A.length-B.length}
 
 function parseRow(line,bookId){
   const parts=line.trim().split(/\s+/);
@@ -85,15 +86,16 @@ for(let bookIndex=0;bookIndex<BOOKS.length;bookIndex++){
   manifestBooks.push(book.book);
 }
 
-const ranked=[...frequency.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'el')).map(([lemma,count],i)=>({lemma,count,rank:i+1,band:i<100?'F1':i<300?'F2':i<600?'F3':i<1000?'F4':'F5'}));
-const lexicalEntries=ranked.map(r=>{const x=lexical.get(r.lemma);return{...r,books:[...x.books.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).map(([book,count])=>({book,count})),sampleRefs:x.sampleRefs,nearbyLemmas:[...x.nearby.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'el')).slice(0,12).map(([lemma,count])=>({lemma,count}))}});
+const ranked=[...frequency.entries()].sort((a,b)=>b[1]-a[1]||codepointCompare(a[0],b[0])).map(([lemma,count],i)=>({lemma,count,rank:i+1,band:i<100?'F1':i<300?'F2':i<600?'F3':i<1000?'F4':'F5'}));
+const lexicalEntries=ranked.map(r=>{const x=lexical.get(r.lemma);return{...r,books:[...x.books.entries()].sort((a,b)=>b[1]-a[1]||codepointCompare(a[0],b[0])).map(([book,count])=>({book,count})),sampleRefs:x.sampleRefs,nearbyLemmas:[...x.nearby.entries()].sort((a,b)=>b[1]-a[1]||codepointCompare(a[0],b[0])).slice(0,12).map(([lemma,count])=>({lemma,count}))}});
 const manifest={
   schemaVersion:1,datasetVersion:'bg6.0.0',generatedAt:new Date().toISOString(),unicodeNormalization:'NFC',
-  source:{text:'SBLGNT',morphology:'MorphGNT: SBLGNT Edition 6.12',revision:REVISION,licenseText:'CC BY 4.0',licenseMorphology:'CC BY-SA 3.0'},
+  source:{text:'SBLGNT surface embedded in pinned MorphGNT snapshot',morphology:'MorphGNT: SBLGNT Edition 6.12',revision:REVISION,snapshotLabel:`MorphGNT ${REVISION}`,snapshotNote:'This reader reproduces the SBLGNT surface text present in the pinned MorphGNT revision. It is not an assertion that the snapshot equals the latest official SBLGNT release.',licenseText:'CC BY 4.0',licenseMorphology:'CC BY-SA 3.0'},
   coverage:{books:manifestBooks.length,chapters:manifestBooks.reduce((s,b)=>s+b.chapters,0),verses:totalVerses,tokens:totalTokens,lemmas:ranked.length,fullCorpusIngested:true},
+  vocabularyOrdering:{primary:'occurrence-count-descending',tieBreak:'normalized-lemma-codepoint-order'},
   books:manifestBooks
 };
 await fs.writeFile(path.join(OUT,'manifest.json'),JSON.stringify(manifest));
-await fs.writeFile(path.join(OUT,'frequency.json'),JSON.stringify({schemaVersion:1,sourceRevision:REVISION,countingUnit:'lemma',tokens:totalTokens,entries:ranked}));
-await fs.writeFile(path.join(OUT,'lexical-index.json'),JSON.stringify({schemaVersion:1,datasetVersion:'bg11.0.0',sourceRevision:REVISION,countingUnit:'lemma',nearbyWindowTokens:3,sampleRefsLimit:40,note:'nearbyLemmas are raw ±3-token co-occurrence counts, not semantic definitions or normalized association scores',entries:lexicalEntries}));
+await fs.writeFile(path.join(OUT,'frequency.json'),JSON.stringify({schemaVersion:1,sourceRevision:REVISION,countingUnit:'lemma',tieBreak:'normalized-lemma-codepoint-order',tokens:totalTokens,entries:ranked}));
+await fs.writeFile(path.join(OUT,'lexical-index.json'),JSON.stringify({schemaVersion:1,datasetVersion:'bg11.0.0',sourceRevision:REVISION,countingUnit:'lemma',tieBreak:'normalized-lemma-codepoint-order',nearbyWindowTokens:3,sampleRefsLimit:40,note:'nearbyLemmas are raw ±3-token co-occurrence counts, not semantic definitions or normalized association scores',entries:lexicalEntries}));
 console.log(`BG6 corpus built: ${manifest.coverage.books} books, ${manifest.coverage.chapters} chapters, ${manifest.coverage.verses} verses, ${totalTokens} tokens, ${ranked.length} lemmas. BG11 lexical index generated.`);
