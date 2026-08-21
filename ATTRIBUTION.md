@@ -1,6 +1,6 @@
 # Data attribution and licensing
 
-Koinē Path separates Greek text, morphology/lemmatization, corpus frequency, lexical reference data, and Koinē Path learning annotations because they have different evidential roles and licensing histories.
+Koinē Path separates Greek text, morphology/lemmatization, corpus frequency, lexical reference data, edition-comparison apparatus data, and Koinē Path learning annotations because they have different evidential roles and licensing histories.
 
 ## SBL Greek New Testament (SBLGNT)
 
@@ -16,7 +16,7 @@ Koinē Path reproduces and technically restructures SBLGNT text under CC BY 4.0.
 
 ## MorphGNT: SBLGNT Edition
 
-**Role in Koinē Path:** token boundaries, normalized forms, lemmas, part-of-speech codes, morphological parse codes, and the lemmatization used to regenerate canonical NT-wide frequency.
+**Role in Koinē Path:** token boundaries, normalized forms, lemmas, part-of-speech codes, morphological parse codes, and the lemmatization used to regenerate canonical NT-wide frequency and BG11 lexical-distribution data.
 
 - Repository: https://github.com/morphgnt/sblgnt
 - Pinned revision: `aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d`
@@ -26,7 +26,7 @@ Koinē Path reproduces and technically restructures SBLGNT text under CC BY 4.0.
 
 The MorphGNT repository README uses older wording for SBLGNT text licensing. Koinē Path follows the current official SBLGNT license page for the Greek text itself and MorphGNT's stated CC BY-SA terms for morphology and lemmatization.
 
-## BG6 generated full-corpus layer
+## BG6/BG11 generated full-corpus layer
 
 BG6 builds the runtime reader corpus directly from all 27 MorphGNT book files at the pinned revision above.
 
@@ -34,11 +34,43 @@ The generation process creates:
 
 - one manifest;
 - one exact-corpus lemma frequency index;
-- 27 lazy-loaded book chunks.
+- 27 lazy-loaded book chunks;
+- from BG11, one exact-corpus lexical study index.
 
-The generated corpus therefore uses the same pinned source revision for reader text, lemmas, morphology, and runtime frequency counts. The build is validated before GitHub Pages deployment.
+The BG11 lexical index derives only deterministic corpus statistics from the same pinned tokens:
 
-Generated corpus files are derivative runtime artifacts. Source attribution and licensing remain attached through this document and the generated manifest.
+- exact lemma count and rank;
+- per-book distribution;
+- deterministic sample verse references;
+- raw ±3-token nearby-lemma counts.
+
+These nearby-lemma counts are not semantic definitions, senses, syntactic dependencies, or normalized statistical association scores. They are exploratory corpus evidence that must be inspected in context.
+
+The generated corpus therefore uses the same pinned source revision for reader text, lemmas, morphology, runtime frequency, and BG11 corpus word-study statistics. The build is validated before GitHub Pages deployment.
+
+Generated corpus files are derivative runtime artifacts. Source attribution and licensing remain attached through this document and the generated manifest/index metadata.
+
+## SBLGNT edition-comparison apparatus
+
+**Role in BG11:** limited edition-awareness and textual-variant training.
+
+BG11 uses five reviewed apparatus cases from the Faithlife/Logos SBLGNT repository pinned at:
+
+`c4d241a9c1c479a55b989ba35a4976c1d0b8052c`
+
+Source repository:
+
+https://github.com/Faithlife/SBLGNT
+
+The reviewed loci are Mark 1:1, John 1:18, John 1:34, Romans 5:1, and Romans 8:1.
+
+The SBLGNT apparatus used here is an **edition-comparison apparatus**: it records textual decisions/readings in selected printed editions. It is not a full manuscript apparatus and Koinē Path does not represent its edition abbreviations as manuscript witnesses.
+
+Its pedagogical role is therefore:
+
+**flag a potentially significant textual question → identify the active reading → require a fuller apparatus for manuscript-level evaluation**.
+
+BG11 CI fetches the pinned apparatus source and verifies the exact source strings used by these teaching cases.
 
 ## Core GNT Vocabulary frequency bootstrap
 
@@ -55,33 +87,36 @@ Frequency and rank are corpus statistics. They do **not** determine lexical mean
 
 ## Dodson Greek-English Lexicon
 
-**Role in BG5/BG6:** compact reference-gloss prompts present in the upstream core-vocabulary table.
+**Role in BG5/BG6/BG11:** compact reference-gloss prompts present in the upstream core-vocabulary table.
 
 John Jeffrey Dodson released his Greek-English lexicon into the public domain. Koinē Path treats these strings only as **reference gloss prompts**. They are not complete lexical definitions and are never authoritative evidence for the contextual sense of a word in a particular verse.
 
 Relevant machine-readable edition: https://github.com/biblicalhumanities/Dodson-Greek-Lexicon
 
-BG6 exact-corpus frequency replaces ranks and counts, not these independently sourced lexical prompts. A lemma without a reviewed reference gloss may therefore have exact frequency while its English prompt remains unavailable.
+BG6 exact-corpus frequency replaces ranks and counts, not these independently sourced lexical prompts. A lemma without a reviewed reference gloss may therefore have exact corpus statistics while its English prompt remains unavailable.
 
 ## Koinē Path learning annotations
 
-**Role:** pedagogical hints, selected contextual notes, course mappings, difficulty metadata, and reviewed instructional content.
+**Role:** pedagogical hints, selected contextual notes, reviewed morphology/syntax/exegesis cases, course mappings, difficulty metadata, and instructional reasoning ladders.
 
-These are project-created editorial annotations. They remain outside canonical text/morphology/frequency fields so that a hint, gloss, or pedagogical simplification can never masquerade as source data.
+These are project-created editorial annotations. They remain outside canonical text/morphology/frequency/apparatus fields so that a hint, gloss, argument, or pedagogical simplification can never masquerade as source data.
 
 ## English translation policy
 
-BG6 does not bundle a complete English Bible translation. The full reader therefore does not silently redistribute an English translation or generate one as though it were a canonical source.
+BG6/BG11 do not bundle a complete English Bible translation. The reader and exegesis laboratory therefore do not silently redistribute an English translation or generate one as though it were a canonical source.
 
 A future comparison translation must have an explicit source, edition, license, and attribution policy before inclusion.
 
-## Semantic boundary
+## Semantic and interpretive boundary
 
 The application must keep these claims distinct:
 
 1. `lemma X occurs N times` — corpus statistic;
 2. `X may be glossed …` — lexical reference prompt;
-3. `X means … here` — contextual interpretation requiring passage evidence;
-4. `therefore this verse teaches …` — interpretive/theological reasoning beyond lexical lookup.
+3. `X occurs near Y N times` — raw corpus co-occurrence evidence;
+4. `X means … here` — contextual interpretation requiring passage evidence;
+5. `edition A prints X while edition B prints Y` — edition-comparison apparatus fact;
+6. `reading X is text-critically preferable` — judgment requiring fuller textual evidence;
+7. `therefore this verse teaches …` — interpretive/theological reasoning beyond lexical, morphological, or apparatus lookup.
 
-The reader and SRS may support steps 1–2 and reviewed passage-specific learning notes. They may not automatically infer steps 3–4 from a flashcard gloss or morphology tag.
+Koinē Path may support each layer with appropriate evidence. It may not silently infer a later layer from an earlier one.
