@@ -6,7 +6,11 @@
   <meta name="theme-color" content="#f3efe7">
   <meta name="koine-ai-endpoint" content="">
   <meta name="description" content="Interactive Biblical Greek learning with lessons, morphology, vocabulary SRS, full Greek New Testament reading, syntax, reading fluency, intermediate exegesis, audio/pronunciation, grounded tutoring, adaptive review, and mastery tracking.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>Koinē Path — Biblical Greek</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/pwa-192.png">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="curriculum.css">
   <link rel="stylesheet" href="learning-engine.css">
@@ -19,6 +23,7 @@
   <link rel="stylesheet" href="reading-fluency.css">
   <link rel="stylesheet" href="exegesis-lab.css">
   <link rel="stylesheet" href="pronunciation.css">
+  <link rel="stylesheet" href="pwa.css">
 </head>
 <body>
 <div class="app">
@@ -98,6 +103,7 @@
 <script src="reading-fluency.js"></script>
 <script src="exegesis-lab.js"></script>
 <script src="pronunciation-engine.js"></script>
+<script src="offline-engine.js"></script>
 <script src="app.js"></script>
 <script src="canonical-reader.js"></script>
 <script src="curriculum-ui.js"></script>
@@ -112,5 +118,6 @@
 <script src="pronunciation-ui.js"></script>
 <script src="pronunciation-listening-ui.js"></script>
 <script src="pronunciation-fluency-bridge.js"></script>
+<script src="pwa-manager.js"></script>
 </body>
 </html>
