@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#f3efe7">
   <meta name="koine-ai-endpoint" content="">
-  <meta name="description" content="Interactive Biblical Greek learning with lessons, morphology, vocabulary SRS, full Greek New Testament reading, syntax, reading fluency, intermediate exegesis, grounded tutoring, adaptive review, and mastery tracking.">
+  <meta name="description" content="Interactive Biblical Greek learning with lessons, morphology, vocabulary SRS, full Greek New Testament reading, syntax, reading fluency, intermediate exegesis, audio/pronunciation, grounded tutoring, adaptive review, and mastery tracking.">
   <title>Koinē Path — Biblical Greek</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="curriculum.css">
@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="adaptive-review.css">
   <link rel="stylesheet" href="reading-fluency.css">
   <link rel="stylesheet" href="exegesis-lab.css">
+  <link rel="stylesheet" href="pronunciation.css">
 </head>
 <body>
 <div class="app">
@@ -40,7 +41,7 @@
     <div class="content">
       <section id="today" class="view active">
         <div class="eyebrow">Daily study</div><h1>Build reading ability.</h1>
-        <p class="lede">Grammar, active recall, morphology, vocabulary, syntax, and actual New Testament Greek in one learning loop. Known weaknesses are prioritized before novelty.</p>
+        <p class="lede">Grammar, active recall, morphology, vocabulary, syntax, listening, and actual New Testament Greek in one learning loop. Known weaknesses are prioritized before novelty.</p>
         <div class="metrics">
           <div class="metric"><span>Prototype lessons</span><strong id="m-lessons">0 / 5</strong></div>
           <div class="metric"><span>Morphology accuracy</span><strong id="m-accuracy">—</strong></div>
@@ -87,6 +88,7 @@
 <script src="data/syntax-lab-data.js"></script>
 <script src="data/fluency-programs.js"></script>
 <script src="data/exegesis-lab-data.js"></script>
+<script src="data/pronunciation-profiles.js"></script>
 <script src="learning-engine.js"></script>
 <script src="morphology-lab.js"></script>
 <script src="vocabulary-engine.js"></script>
@@ -95,6 +97,7 @@
 <script src="adaptive-review.js"></script>
 <script src="reading-fluency.js"></script>
 <script src="exegesis-lab.js"></script>
+<script src="pronunciation-engine.js"></script>
 <script src="app.js"></script>
 <script src="canonical-reader.js"></script>
 <script src="curriculum-ui.js"></script>
@@ -106,5 +109,8 @@
 <script src="adaptive-review-ui.js"></script>
 <script src="reading-fluency-ui.js"></script>
 <script src="exegesis-lab-ui.js"></script>
+<script src="pronunciation-ui.js"></script>
+<script src="pronunciation-listening-ui.js"></script>
+<script src="pronunciation-fluency-bridge.js"></script>
 </body>
 </html>
