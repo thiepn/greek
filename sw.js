@@ -16,10 +16,9 @@ async function shellManifest(){
 }
 async function corpusRevision(){
   const url=scopeUrl('generated/corpus/manifest.json');
-  let r=null;
-  try{r=await fetch(url,{cache:'no-store'})}catch{}
-  if(!r?.ok)r=await caches.match(url);
-  if(!r)return null;
+  let r=await caches.match(url);
+  if(!r){try{r=await fetch(url,{cache:'no-store'})}catch{}}
+  if(!r?.ok)return null;
   try{return (await r.clone().json())?.source?.revision||null}catch{return null}
 }
 function corpusCacheName(revision){return `${CORPUS_PREFIX}${revision}`}
@@ -60,19 +59,23 @@ async function networkFirstNavigation(request){
 
 async function corpusRequest(request){
   const path=new URL(request.url).pathname;
+  const revision=await corpusRevision();
+  if(revision){
+    const hit=await (await caches.open(corpusCacheName(revision))).match(request);
+    if(hit)return hit;
+  }
+  const shellHit=await caches.match(request);
+  if(shellHit)return shellHit;
   try{
     const fresh=await fetch(request);
     if(fresh.ok){
-      let revision=null;
-      try{revision=(await fresh.clone().json())?.sourceRevision||null}catch{}
-      revision=revision||await corpusRevision();
-      if(revision){const c=await caches.open(corpusCacheName(revision));await c.put(request,fresh.clone());}
+      let responseRevision=null;
+      try{responseRevision=(await fresh.clone().json())?.sourceRevision||null}catch{}
+      responseRevision=responseRevision||revision||await corpusRevision();
+      if(responseRevision){const c=await caches.open(corpusCacheName(responseRevision));await c.put(request,fresh.clone());}
     }
     return fresh;
   }catch{
-    const revision=await corpusRevision();
-    if(revision){const hit=await (await caches.open(corpusCacheName(revision))).match(request);if(hit)return hit;}
-    const shellHit=await caches.match(request);if(shellHit)return shellHit;
     throw new Error(`Offline corpus asset unavailable: ${path}`);
   }
 }
@@ -93,7 +96,10 @@ self.addEventListener('fetch',event=>{
   const rel=url.pathname.slice(new URL(self.registration.scope).pathname.length);
   if(/^generated\/corpus\/(books\/|frequency\.json$|lexical-index\.json$)/.test(rel)){event.respondWith(corpusRequest(request));return;}
   if(rel==='generated/corpus/manifest.json'){
-    event.respondWith((async()=>{try{const fresh=await fetch(request,{cache:'no-store'});if(fresh.ok){const c=await caches.open(SHELL_CACHE);c.put(request,fresh.clone()).catch(()=>{});}return fresh}catch{return (await caches.match(request))||Response.error()}})());
+    event.respondWith((async()=>{
+      const cached=await caches.match(request);if(cached)return cached;
+      try{const fresh=await fetch(request,{cache:'no-store'});if(fresh.ok){const c=await caches.open(SHELL_CACHE);await c.put(request,fresh.clone());}return fresh}catch{return Response.error()}
+    })());
     return;
   }
   event.respondWith(staticRequest(request));
