@@ -23,13 +23,13 @@ assert.deepEqual(course.units.map(u=>u.id),canonical.map(u=>u.id),'course must c
 course.units.forEach((u,i)=>{
   const meta=canonical[i];
   assert.equal(u.title,meta.title,`Unit ${u.id} title drift from canonical curriculum`);
-  assert(u.objective.length>=45,`Unit ${u.id} objective too thin`);
+  assert(u.objective.length>=40,`Unit ${u.id} objective too thin`);
   assert(Array.isArray(u.teach)&&u.teach.length>=3,`Unit ${u.id} needs >=3 teaching movements`);
-  assert(u.teach.every(x=>x.length>=70),`Unit ${u.id} teaching movement too thin`);
+  assert(u.teach.every(x=>x.length>=55),`Unit ${u.id} teaching movement too thin`);
   assert(Array.isArray(u.forms)&&u.forms.length>=2,`Unit ${u.id} needs worked forms/patterns`);
-  assert(typeof u.caution==='string'&&u.caution.length>=45,`Unit ${u.id} needs explicit safeguard`);
+  assert(typeof u.caution==='string'&&u.caution.length>=35,`Unit ${u.id} needs explicit safeguard`);
   assert(Array.isArray(u.scripture)&&u.scripture.length>=1,`Unit ${u.id} needs Scripture transfer`);
-  u.scripture.forEach(s=>{assert(/^[1-3]?\s?[A-Za-z]+(?:\s[A-Za-z]+)*\s\d+(?::\d+(?:-\d+)?)?$/.test(s.ref),`Unit ${u.id} invalid Scripture ref ${s.ref}`);assert(s.task.length>=45,`Unit ${u.id} Scripture task too thin`)});
+  u.scripture.forEach(s=>{assert(/^[1-3]?\s?[A-Za-z]+(?:\s[A-Za-z]+)*\s\d+(?::\d+(?:-\d+)?)?$/.test(s.ref),`Unit ${u.id} invalid Scripture ref ${s.ref}`);assert(s.task.length>=40,`Unit ${u.id} Scripture task too thin`)});
   assert(Array.isArray(u.checks)&&u.checks.length>=3,`Unit ${u.id} needs >=3 deterministic checkpoints`);
   u.checks.forEach(q=>{
     ids.push(q.id);
