@@ -8,7 +8,7 @@ const json=p=>JSON.parse(text(p));
 const sha=v=>crypto.createHash('sha256').update(v).digest('hex');
 const candidate=json('RELEASE_CANDIDATE.json');
 const content=json('generated/content-qa-manifest.json');
-if(content.certifiedContentFingerprint!==candidate.bg15ContentFingerprint)throw new Error(`BG15 fingerprint drift: expected ${candidate.bg15ContentFingerprint}, got ${content.certifiedContentFingerprint}`);
+if(content.certifiedContentFingerprint!==candidate.certifiedContentFingerprint)throw new Error(`Certified content fingerprint drift: expected ${candidate.certifiedContentFingerprint}, got ${content.certifiedContentFingerprint}`);
 
 const index=text('index.html');
 const localRefs=[...index.matchAll(/(?:src|href)="([^"]+)"/g)].map(m=>m[1]).filter(x=>!x.startsWith('http')&&!x.startsWith('#'));
@@ -22,13 +22,13 @@ const releaseBlockers=(candidate.knownV1Blockers||[]).filter(x=>x.severity==='re
 const technicalVerdict=process.env.BG16_TECHNICAL_VERDICT||'PENDING_VALIDATION';
 const productVerdict=technicalVerdict==='TECHNICAL_RC_CERTIFIED'?(releaseBlockers.length?'V1_RELEASE_BLOCKED':'V1_RELEASE_CERTIFIED'):'PENDING_VALIDATION';
 const manifest={
-  schemaVersion:1,
+  schemaVersion:2,
   candidate:candidate.candidate,
   headSha:process.env.RC_HEAD_SHA||null,
   generatedAt:new Date().toISOString(),
   frozenInputs:{
-    bg15SourceHead:candidate.bg15SourceHead,
-    bg15ContentFingerprint:candidate.bg15ContentFingerprint,
+    contentSourceHead:candidate.contentSourceHead,
+    certifiedContentFingerprint:candidate.certifiedContentFingerprint,
     corpusRevision:candidate.corpusRevision,
     apparatusRevision:candidate.apparatusRevision
   },
@@ -39,6 +39,7 @@ const manifest={
     manualAssistiveTechnology:'NOT_MANUALLY_CERTIFIED'
   },
   releaseBlockers,
+  resolvedV1Blockers:candidate.resolvedV1Blockers||[],
   runtime:{fileCount:runtime.length,runtimeFingerprint,files:runtime},
   content:{certifiedContentFingerprint:content.certifiedContentFingerprint,counts:content.counts,corpus:content.corpus.coverage}
 };
