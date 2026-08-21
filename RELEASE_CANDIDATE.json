@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "candidate": "1.0.0-rc.1",
+  "phase": "BG16",
+  "status": "release-candidate-validation",
+  "bg15SourceHead": "ac1cc912abb58b03ca7606eb39095cf54fa486f3",
+  "bg15ContentFingerprint": "81f780289ed6d8719463092af9392fb5be85293aab20c50b26d0aa6758f130c5",
+  "corpusRevision": "aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d",
+  "apparatusRevision": "c4d241a9c1c479a55b989ba35a4976c1d0b8052c",
+  "expectedCorpus": {
+    "books": 27,
+    "chapters": 260,
+    "tokenBearingVerses": 7927,
+    "tokens": 137554,
+    "lemmas": 5461
+  },
+  "releaseVerdictPolicy": {
+    "technicalRcMayPassWithDocumentedOptionalLimitations": true,
+    "v1RequiresCompleteCanonicalCourseContent": true,
+    "productionCertificationRequiresMainDeploymentVerification": true,
+    "manualAssistiveTechnologyClaimsRequireActualManualTesting": true
+  },
+  "knownV1Blockers": [
+    {
+      "id": "BG16-B001",
+      "severity": "release-blocker",
+      "title": "Canonical 50-unit course content is incomplete",
+      "detail": "The curriculum defines 50 units, but the structured Learn workspace still exposes only five prototype foundation lessons. A complete v1 course cannot be certified until the remaining canonical instructional content and its reviewed assessments exist."
+    }
+  ],
+  "productionVerification": "pending-merge-and-pages-deploy"
+}
