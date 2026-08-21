@@ -1,12 +1,12 @@
 # Koinē Path
 
-Interactive Biblical Greek learning app focused on active recall, morphology, vocabulary acquisition, full New Testament reading, syntax/translation training, adaptive review, reading fluency, and grounded tutoring.
+Interactive Biblical Greek learning app focused on active recall, morphology, vocabulary acquisition, full New Testament reading, syntax/translation training, adaptive review, reading fluency, intermediate exegesis, and grounded tutoring.
 
 **Live:** https://thiepn.github.io/greek/
 
 ## Current beta
 
-The five currently interactive lessons are prototype foundation content used to validate the learning loop and interface. They are not the final canonical course sequence.
+The five currently interactive foundation lessons are prototype content used to validate the learning loop and interface. They are not the final canonical course sequence.
 
 Current interactive systems include:
 
@@ -18,9 +18,12 @@ Current interactive systems include:
 - reader-generated vocabulary cards and canonical NT-wide frequency synchronization;
 - reviewed syntax and translation laboratory covering Units 38–44;
 - secure-proxy-ready grounded AI tutor with deterministic fallback;
-- unified BG9 adaptive review scheduler across remediation, vocabulary, morphology, syntax, unit decay, and reading transfer;
+- unified BG9 adaptive review scheduler across remediation, vocabulary, morphology, syntax, unit decay, reading transfer, and advanced exegesis;
 - BG10 continuous-reading fluency sessions with first-pass / analysis / reread separation;
 - 1 John, Mark, and Philippians fluency programs plus whole-chapter practice;
+- BG11 Exegesis workspace for Units 48–50;
+- exact-corpus lexical study profiles for all 5,461 lemmas in the pinned 137,554-token corpus;
+- 27 reviewed intermediate/exegetical cases, including five source-pinned edition-awareness cases;
 - adaptive learner-state engine;
 - typed remediation and review scheduling;
 - competency-based progress tracking;
@@ -43,7 +46,7 @@ BG2 establishes the source-of-truth contract for SBLGNT text, MorphGNT normaliza
 
 See [`DATA_ARCHITECTURE.md`](./DATA_ARCHITECTURE.md), [`ATTRIBUTION.md`](./ATTRIBUTION.md), and [`data/greek-data.js`](./data/greek-data.js).
 
-The local BG2 John 1:1 fixture remains a small deterministic fallback and validation reference. BG6 now supplies the complete generated runtime corpus.
+The local BG2 John 1:1 fixture remains a small deterministic fallback and validation reference. BG6 supplies the complete generated runtime corpus.
 
 ## BG3 learning engine
 
@@ -66,17 +69,9 @@ BG4 explicitly models syncretism and separates reviewed paradigms from direct co
 
 ## BG5 vocabulary & SRS
 
-BG5 adds the lexical-learning and spaced-review system. See [`VOCABULARY_SRS.md`](./VOCABULARY_SRS.md) and [`vocabulary-engine.js`](./vocabulary-engine.js).
+BG5 adds lexical learning and spaced review. See [`VOCABULARY_SRS.md`](./VOCABULARY_SRS.md) and [`vocabulary-engine.js`](./vocabulary-engine.js).
 
-It provides:
-
-- 1,000 core / 1,200 stretch vocabulary architecture;
-- curriculum-sensitive frequency ceilings;
-- up to 12 new frequency cards per day by default;
-- lemma recognition, form→lemma, and passage-context cards;
-- Again / Hard / Good / Easy scheduling;
-- intervals, ease, repetitions, lapses, due timestamps, and leeches;
-- BG3 vocabulary-retrieval evidence/remediation.
+It provides 1,000 core / 1,200 stretch vocabulary targets, curriculum-sensitive frequency ceilings, lemma/form/context cards, Again/Hard/Good/Easy scheduling, intervals/ease/lapses/leeches, and BG3 vocabulary-retrieval evidence/remediation.
 
 BG5's version-pinned external frequency table is now a fallback. BG6 regenerates preferred ranks/counts from the exact reader corpus.
 
@@ -84,30 +79,9 @@ BG5's version-pinned external frequency table is now a fallback. BG6 regenerates
 
 BG6 replaces the John 1:1-only prototype with a complete 27-book reader. See [`FULL_READER.md`](./FULL_READER.md), [`canonical-reader.js`](./canonical-reader.js), and the corpus scripts in [`scripts/`](./scripts/).
 
-### Corpus pipeline
+At validation/deployment time the build fetches all 27 MorphGNT book files from revision `aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d`, generates the manifest/frequency/book chunks, validates the corpus, and publishes the generated chunks with GitHub Pages.
 
-At validation/deployment time:
-
-1. fetch all 27 MorphGNT book files from revision `aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d`;
-2. generate one manifest, one lemma-frequency index, and 27 book chunks;
-3. validate complete NT coverage, stable IDs, Unicode, parse codes, John 1:1 reconstruction, and frequency invariants;
-4. publish the generated chunks with GitHub Pages.
-
-The browser lazy-loads books and renders only the current chapter, avoiding a monolithic full-NT startup payload.
-
-### Reader capabilities
-
-- 27 books / 260 chapters;
-- previous/next chapter navigation across book boundaries;
-- stable token-level morphology inspection;
-- exact-corpus lemma frequency;
-- vocabulary known/learning/unknown highlighting;
-- R0–R4 assistance levels;
-- reader morphology self-checks with BG3 evidence/error routing;
-- reader → BG5 vocabulary card creation;
-- persisted reading history and bookmarks;
-- persisted chapter completion;
-- S7 reading-evidence hooks for 1 John, Mark, Philippians, and independent reading.
+The current exact corpus contains **27 books, 260 chapters, 7,927 token-bearing verses, 137,554 tokens, and 5,461 lemmas**. The browser lazy-loads books and renders only the current chapter.
 
 BG6 does **not** bundle an unlicensed English translation. Grammatical and lexical assistance remains separate from translation/interpretation.
 
@@ -115,89 +89,77 @@ BG6 does **not** bundle an unlicensed English translation. Grammatical and lexic
 
 BG7 adds reviewed sentence-level training for canonical Units 38–44. See [`SYNTAX_LAB.md`](./SYNTAX_LAB.md), [`data/syntax-lab-data.js`](./data/syntax-lab-data.js), and [`syntax-lab.js`](./syntax-lab.js).
 
-The laboratory covers:
+It covers case relationships, article syntax, participial/infinitival dependency, dependent clauses, discourse-sensitive analysis, explicit ambiguity, learner-authored structural translations, progressive assistance, and BG3 syntax/translation evidence.
 
-- genitive, dative, and accusative relationships;
-- article syntax and substantival constructions;
-- participial and infinitival dependency;
-- dependent clauses and clause boundaries;
-- word order, information structure, and discourse-sensitive analysis;
-- explicit ambiguity exercises that distinguish secure grammatical facts from disputed classifications;
-- learner-authored structural translation drafts;
-- progressive **Attempt → Hint → Structure → Explanation** assistance;
-- BG3 recognition/application evidence and syntax/translation remediation;
-- current-reader location matching for reviewed passages.
-
-BG7 does not derive syntax automatically from morphology. MorphGNT provides deterministic forms; Koinē Path syntax claims live in a separate reviewed annotation layer. Translation drafts are not graded by naive string similarity and the app does not supply an unlicensed full English translation.
+BG7 does not derive syntax automatically from morphology, and translation drafts are not graded by naive string similarity.
 
 ## BG8 secure AI tutor
 
-BG8 adds the model-backed tutoring architecture while keeping AI downstream from verified Greek data. See [`AI_TUTOR.md`](./AI_TUTOR.md), [`ai-tutor.js`](./ai-tutor.js), [`ai-tutor-ui.js`](./ai-tutor-ui.js), and [`worker/`](./worker/).
+BG8 adds model-backed tutoring while keeping AI downstream from verified Greek data. See [`AI_TUTOR.md`](./AI_TUTOR.md), [`ai-tutor.js`](./ai-tutor.js), [`ai-tutor-ui.js`](./ai-tutor-ui.js), and [`worker/`](./worker/).
 
-The Tutor supports:
+The Tutor supports Socratic, explanation, and translation-feedback modes with bounded reader/syntax context, strict structured output, explicit uncertainty, server-side origin/request/moderation/rate-limit controls, and deterministic fallback.
 
-- Socratic, explanation, and translation-feedback modes;
-- bounded current reader/syntax context;
-- evidence IDs for canonical morphology, SBLGNT text, reviewed syntax, and curriculum metadata;
-- strict structured model output with grounded/mixed/uncertain confidence;
-- explicit uncertainty and disputed-grammar handling;
-- server-side origin, request-size, context-shape, moderation, and rate-limit controls;
-- local conversation history with a clear-history control;
-- deterministic fallback when the secure proxy is absent or unavailable.
-
-The static GitHub Pages client never contains an OpenAI API key. A Cloudflare Worker stores `OPENAI_API_KEY` as a secret and calls the OpenAI Responses API with `store: false`. AI responses have no write path into BG3 mastery; only deterministic/reviewed learning interactions can change canonical evidence.
-
-Until the Worker is deployed and the endpoint meta value is configured, the Tutor intentionally reports **Local fallback** rather than pretending the AI backend is live.
+The static GitHub Pages client never contains an OpenAI API key. AI responses have no write path into BG3 mastery. Until the Worker is deployed and the endpoint meta value is configured, Tutor intentionally reports **Local fallback**.
 
 ## BG9 adaptive review engine
 
-BG9 makes Review a cross-system scheduler rather than a collection of unrelated queues. See [`ADAPTIVE_REVIEW.md`](./ADAPTIVE_REVIEW.md), [`adaptive-review.js`](./adaptive-review.js), and [`adaptive-review-ui.js`](./adaptive-review-ui.js).
+BG9 makes Review a cross-system scheduler rather than unrelated queues. See [`ADAPTIVE_REVIEW.md`](./ADAPTIVE_REVIEW.md), [`adaptive-review.js`](./adaptive-review.js), and [`adaptive-review-ui.js`](./adaptive-review-ui.js).
 
-It combines:
+It combines BG3 remediation/review-due units, BG5 vocabulary state, BG4 morphology weakness, BG7 syntax weakness, reading-transfer weakness, and now BG11 exegesis review. It uses a transparent retrieval-risk heuristic rather than claiming FSRS.
 
-- BG3 typed remediation and review-due units;
-- BG5 due vocabulary, lapses, relearning state, and leeches;
-- BG4 weak morphology families;
-- BG7 weak syntax units;
-- BG3 reading-transfer weakness;
-- prerequisite-aware normal learning when review is clear.
-
-Open remediation is clustered by unit + error type and escalated from **new → repeated → persistent**. A transparent evidence-age/review-interval heuristic supplies retrieval-risk ranking for BG3 units; it is deliberately not labeled FSRS or presented as a calibrated probability.
-
-The default mixed-review budget is 20 minutes, with 10/35/50-minute alternatives. Domain repetition is penalized during planning so a large vocabulary queue cannot automatically monopolize the study block.
-
-BG9 preserves the mastery firewall: opening a task, visiting it during a session, or finishing the session never writes mastery evidence. The source learning interaction remains authoritative. BG8 AI output is not accepted as canonical scheduler evidence.
+The default mixed-review budget is 20 minutes, with 10/35/50-minute alternatives. Opening a task or finishing a review session never writes mastery evidence; source exercises remain authoritative.
 
 ## BG10 reading fluency mode
 
-BG10 builds a dedicated continuous-reading environment on top of the BG6 corpus. See [`READING_FLUENCY.md`](./READING_FLUENCY.md), [`data/fluency-programs.js`](./data/fluency-programs.js), [`reading-fluency.js`](./reading-fluency.js), and [`reading-fluency-ui.js`](./reading-fluency-ui.js).
+BG10 builds continuous-reading practice on the BG6 corpus. See [`READING_FLUENCY.md`](./READING_FLUENCY.md), [`data/fluency-programs.js`](./data/fluency-programs.js), [`reading-fluency.js`](./reading-fluency.js), and [`reading-fluency-ui.js`](./reading-fluency-ui.js).
 
 Every scored session uses:
 
 **First pass → Comprehension checkpoint → Assisted analysis → Reread → Comparison**
 
-The first pass provides no lemma or parse reveal. Learners may mark unknown words without revealing help. The analysis pass counts unique tokens that required assistance, then rereading measures whether the same passage becomes less effortful.
+BG10 tracks first-pass/reread pace, approximate clauses/minute, unknown-word rate, tool-interruption rate, reviewed comprehension, passage length, reading days, and streaks. WPM is descriptive only and never creates mastery evidence.
 
-BG10 tracks first-pass and reread pace, approximate clauses/minute, unknown-word rate, tool-interruption rate, reviewed comprehension, passage length, completed reading days, and consecutive reading-day streaks. WPM is descriptive only and never creates mastery evidence.
+Automatic passage length progresses **micro → short → medium → whole chapter**. Reviewed programs cover Units 45–47: 1 John, Mark, and Philippians.
 
-Automatic passage length progresses from **micro → short → medium → whole chapter**. Recommendations prefer unseen material and use BG5 known-vocabulary state plus curriculum-accessible grammar as suitability signals. Reviewed programs cover Unit 45 (1 John), Unit 46 (Mark), and Unit 47 (Philippians), while any current BG6 reader chapter can be opened as an unscored whole-chapter fluency session.
+With BG11, BG9 routing is now:
 
-Current R3→R4 readiness uses the latest five scored sessions: ≥80% comprehension, ≤12% first-pass unknown rate, ≤8% analysis assistance, and at least three passages of 100+ tokens. There is intentionally no speed threshold.
+- **Units 45–47 → Fluency**
+- **Units 48–50 → Exegesis**
 
-BG9 reading-transfer review for advanced Units 45–50 now routes into Fluency rather than the generic reader.
+## BG11 intermediate & exegetical Greek
+
+BG11 adds a dedicated evidence-disciplined **Exegesis** workspace for the final three canonical units. See [`INTERMEDIATE_EXEGESIS.md`](./INTERMEDIATE_EXEGESIS.md), [`data/exegesis-lab-data.js`](./data/exegesis-lab-data.js), [`exegesis-lab.js`](./exegesis-lab.js), and [`exegesis-lab-ui.js`](./exegesis-lab-ui.js).
+
+The central reasoning contract is:
+
+**grammatical fact → contextual judgment → interpretive possibility → theological conclusion**
+
+The system contains **27 reviewed cases**:
+
+- **Unit 48:** responsible lexicon use, polysemy, root-fallacy safeguards, semantic restraint, corpus usage and lexical/syntactic interaction;
+- **Unit 49:** edition awareness, textual variants, tool hierarchy, and explicit distinction between the SBLGNT edition-comparison apparatus and manuscript evidence;
+- **Unit 50:** verbal aspect, advanced participial/infinitival syntax, discourse, argument tracing, ambiguity, and grammar/theology boundaries.
+
+The full-corpus generator now also creates `generated/corpus/lexical-index.json` for all **5,461 lemmas**, containing exact count/rank, per-book distribution, deterministic sample references, and raw ±3-token nearby-lemma counts. Co-occurrence counts are explicitly exploratory evidence, not definitions or semantic verdicts.
+
+Five Unit 49 cases are pinned to Faithlife/SBLGNT apparatus data at revision `c4d241a9c1c479a55b989ba35a4976c1d0b8052c`: Mark 1:1, John 1:18, John 1:34, Romans 5:1, and Romans 8:1. BG11 treats that source as an **edition-comparison apparatus**, not a full manuscript apparatus.
+
+Exegetical notebook entries, lexical searches, corpus statistics, apparatus inspection, and reviewed-analysis reveals never create mastery. Only scored reviewed cases may write BG3 evidence, and locked Units 48–50 remain exposure-only.
 
 ## Layer separation
 
 Koinē Path keeps these layers distinct:
 
-1. Greek text / edition data;
+1. Greek text / active edition data;
 2. morphology and lemma data;
-3. corpus frequency data;
+3. deterministic corpus frequency/distribution/co-occurrence data;
 4. lexical reference glosses;
 5. reviewed morphology paradigms and learning annotations;
-6. reviewed syntactic relationships, translation scaffolds, and fluency comprehension checkpoints;
-7. reviewed grammar curriculum;
-8. learner state, SRS history, reading/fluency state, drafts, mastery evidence, and deterministic review scheduling;
-9. grounded generative explanation/coaching.
+6. reviewed syntax/translation/fluency annotations;
+7. edition-comparison apparatus data;
+8. reviewed BG11 exegetical cases and reasoning ladders;
+9. reviewed grammar curriculum;
+10. learner state, SRS history, reading/fluency state, drafts/notebooks, mastery evidence, and deterministic review scheduling;
+11. grounded generative explanation/coaching.
 
 The static client contains no AI API secret. Model access must pass through the server-side BG8 proxy.
