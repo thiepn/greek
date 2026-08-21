@@ -3,14 +3,21 @@ import {chromium,firefox,webkit} from 'playwright';
 
 const BASE=process.env.KOINE_RELEASE_URL||'http://127.0.0.1:4173/greek/';
 const engines=[['chromium',chromium],['firefox',firefox],['webkit',webkit]];
+const REQUIRED_VIEWS=['today','learn','drill','vocab','read','syntax','fluency','exegesis','audio','tutor','review','progress'];
 
 async function workspaceSmoke(page,name){
   await page.goto(BASE,{waitUntil:'domcontentloaded'});
   await page.waitForSelector('#main-content');
-  await page.waitForTimeout(700);
+  // Dynamic BG5/BG7/BG10/BG11/BG12 workspaces must all register in every
+  // release browser. Capability gaps (for example microphone/TTS support)
+  // may change controls inside a workspace, but may never remove the workspace.
+  try{
+    await page.waitForFunction(required=>required.every(id=>document.querySelector(`.nav button[data-view="${id}"]`)&&document.getElementById(id)),REQUIRED_VIEWS,{timeout:5000});
+  }catch{}
   const views=await page.locator('.nav button[data-view]').evaluateAll(nodes=>[...new Set(nodes.map(n=>n.dataset.view))]);
-  assert(views.length>=12,`${name}: expected expanded BG1–BG14 workspace navigation, got ${views.length}`);
-  for(const id of views){
+  const missing=REQUIRED_VIEWS.filter(id=>!views.includes(id));
+  assert.deepEqual(missing,[],`${name}: missing mandatory workspace(s): ${missing.join(', ')||'none'}; registered: ${views.join(', ')}`);
+  for(const id of REQUIRED_VIEWS){
     const button=page.locator(`.nav button[data-view="${id}"]`).first();
     await button.click();
     await page.waitForFunction(viewId=>{
@@ -131,4 +138,4 @@ for(const [name,browserType] of engines){
 }
 
 await chromiumOfflineSmoke();
-console.log('BG16-B001 cross-browser release matrix passed: Chromium exercised all 50 course units; Firefox/WebKit representative course views; isolated Chromium service-worker/offline recovery verified.');
+console.log('BG16-B001 cross-browser release matrix passed: all 12 mandatory workspaces in Chromium/Firefox/WebKit; Chromium exercised all 50 course units; Firefox/WebKit representative course views; isolated Chromium service-worker/offline recovery verified.');
