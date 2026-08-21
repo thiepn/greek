@@ -16,12 +16,12 @@ P('phil.1.1-11','phil',47,'Phil',1,1,11,'medium','What frames Paul’s opening r
 P('phil.1.12-18','phil',47,'Phil',1,12,18,'medium','How does Paul interpret his imprisonment?',['As contributing to the advance and wider proclamation of the gospel','As proof that proclamation has ended','As a reason to abandon ministry','As unrelated to the gospel'],0,'Track προκοπή and the repeated proclamation vocabulary.'),
 P('phil.1.21-26','phil',47,'Phil',1,21,26,'short','What tension structures Paul’s reasoning?',['Remaining alive for fruitful service versus departing to be with Christ','Learning Greek versus Latin','Jerusalem versus Rome','Law versus prophecy only'],0,'Follow ζῆν / ἀποθανεῖν and μένω / ἀναλύω.'),
 P('phil.2.1-11','phil',47,'Phil',2,1,11,'medium','What ethical movement leads into the Christ section?',['Humility and concern for others lead into Christ’s self-humbling pattern','Financial planning leads into a travel notice','A legal trial leads into a census','A genealogy leads into a miracle'],0,'Trace φρονέω, ταπεινοφροσύνη, and the movement of the Christ narrative.'),
-P('phil.3.7-11','phil',47,'Phil',3,7,11,'short','How does Paul reassess former gains?',['He counts them as loss in view of knowing Christ','He treats them as his final confidence','He ignores them without comparison','He converts them into travel plans'],0,'Follow κέρδος / ζημία and γινώσκω.' )
+P('phil.3.7-11','phil',47,'Phil',3,7,11,'short','How does Paul reassess former gains?',['He counts them as loss in view of knowing Christ','He treats them as his final confidence','He ignores them without comparison','He converts them into travel plans'],0,'Follow κέρδος / ζημία and γινώσκω.')
 ];
 const programs={
-  '1john':{id:'1john',title:'1 John Fluency Path',unitId:45,description:'Short, repetitive epistolary Greek for moving from guided reading toward sustained comprehension.'},
-  mark:{id:'mark',title:'Mark Narrative Fluency',unitId:46,description:'Narrative clauses, rapid verb recognition, and longer continuous reading.'},
-  phil:{id:'phil',title:'Philippians Epistolary Fluency',unitId:47,description:'Longer clauses, participles, infinitives, and argumentative flow.'}
+  '1john':{id:'1john',title:'1 John Fluency Path',unitId:45,book:'1John',chapters:[1,2,3,4,5],description:'Short, repetitive epistolary Greek for moving from guided reading toward sustained comprehension.'},
+  mark:{id:'mark',title:'Mark Narrative Fluency',unitId:46,book:'Mark',chapters:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],description:'Narrative clauses, rapid verb recognition, and longer continuous reading.'},
+  phil:{id:'phil',title:'Philippians Epistolary Fluency',unitId:47,book:'Phil',chapters:[1,2,3,4],description:'Longer clauses, participles, infinitives, and argumentative flow.'}
 };
 return Object.freeze({version:'bg10.0',source:{id:'koine-reviewed-fluency-v1',role:'reviewed-reading-comprehension-checkpoints'},levels:{micro:{targetTokens:[20,70]},short:{targetTokens:[50,130]},medium:{targetTokens:[100,260]},chapter:{targetTokens:[220,1200]}},programs,passages});
 });
