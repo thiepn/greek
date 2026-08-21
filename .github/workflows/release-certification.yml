@@ -1,0 +1,95 @@
+name: Final Release Certification
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate release contract and learner-state migrations
+        run: |
+          node --check scripts/test-release-contract.cjs
+          node --check scripts/test-release-state-migrations.cjs
+          node --check scripts/generate-release-candidate-manifest.cjs
+          node scripts/test-release-contract.cjs
+          node scripts/test-release-state-migrations.cjs
+
+      - name: Rebuild exact pinned Greek NT corpus
+        run: node scripts/build-full-corpus.mjs
+
+      - name: Re-run scholarly content certification
+        run: |
+          node scripts/test-content-qa.cjs
+          node scripts/test-morphology-lab.cjs
+          node scripts/test-vocabulary-engine.cjs
+          node scripts/test-syntax-lab.cjs
+          node scripts/test-reading-fluency.cjs
+          node scripts/test-exegesis-lab.cjs
+          node scripts/test-pronunciation-engine.cjs
+          node scripts/validate-full-corpus.mjs
+          node scripts/validate-syntax-references.mjs
+          node scripts/validate-fluency-corpus.cjs
+          node scripts/validate-exegesis-corpus.cjs
+          node scripts/generate-content-qa-manifest.cjs
+          node -e "const c=require('./RELEASE_CANDIDATE.json'),m=require('./generated/content-qa-manifest.json');if(m.certifiedContentFingerprint!==c.bg15ContentFingerprint){console.error('BG15 fingerprint drift');process.exit(1)}console.log('Frozen BG15 fingerprint verified:',m.certifiedContentFingerprint)"
+
+      - name: Build and validate release PWA shell
+        run: |
+          node scripts/build-pwa-shell.mjs
+          node scripts/validate-pwa-build.mjs
+
+      - name: Install cross-browser release dependencies
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium firefox webkit
+
+      - name: Start project-path release server
+        run: |
+          mkdir -p /tmp/koine-release
+          ln -s "$GITHUB_WORKSPACE" /tmp/koine-release/greek
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory /tmp/koine-release >/tmp/koine-bg16-http.log 2>&1 &
+          echo $! >/tmp/koine-bg16-http.pid
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4173/greek/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/koine-bg16-http.log
+          exit 1
+
+      - name: Chromium Firefox WebKit release smoke
+        env:
+          KOINE_RELEASE_URL: http://127.0.0.1:4173/greek/
+        run: node scripts/test-release-browsers.mjs
+
+      - name: Generate certified RC manifest
+        env:
+          BG16_TECHNICAL_VERDICT: TECHNICAL_RC_CERTIFIED
+          RC_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          node scripts/generate-release-candidate-manifest.cjs
+          test -s generated/release-candidate-manifest.json
+          node -e "const m=require('./generated/release-candidate-manifest.json');if(m.verdicts.technical!=='TECHNICAL_RC_CERTIFIED'||m.verdicts.product!=='V1_RELEASE_BLOCKED')process.exit(1);if(!/^[0-9a-f]{64}$/.test(m.releaseCandidateFingerprint))process.exit(1);console.log('RC fingerprint:',m.releaseCandidateFingerprint);console.log('Product verdict:',m.verdicts.product)"
+
+      - name: Upload release certification artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: bg16-release-certification
+          path: |
+            generated/content-qa-manifest.json
+            generated/release-candidate-manifest.json
+            RELEASE_CANDIDATE.json
+            RELEASE_CERTIFICATION.md
+            KNOWN_LIMITATIONS.md
+          if-no-files-found: error
+          retention-days: 90
