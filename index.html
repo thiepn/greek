@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#f3efe7">
-  <meta name="description" content="Interactive Biblical Greek learning with lessons, morphology, vocabulary SRS, the full Greek New Testament reader, adaptive review, and mastery tracking.">
+  <meta name="description" content="Interactive Biblical Greek learning with lessons, morphology, vocabulary SRS, full Greek New Testament reading, syntax training, adaptive review, and mastery tracking.">
   <title>Koinē Path — Biblical Greek</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="curriculum.css">
@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="morphology-lab.css">
   <link rel="stylesheet" href="vocabulary.css">
   <link rel="stylesheet" href="reader.css">
+  <link rel="stylesheet" href="syntax-lab.css">
 </head>
 <body>
 <div class="app">
@@ -34,7 +35,7 @@
     <div class="content">
       <section id="today" class="view active">
         <div class="eyebrow">Daily study</div><h1>Build reading ability.</h1>
-        <p class="lede">Grammar, active recall, morphology, vocabulary, and actual New Testament Greek in one learning loop. Known weaknesses are prioritized before novelty.</p>
+        <p class="lede">Grammar, active recall, morphology, vocabulary, syntax, and actual New Testament Greek in one learning loop. Known weaknesses are prioritized before novelty.</p>
         <div class="metrics">
           <div class="metric"><span>Prototype lessons</span><strong id="m-lessons">0 / 5</strong></div>
           <div class="metric"><span>Morphology accuracy</span><strong id="m-accuracy">—</strong></div>
@@ -78,14 +79,17 @@
 <script src="data/greek-data.js"></script>
 <script src="data/morphology-lab-data.js"></script>
 <script src="data/vocabulary-seed.js"></script>
+<script src="data/syntax-lab-data.js"></script>
 <script src="learning-engine.js"></script>
 <script src="morphology-lab.js"></script>
 <script src="vocabulary-engine.js"></script>
+<script src="syntax-lab.js"></script>
 <script src="app.js"></script>
 <script src="canonical-reader.js"></script>
 <script src="curriculum-ui.js"></script>
 <script src="learning-engine-ui.js"></script>
 <script src="morphology-lab-ui.js"></script>
 <script src="vocabulary-ui.js"></script>
+<script src="syntax-lab-ui.js"></script>
 </body>
 </html>
