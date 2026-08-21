@@ -68,6 +68,14 @@ function masterUnit(engine,unitId){fillDimension(engine,unitId,'concept',2);fill
   assert(effective<before,'effective reading score should decay after grace period');
 })();
 
+(function testPassedStageDoesNotRelock(){
+  resetNow();const e=engineWith();[1,2,3,4].forEach(id=>masterUnit(e,id));
+  assert.equal(e.getUnit(5).status,'available');
+  advance(90);
+  assert.equal(e.getStage('S0').passed,true,'historically passed stage must remain passed');
+  assert.notEqual(e.getUnit(5).status,'locked','decay creates review work but must not relock reached curriculum');
+})();
+
 (function testLegacyMigration(){
   resetNow();
   const legacy={done:['alphabet','article'],attempts:12,correct:9,review:[{form:'λόγῳ'}],words:['x']};
@@ -101,4 +109,4 @@ function masterUnit(engine,unitId){fillDimension(engine,unitId,'concept',2);fill
   DIMENSIONS.forEach(d=>assert(e.getUnit(1).dimensions[d],`missing dimension ${d}`));
 })();
 
-console.log('BG3 learning-engine tests passed: 11 suites');
+console.log('BG3 learning-engine tests passed: 12 suites');
