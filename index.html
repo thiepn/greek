@@ -59,7 +59,7 @@
 
       <section id="read" class="view">
         <div class="eyebrow">Guided reader</div><h1>John 1:1</h1>
-        <p class="lede">Select a word. Assistance progresses from grammatical cue → lemma → full parse.</p>
+        <p class="lede">Select a word. Assistance progresses from grammatical cue → lemma → full parse. The Greek and morphology now come from the pinned BG2 canonical dataset.</p>
         <div class="two-col reader-layout">
           <article class="panel reader-text" id="reader-text"></article>
           <aside class="panel word-panel"><div class="eyebrow">Word inspector</div><div class="word-form" id="word-form">Select a word</div><p id="word-prompt">Attempt the form before asking for help.</p><div class="hint-box" id="hint-box">No hint revealed.</div><div class="hint-actions"><button class="btn" id="hint-1">Hint</button><button class="btn" id="hint-2">Lemma</button><button class="btn primary" id="hint-3">Full parse</button></div><button class="btn" id="add-review">Add to review</button></aside>
@@ -91,7 +91,9 @@
   </main>
 </div>
 <script src="curriculum.js"></script>
+<script src="data/greek-data.js"></script>
 <script src="app.js"></script>
+<script src="canonical-reader.js"></script>
 <script src="curriculum-ui.js"></script>
 </body>
 </html>
