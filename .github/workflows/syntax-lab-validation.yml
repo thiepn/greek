@@ -1,0 +1,33 @@
+name: Syntax Lab Validation
+
+on:
+  pull_request:
+    paths:
+      - 'data/syntax-lab-data.js'
+      - 'syntax-lab.js'
+      - 'syntax-lab-ui.js'
+      - 'syntax-lab.css'
+      - 'scripts/test-syntax-lab.cjs'
+      - 'scripts/validate-syntax-references.mjs'
+      - '.github/workflows/syntax-lab-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test syntax learning engine
+        run: node scripts/test-syntax-lab.cjs
+      - name: Build pinned canonical corpus
+        run: node scripts/build-full-corpus.mjs
+      - name: Validate reviewed references
+        run: node scripts/validate-syntax-references.mjs
