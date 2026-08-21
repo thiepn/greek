@@ -31,6 +31,10 @@ jobs:
         run: node scripts/build-full-corpus.mjs
       - name: Validate generated corpus
         run: node scripts/validate-full-corpus.mjs
+      - name: Generate PWA application shell manifest
+        run: node scripts/build-pwa-shell.mjs
+      - name: Validate PWA application shell
+        run: node scripts/validate-pwa-build.mjs
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload site
