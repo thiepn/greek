@@ -1,0 +1,31 @@
+name: Full NT Corpus Validation
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/build-full-corpus.mjs'
+      - 'scripts/validate-full-corpus.mjs'
+      - 'canonical-reader.js'
+      - 'reader.css'
+      - 'index.html'
+      - '.github/workflows/full-corpus-validation.yml'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build pinned full NT corpus
+        run: node scripts/build-full-corpus.mjs
+      - name: Validate complete corpus
+        run: node scripts/validate-full-corpus.mjs
