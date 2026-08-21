@@ -33,13 +33,13 @@ Generated book chunks are lazy-loaded by the browser. Startup therefore does not
 
 - 27 books
 - 260 chapters
-- 7,957 verses
+- token-bearing verse coverage in the expected critical-NT range, without assuming every traditional verse number is present in SBLGNT
 - a plausible full-corpus token range
 - stable unique book IDs
 - contiguous token positions within each verse
 - NFC-normalized Greek fields
 - valid POS/parse-code shapes
-- token totals matching the manifest
+- token and verse totals matching every per-book manifest
 - John 1:1 reconstructing exactly from 17 canonical tokens
 - John 1:1 morphology fixture consistency
 - frequency ranks generated from the same corpus revision
