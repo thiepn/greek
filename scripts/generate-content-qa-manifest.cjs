@@ -10,6 +10,7 @@ const sha=v=>crypto.createHash('sha256').update(v).digest('hex');
 const loadWindow=(file,key)=>{const context={window:{}};vm.createContext(context);vm.runInContext(readText(file),context,{filename:file});return context.window[key]};
 
 const curriculum=loadWindow('curriculum.js','KOINE_CURRICULUM');
+const course=require('../data/course-content.js');
 const morph=require('../data/morphology-lab-data.js');require('../data/morphology-bg15-corrections.js')(morph);
 const vocab=require('../data/vocabulary-seed.js');
 const syntax=require('../data/syntax-lab-data.js');
@@ -19,7 +20,7 @@ const pronunciation=loadWindow('data/pronunciation-profiles.js','KOINE_PRONUNCIA
 const greek=require('../data/greek-data.js');
 
 const sourcePaths=[
-  'curriculum.js','data/greek-data.js','data/morphology-lab-data.js','data/morphology-bg15-corrections.js',
+  'curriculum.js','data/course-content.js','data/greek-data.js','data/morphology-lab-data.js','data/morphology-bg15-corrections.js',
   'data/vocabulary-seed.js','data/syntax-lab-data.js','data/fluency-programs.js','data/exegesis-lab-data.js',
   'data/pronunciation-profiles.js','scripts/build-full-corpus.mjs','ATTRIBUTION.md','CONTENT_QA.md'
 ].sort();
@@ -33,20 +34,24 @@ const books=corpusManifest.books.map(b=>{const bytes=read(`generated/corpus/book
 const bookSetSha256=sha(books.map(x=>`${x.id}:${x.sha256}`).join('\n'));
 
 const manifest={
-  schemaVersion:1,
-  contentQaVersion:'bg15.0',
+  schemaVersion:2,
+  contentQaVersion:'bg16-b001.0',
   policy:{
     status:'deterministic-content-QA-snapshot',
     externalPeerReview:false,
-    note:'Passing this manifest/CI means the declared reviewed content, source provenance, normalization, and pedagogical safeguards match the BG15 contract. It is not a claim of external scholarly peer review.'
+    note:'Passing this manifest/CI means the declared course and reviewed learning content, source provenance, normalization, and pedagogical safeguards match the deterministic contract. It is not a claim of external scholarly peer review.'
   },
   sourceRevisions:{
     morphgnt:greek.sources.morphgnt.revision,
     coreGntVocab:vocab.source.commit,
-    sblgntEditionComparison:exegesis.apparatus.revision
+    sblgntEditionComparison:exegesis.apparatus.revision,
+    course:course.version
   },
   counts:{
     curriculumUnits:curriculum.stages.reduce((n,s)=>n+s.units.length,0),
+    courseUnits:course.units.length,
+    courseCheckpoints:course.units.reduce((n,u)=>n+u.checks.length,0),
+    courseScriptureTasks:course.units.reduce((n,u)=>n+u.scripture.length,0),
     morphologyParses:morph.items.length,
     principalPartLexemes:Object.keys(morph.principalParts).length,
     syntaxExercises:syntax.exercises.length,
@@ -73,5 +78,5 @@ manifest.certifiedContentFingerprint=sha(JSON.stringify(manifest));
 const out=path.join(ROOT,'generated','content-qa-manifest.json');
 fs.mkdirSync(path.dirname(out),{recursive:true});
 fs.writeFileSync(out,JSON.stringify(manifest,null,2)+'\n');
-console.log(`BG15 content QA manifest generated: ${manifest.certifiedContentFingerprint}`);
-console.log(`Coverage: ${manifest.counts.curriculumUnits} units, ${manifest.counts.morphologyParses} morphology parses, ${manifest.counts.syntaxExercises} syntax exercises, ${manifest.counts.fluencyCheckpoints} fluency checkpoints, ${manifest.counts.exegesisCases} exegesis cases.`);
+console.log(`Content QA manifest generated: ${manifest.certifiedContentFingerprint}`);
+console.log(`Coverage: ${manifest.counts.courseUnits} course units, ${manifest.counts.courseCheckpoints} course checkpoints, ${manifest.counts.morphologyParses} morphology parses, ${manifest.counts.syntaxExercises} syntax exercises, ${manifest.counts.fluencyCheckpoints} fluency checkpoints, ${manifest.counts.exegesisCases} exegesis cases.`);

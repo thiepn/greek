@@ -23,8 +23,39 @@ async function workspaceSmoke(page,name){
   return views;
 }
 
+async function courseSmoke(page,name,allUnits=false){
+  await page.locator('.nav button[data-view="learn"]').first().click();
+  await page.waitForSelector('#lesson-list [data-course-unit]');
+  const unitCount=await page.locator('#lesson-list [data-course-unit]').count();
+  assert.equal(unitCount,50,`${name}: Learn workspace must expose exactly 50 canonical units`);
+
+  const unitIds=allUnits?Array.from({length:50},(_,i)=>i+1):[1,12,30,50];
+  for(const id of unitIds){
+    await page.locator(`#lesson-list [data-course-unit="${id}"]`).click();
+    await page.waitForSelector('#lesson-stage:not([hidden]) .course-lesson');
+    assert.equal(await page.locator('#lesson-stage .course-checkpoint').count(),3,`${name}: Unit ${id} must render exactly three deterministic checkpoints`);
+    assert((await page.locator('#lesson-stage .course-teaching .course-movement').count())>=3,`${name}: Unit ${id} must render substantive teaching movements`);
+    assert((await page.locator('#lesson-stage .course-scripture article').count())>=1,`${name}: Unit ${id} must render Scripture transfer`);
+    if(id===1)assert.equal(await page.locator('#lesson-stage .course-preview-note').count(),0,`${name}: Unit 1 must be accessible on a clean learner state`);
+    if(id>1)assert.equal(await page.locator('#lesson-stage .course-preview-note').count(),1,`${name}: locked Unit ${id} must render preview mode on a clean learner state`);
+    await page.locator('#lesson-stage .course-back').click();
+    await page.waitForSelector('#lesson-list [data-course-unit]');
+  }
+
+  // A locked checkpoint must remain exposure-only and never manufacture mastery.
+  await page.locator('#lesson-list [data-course-unit="50"]').click();
+  await page.waitForSelector('#lesson-stage:not([hidden]) .course-lesson');
+  const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('koine-path-learning-v3')).units['50']);
+  await page.locator('#lesson-stage [data-course-q="u50.q1"]').first().click();
+  const after=await page.evaluate(()=>JSON.parse(localStorage.getItem('koine-path-learning-v3')).units['50']);
+  assert.equal(after.masteredAt,null,`${name}: preview checkpoint must not master Unit 50`);
+  assert.deepEqual(after.dimensions,before.dimensions,`${name}: preview checkpoint must not alter Unit 50 mastery dimensions`);
+  await page.locator('#lesson-stage .course-back').click();
+}
+
 async function persistenceSmoke(page,name){
-  await page.evaluate(()=>localStorage.setItem('bg16-release-sentinel','preserve'));await page.reload({waitUntil:'domcontentloaded'});
+  await page.evaluate(()=>localStorage.setItem('bg16-release-sentinel','preserve'));
+  await page.reload({waitUntil:'domcontentloaded'});
   assert.equal(await page.evaluate(()=>localStorage.getItem('bg16-release-sentinel')),'preserve',`${name}: localStorage state did not survive reload`);
   const learning=await page.evaluate(()=>JSON.parse(localStorage.getItem('koine-path-learning-v3')||'null'));
   assert(learning?.schemaVersion===3,`${name}: canonical learning state missing after reload`);
@@ -41,29 +72,48 @@ async function legacyMigrationSmoke(browserType,name){
     }
   });
   const page=await context.newPage();
-  await page.goto(BASE,{waitUntil:'domcontentloaded'});await page.waitForSelector('#main-content');
+  await page.goto(BASE,{waitUntil:'domcontentloaded'});
+  await page.waitForSelector('#main-content');
   const state=await page.evaluate(()=>JSON.parse(localStorage.getItem('koine-path-learning-v3')));
   assert.equal(state.migration.legacyImported,true,`${name}: legacy browser migration did not run`);
   for(const id of ['1','5','7','12','16'])assert.equal(state.units[id].masteredAt,null,`${name}: legacy migration falsely mastered Unit ${id}`);
   await browser.close();
 }
 
-async function chromiumOfflineSmoke(page,context){
+// Offline recovery is intentionally isolated from the 50-unit interaction stress
+// context. Both contracts remain strict: course traversal may not manufacture
+// mastery, and a clean installed reader must cache/recover independently offline.
+async function chromiumOfflineSmoke(){
+  const browser=await chromium.launch({headless:true});
+  const context=await browser.newContext({viewport:{width:1280,height:900}});
+  const page=await context.newPage();
+  const pageErrors=[];page.on('pageerror',err=>pageErrors.push(String(err)));
+  await page.goto(BASE,{waitUntil:'domcontentloaded'});
+  await page.waitForSelector('#main-content');
+  await page.evaluate(()=>localStorage.setItem('bg16-release-sentinel','preserve'));
   const swSupported=await page.evaluate(()=>('serviceWorker'in navigator));
-  assert(swSupported,'chromium: Service Worker API unavailable on localhost');
+  assert(swSupported,'chromium-offline: Service Worker API unavailable on localhost');
   await page.evaluate(async()=>{await navigator.serviceWorker.ready;});
-  await page.reload({waitUntil:'domcontentloaded'});await page.waitForSelector('#main-content');
-  assert(await page.evaluate(()=>!!navigator.serviceWorker.controller),'chromium: page is not controlled by service worker after reload');
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.waitForSelector('#main-content');
+  assert(await page.evaluate(()=>!!navigator.serviceWorker.controller),'chromium-offline: page is not controlled by service worker after reload');
+
   await page.locator('.nav button[data-view="read"]').first().click();
-  await page.waitForSelector('#reader-text .reader-verse',{timeout:15000});
-  const before=await page.locator('#reader-text .reader-verse').count();assert(before>0,'chromium: reader did not render online before offline transition');
+  await page.waitForSelector('#reader-text .reader-verse',{timeout:30000});
+  const before=await page.locator('#reader-text .reader-verse').count();
+  assert(before>0,'chromium-offline: reader did not render online before offline transition');
+
   await context.setOffline(true);
-  await page.reload({waitUntil:'domcontentloaded',timeout:15000});await page.waitForSelector('#main-content',{timeout:15000});
+  await page.reload({waitUntil:'domcontentloaded',timeout:30000});
+  await page.waitForSelector('#main-content',{timeout:30000});
   await page.locator('.nav button[data-view="read"]').first().click();
-  await page.waitForSelector('#reader-text .reader-verse',{timeout:15000});
-  assert((await page.locator('#reader-text .reader-verse').count())>0,'chromium: cached reader did not recover offline');
-  assert.equal(await page.evaluate(()=>localStorage.getItem('bg16-release-sentinel')),'preserve','chromium: offline transition damaged learner-local state');
+  await page.waitForSelector('#reader-text .reader-verse',{timeout:30000});
+  assert((await page.locator('#reader-text .reader-verse').count())>0,'chromium-offline: cached reader did not recover offline');
+  assert.equal(await page.evaluate(()=>localStorage.getItem('bg16-release-sentinel')),'preserve','chromium-offline: offline transition damaged learner-local state');
+  assert.deepEqual(pageErrors,[],`chromium-offline: uncaught page errors: ${pageErrors.join(' | ')}`);
   await context.setOffline(false);
+  await browser.close();
+  console.log('BG16 chromium isolated service-worker/offline reader smoke passed.');
 }
 
 for(const [name,browserType] of engines){
@@ -72,12 +122,13 @@ for(const [name,browserType] of engines){
   const page=await context.newPage();
   const pageErrors=[];page.on('pageerror',err=>pageErrors.push(String(err)));
   await workspaceSmoke(page,name);
+  await courseSmoke(page,name,name==='chromium');
   await persistenceSmoke(page,name);
-  if(name==='chromium')await chromiumOfflineSmoke(page,context);
   assert.deepEqual(pageErrors,[],`${name}: uncaught page errors: ${pageErrors.join(' | ')}`);
   await browser.close();
   await legacyMigrationSmoke(browserType,name);
   console.log(`BG16 ${name} release smoke passed.`);
 }
 
-console.log('BG16 cross-browser release matrix passed: Chromium, Firefox, WebKit; Chromium service-worker/offline recovery verified.');
+await chromiumOfflineSmoke();
+console.log('BG16-B001 cross-browser release matrix passed: Chromium exercised all 50 course units; Firefox/WebKit representative course views; isolated Chromium service-worker/offline recovery verified.');

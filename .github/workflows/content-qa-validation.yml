@@ -5,6 +5,9 @@ on:
     paths:
       - 'curriculum.js'
       - 'data/**'
+      - 'course-ui.js'
+      - 'course.css'
+      - 'index.html'
       - 'scripts/**'
       - 'ATTRIBUTION.md'
       - 'CONTENT_QA.md'
@@ -24,10 +27,14 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Check BG15 QA script syntax
+      - name: Check QA script syntax
         run: |
+          node --check scripts/test-course-content.cjs
           node --check scripts/test-content-qa.cjs
           node --check scripts/generate-content-qa-manifest.cjs
+
+      - name: Validate complete canonical course
+        run: node scripts/test-course-content.cjs
 
       - name: Validate reviewed content contract
         run: node scripts/test-content-qa.cjs
@@ -54,16 +61,16 @@ jobs:
           node scripts/validate-fluency-corpus.cjs
           node scripts/validate-exegesis-corpus.cjs
 
-      - name: Generate deterministic BG15 content manifest
+      - name: Generate deterministic content manifest
         run: |
           node scripts/generate-content-qa-manifest.cjs
           test -s generated/content-qa-manifest.json
-          node -e "const m=require('./generated/content-qa-manifest.json'); if(!/^[0-9a-f]{64}$/.test(m.certifiedContentFingerprint)) process.exit(1); console.log('Certified content fingerprint:',m.certifiedContentFingerprint)"
+          node -e "const m=require('./generated/content-qa-manifest.json'); if(!/^[0-9a-f]{64}$/.test(m.certifiedContentFingerprint)) process.exit(1); if(m.counts.courseUnits!==50||m.counts.courseCheckpoints!==150) process.exit(1); console.log('Certified content fingerprint:',m.certifiedContentFingerprint)"
 
-      - name: Upload BG15 content QA manifest
+      - name: Upload content QA manifest
         uses: actions/upload-artifact@v4
         with:
-          name: bg15-content-qa-manifest
+          name: content-qa-manifest
           path: generated/content-qa-manifest.json
           if-no-files-found: error
           retention-days: 90

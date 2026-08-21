@@ -1,32 +1,39 @@
-# Koinē Path — Known limitations and release blockers
+# Koinē Path — Known limitations and release status
 
-This register is part of BG16 release certification. It distinguishes **v1 blockers** from **optional or claim-limiting constraints** so that a green technical CI run cannot be misreported as a complete product release.
+This register is part of BG16 release certification. It distinguishes **release blockers** from **optional or claim-limiting constraints** so a green automated suite is reported precisely.
 
-## Release blocker
+## Open v1 release blockers
 
-### BG16-B001 — Canonical 50-unit course content is incomplete
+**None.**
 
-**Severity:** v1 release blocker
+### Resolved — BG16-B001: canonical 50-unit course content
 
-The curriculum architecture defines 50 units, but the Learn workspace still contains only five interactive foundation prototype lessons. The reader, morphology, vocabulary, syntax, fluency, exegesis, audio, review, PWA, accessibility, and data systems are substantial, but they do not substitute for the missing structured teaching content across the canonical course.
+BG16 originally blocked v1 because the curriculum defined 50 units while Learn exposed only five prototype lessons. BG16-B001 has now replaced that prototype layer with production instructional content for **all Units 1–50**.
 
-**Exit criteria:**
+Resolution evidence:
 
-- every Unit 1–50 has reviewed lesson content appropriate to its curriculum role;
-- every unit has deterministic/reviewed checkpoints that can feed the existing mastery model;
-- prerequisite progression can be completed without depending on placeholder/prototype lessons;
-- content is included in the BG15-style scholarly QA manifest and receives a new certified fingerprint;
-- the complete course is exercised in clean-state and migration browser tests.
+- all 50 canonical unit IDs and titles are present in exact curriculum order;
+- every unit has an objective, at least three substantive teaching movements, worked Greek forms/patterns, and an explicit interpretive safeguard;
+- every unit returns to a named Scripture passage with an application/reading task;
+- exactly **150 deterministic checkpoints** (three per unit) feed the existing mastery/remediation model when prerequisites are accessible;
+- locked units remain readable as preview exposure without granting canonical mastery evidence;
+- the retired five-prototype lesson bootstrap has been removed;
+- the complete course is included in the deterministic content-QA fingerprint;
+- the complete-course QA and inherited scholarly suites pass on the BG16-B001 content snapshot.
 
-Until those criteria are met, BG16 may certify a **technical platform release candidate**, but the product verdict for `v1.0.0` remains **NO-GO**.
+Certified BG16-B001 content fingerprint:
+
+`e654a810fca0c9fbfa88c8808fa275204fba5a3806ac5ffd4f052a4ef0e9e445`
+
+This closes `BG16-B001` as a **v1 release blocker**. It does not claim external scholarly peer review; the course remains internally authored/reviewed pedagogical content protected by deterministic QA and the existing source/provenance safeguards.
 
 ## Production verification pending
 
-The BG1–BG16 work remains in a stacked, unmerged PR chain. GitHub Pages deploys from `main`, so the public production URL does not yet represent this candidate.
+The BG1–BG16-B001 work remains in a stacked, unmerged PR chain. GitHub Pages deploys from `main`, so the public production URL does not yet represent this candidate.
 
 **Required after merge:** verify the exact merged SHA at the public Pages URL, service-worker version, generated corpus manifest, offline behavior, PWA update flow, and absence of stale pre-release caches.
 
-This is a deployment gate, not a code defect.
+This is a deployment gate, not a code defect and not a v1 product blocker.
 
 ## Optional remote AI not deployed
 
@@ -46,7 +53,7 @@ The full NT has canonical morphology and lemma data, but reviewed higher-level s
 
 ## Accessibility certification boundary
 
-Automated Chromium/axe/reflow checks are strong regression gates, but BG14 did not constitute a complete manual certification with VoiceOver, TalkBack, NVDA, or every physical device/browser combination.
+Automated Chromium/axe/reflow checks are strong regression gates, but BG14 does not constitute complete manual certification with VoiceOver, TalkBack, NVDA, or every physical device/browser combination.
 
 A release may state that the app has automated WCAG-oriented accessibility coverage. It must not state full assistive-technology certification unless the manual matrix has actually been executed and recorded.
 
