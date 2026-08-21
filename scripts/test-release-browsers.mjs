@@ -13,9 +13,12 @@ async function workspaceSmoke(page,name){
   for(const id of views){
     const button=page.locator(`.nav button[data-view="${id}"]`).first();
     await button.click();
-    const host=page.locator(`#${id}`);
-    await host.waitFor({state:'visible'});
-    assert(await host.evaluate(el=>el.classList.contains('active')),`${name}: ${id} did not become active`);
+    await page.waitForFunction(viewId=>{
+      const el=document.getElementById(viewId);
+      return !!el&&el.classList.contains('active')&&el.getAttribute('aria-hidden')!=='true'&&!el.hasAttribute('inert');
+    },id);
+    const state=await page.locator(`#${id}`).evaluate(el=>({active:el.classList.contains('active'),ariaHidden:el.getAttribute('aria-hidden'),inert:el.hasAttribute('inert')}));
+    assert(state.active&&state.ariaHidden!=='true'&&!state.inert,`${name}: ${id} did not become the accessible active workspace`);
   }
   return views;
 }
