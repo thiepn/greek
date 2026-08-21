@@ -57,11 +57,11 @@ for(const bad of [
 ])assert(!bad.test(normativeAnswers),`mechanical grammar slogan found in normative answer: ${bad}`);
 
 assert(/Do not.*aorist.*once/i.test(course.units[18].caution),'Unit 19 must reject once-for-all aorist claims');
-assert(/Do not.*present.*progressive|Do not.*present/i.test(course.units[11].caution),'Unit 12 must reject mechanical present translation');
-assert(/does not mean.*duration|Do not.*duration/i.test(course.units[16].caution),'Unit 17 must distinguish imperfective viewpoint from event duration');
+assert(/Do not.*present/i.test(course.units[11].caution),'Unit 12 must reject mechanical present translation');
+assert(/does not mean.*(?:long|duration|repeated|incomplete)/i.test(course.units[16].caution),'Unit 17 must distinguish imperfective viewpoint from event duration');
 assert(/Anarthrous does not automatically mean indefinite/i.test(course.units[40].caution),'Unit 41 must reject article/indefiniteness shortcut');
 assert(/genitive is not semantically equal to English “of”/i.test(course.units[37].caution),'Unit 38 must reject genitive=of shortcut');
-assert(/historical present.*not automatically/i.test(course.units[45].caution),'Unit 46 must reject automatic historical-present vividness');
+assert(/Do not.*historical present.*vivid/i.test(course.units[45].caution),'Unit 46 must reject automatic historical-present vividness');
 assert(course.units[47].teach.some(x=>/Etymology/.test(x)),'Unit 48 must explicitly guard lexical etymology');
 assert(course.units[48].teach.some(x=>/not itself a manuscript apparatus/.test(x)),'Unit 49 must distinguish edition comparison from manuscript evidence');
 assert(course.units[49].teach.some(x=>/grammatical fact/.test(x)),'Unit 50 must preserve the exegetical evidence ladder');
