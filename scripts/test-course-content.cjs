@@ -45,14 +45,23 @@ assert.equal(new Set(ids).size,ids.length,'checkpoint ids must be globally uniqu
 assert.equal(ids.length,150,'BG16-B001 freezes exactly three checkpoints per canonical unit');
 walk(course,(s,p)=>{if(greek.test(s))assert.equal(s,s.normalize('NFC'),`non-NFC Greek at ${p}`)});
 
-const normative=course.units.flatMap(u=>[...u.teach,u.caution,...u.checks.map(q=>`${q.choices[q.answer]} ${q.explanation}`)]).join('\n').toLowerCase();
+// Normative answers must not teach mechanical slogans. Corrective teaching prose is
+// intentionally allowed to quote a bad slogan while explicitly rejecting it.
+const normativeAnswers=course.units.flatMap(u=>u.checks.map(q=>`${q.choices[q.answer]} ${q.explanation}`)).join('\n').toLowerCase();
 for(const bad of [
   /aorist\s*(?:=|means)\s*(?:once|simple past)/,
   /no article\s*(?:=|means)\s*indefinite/,
   /genitive\s*(?:=|means)\s*(?:of|from)/,
   /present\s*(?:=|means)\s*continuous/,
   /historical present\s*(?:=|means)\s*(?:vivid|dramatic)/
-])assert(!bad.test(normative),`mechanical grammar slogan found: ${bad}`);
+])assert(!bad.test(normativeAnswers),`mechanical grammar slogan found in normative answer: ${bad}`);
+
+assert(/Do not.*aorist.*once/i.test(course.units[18].caution),'Unit 19 must reject once-for-all aorist claims');
+assert(/Do not.*present.*progressive|Do not.*present/i.test(course.units[11].caution),'Unit 12 must reject mechanical present translation');
+assert(/does not mean.*duration|Do not.*duration/i.test(course.units[16].caution),'Unit 17 must distinguish imperfective viewpoint from event duration');
+assert(/Anarthrous does not automatically mean indefinite/i.test(course.units[40].caution),'Unit 41 must reject article/indefiniteness shortcut');
+assert(/genitive is not semantically equal to English “of”/i.test(course.units[37].caution),'Unit 38 must reject genitive=of shortcut');
+assert(/historical present.*not automatically/i.test(course.units[45].caution),'Unit 46 must reject automatic historical-present vividness');
 assert(course.units[47].teach.some(x=>/Etymology/.test(x)),'Unit 48 must explicitly guard lexical etymology');
 assert(course.units[48].teach.some(x=>/not itself a manuscript apparatus/.test(x)),'Unit 49 must distinguish edition comparison from manuscript evidence');
 assert(course.units[49].teach.some(x=>/grammatical fact/.test(x)),'Unit 50 must preserve the exegetical evidence ladder');
