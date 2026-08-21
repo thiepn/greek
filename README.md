@@ -18,6 +18,7 @@ Current interactive systems include:
 - reader-generated vocabulary cards and canonical NT-wide frequency synchronization;
 - reviewed syntax and translation laboratory covering Units 38–44;
 - secure-proxy-ready grounded AI tutor with deterministic fallback;
+- unified BG9 adaptive review scheduler across remediation, vocabulary, morphology, syntax, unit decay, and reading transfer;
 - adaptive learner-state engine;
 - typed remediation and review scheduling;
 - competency-based progress tracking;
@@ -146,6 +147,25 @@ The static GitHub Pages client never contains an OpenAI API key. A Cloudflare Wo
 
 Until the Worker is deployed and the endpoint meta value is configured, the Tutor intentionally reports **Local fallback** rather than pretending the AI backend is live.
 
+## BG9 adaptive review engine
+
+BG9 makes Review a cross-system scheduler rather than a collection of unrelated queues. See [`ADAPTIVE_REVIEW.md`](./ADAPTIVE_REVIEW.md), [`adaptive-review.js`](./adaptive-review.js), and [`adaptive-review-ui.js`](./adaptive-review-ui.js).
+
+It combines:
+
+- BG3 typed remediation and review-due units;
+- BG5 due vocabulary, lapses, relearning state, and leeches;
+- BG4 weak morphology families;
+- BG7 weak syntax units;
+- BG3 reading-transfer weakness;
+- prerequisite-aware normal learning when review is clear.
+
+Open remediation is clustered by unit + error type and escalated from **new → repeated → persistent**. A transparent evidence-age/review-interval heuristic supplies retrieval-risk ranking for BG3 units; it is deliberately not labeled FSRS or presented as a calibrated probability.
+
+The default mixed-review budget is 20 minutes, with 10/35/50-minute alternatives. Domain repetition is penalized during planning so a large vocabulary queue cannot automatically monopolize the study block.
+
+BG9 preserves the mastery firewall: opening a task, visiting it during a session, or finishing the session never writes mastery evidence. The source learning interaction remains authoritative. BG8 AI output is not accepted as canonical scheduler evidence.
+
 ## Layer separation
 
 Koinē Path keeps these layers distinct:
@@ -157,7 +177,7 @@ Koinē Path keeps these layers distinct:
 5. reviewed morphology paradigms and learning annotations;
 6. reviewed syntactic relationships and translation scaffolds;
 7. reviewed grammar curriculum;
-8. learner state, SRS history, reading state, drafts, and mastery evidence;
+8. learner state, SRS history, reading state, drafts, mastery evidence, and deterministic review scheduling;
 9. grounded generative explanation/coaching.
 
 The static client contains no AI API secret. Model access must pass through the server-side BG8 proxy.
