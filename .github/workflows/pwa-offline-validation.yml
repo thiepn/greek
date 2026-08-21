@@ -1,0 +1,73 @@
+name: PWA Offline Validation
+
+on:
+  pull_request:
+    paths:
+      - 'manifest.webmanifest'
+      - 'sw.js'
+      - 'offline-engine.js'
+      - 'pwa-manager.js'
+      - 'pwa.css'
+      - 'icons/**'
+      - 'index.html'
+      - 'PWA_OFFLINE.md'
+      - 'scripts/build-pwa-shell.mjs'
+      - 'scripts/test-offline-engine.cjs'
+      - 'scripts/validate-pwa-build.mjs'
+      - '.github/workflows/pages.yml'
+      - '.github/workflows/pwa-offline-validation.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'manifest.webmanifest'
+      - 'sw.js'
+      - 'offline-engine.js'
+      - 'pwa-manager.js'
+      - 'pwa.css'
+      - 'icons/**'
+      - 'index.html'
+      - 'PWA_OFFLINE.md'
+      - 'scripts/build-pwa-shell.mjs'
+      - 'scripts/test-offline-engine.cjs'
+      - 'scripts/validate-pwa-build.mjs'
+      - '.github/workflows/pages.yml'
+      - '.github/workflows/pwa-offline-validation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Test offline engine
+        run: node scripts/test-offline-engine.cjs
+      - name: Check PWA runtime syntax
+        run: |
+          node --check sw.js
+          node --check offline-engine.js
+          node --check pwa-manager.js
+          node --check scripts/build-pwa-shell.mjs
+          node --check scripts/validate-pwa-build.mjs
+      - name: Build pinned full NT corpus
+        run: node scripts/build-full-corpus.mjs
+      - name: Validate pinned full NT corpus
+        run: node scripts/validate-full-corpus.mjs
+      - name: Build exact app shell manifest
+        run: node scripts/build-pwa-shell.mjs
+      - name: Validate PWA/install/offline boundaries
+        run: node scripts/validate-pwa-build.mjs
+      - name: Preserve learner-state firewall
+        run: |
+          ! grep -Eq "localStorage\.(clear|removeItem)" offline-engine.js pwa-manager.js sw.js
+          ! grep -Eq "recordEvidence" offline-engine.js pwa-manager.js sw.js
+      - name: Preserve project-path and update scope
+        run: |
+          grep -q '"start_url": "./"' manifest.webmanifest
+          grep -q '"scope": "./"' manifest.webmanifest
+          grep -q "register('./sw.js',{scope:'./',updateViaCache:'none'})" pwa-manager.js
+          grep -q "importScripts('./generated/pwa-version.js')" sw.js
