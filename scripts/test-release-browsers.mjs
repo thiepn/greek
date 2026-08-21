@@ -23,6 +23,36 @@ async function workspaceSmoke(page,name){
   return views;
 }
 
+async function courseSmoke(page,name,allUnits=false){
+  await page.locator('.nav button[data-view="learn"]').first().click();
+  await page.waitForSelector('#lesson-list [data-course-unit]');
+  const unitCount=await page.locator('#lesson-list [data-course-unit]').count();
+  assert.equal(unitCount,50,`${name}: Learn workspace must expose exactly 50 canonical units`);
+
+  const unitIds=allUnits?Array.from({length:50},(_,i)=>i+1):[1,12,30,50];
+  for(const id of unitIds){
+    await page.locator(`#lesson-list [data-course-unit="${id}"]`).click();
+    await page.waitForSelector('#lesson-stage:not([hidden]) .course-lesson');
+    assert.equal(await page.locator('#lesson-stage .course-checkpoint').count(),3,`${name}: Unit ${id} must render exactly three deterministic checkpoints`);
+    assert((await page.locator('#lesson-stage .course-teaching .course-movement').count())>=3,`${name}: Unit ${id} must render substantive teaching movements`);
+    assert((await page.locator('#lesson-stage .course-scripture article').count())>=1,`${name}: Unit ${id} must render Scripture transfer`);
+    if(id===1)assert.equal(await page.locator('#lesson-stage .course-preview-note').count(),0,`${name}: Unit 1 must be accessible on a clean learner state`);
+    if(id>1)assert.equal(await page.locator('#lesson-stage .course-preview-note').count(),1,`${name}: locked Unit ${id} must render preview mode on a clean learner state`);
+    await page.locator('#lesson-stage .course-back').click();
+    await page.waitForSelector('#lesson-list [data-course-unit]');
+  }
+
+  // A locked checkpoint must remain exposure-only and never manufacture mastery.
+  await page.locator('#lesson-list [data-course-unit="50"]').click();
+  await page.waitForSelector('#lesson-stage:not([hidden]) .course-lesson');
+  const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('koine-path-learning-v3')).units['50']);
+  await page.locator('#lesson-stage [data-course-q="u50.q1"]').first().click();
+  const after=await page.evaluate(()=>JSON.parse(localStorage.getItem('koine-path-learning-v3')).units['50']);
+  assert.equal(after.masteredAt,null,`${name}: preview checkpoint must not master Unit 50`);
+  assert.deepEqual(after.dimensions,before.dimensions,`${name}: preview checkpoint must not alter Unit 50 mastery dimensions`);
+  await page.locator('#lesson-stage .course-back').click();
+}
+
 async function persistenceSmoke(page,name){
   await page.evaluate(()=>localStorage.setItem('bg16-release-sentinel','preserve'));await page.reload({waitUntil:'domcontentloaded'});
   assert.equal(await page.evaluate(()=>localStorage.getItem('bg16-release-sentinel')),'preserve',`${name}: localStorage state did not survive reload`);
@@ -72,6 +102,7 @@ for(const [name,browserType] of engines){
   const page=await context.newPage();
   const pageErrors=[];page.on('pageerror',err=>pageErrors.push(String(err)));
   await workspaceSmoke(page,name);
+  await courseSmoke(page,name,name==='chromium');
   await persistenceSmoke(page,name);
   if(name==='chromium')await chromiumOfflineSmoke(page,context);
   assert.deepEqual(pageErrors,[],`${name}: uncaught page errors: ${pageErrors.join(' | ')}`);
@@ -80,4 +111,4 @@ for(const [name,browserType] of engines){
   console.log(`BG16 ${name} release smoke passed.`);
 }
 
-console.log('BG16 cross-browser release matrix passed: Chromium, Firefox, WebKit; Chromium service-worker/offline recovery verified.');
+console.log('BG16-B001 cross-browser release matrix passed: Chromium exercised all 50 course units; Firefox/WebKit representative course views; Chromium service-worker/offline recovery verified.');
