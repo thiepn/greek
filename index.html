@@ -4,13 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#f3efe7">
-  <meta name="description" content="Interactive Biblical Greek learning with lessons, morphology, vocabulary SRS, guided New Testament reading, adaptive review, and mastery tracking.">
+  <meta name="description" content="Interactive Biblical Greek learning with lessons, morphology, vocabulary SRS, the full Greek New Testament reader, adaptive review, and mastery tracking.">
   <title>Koinē Path — Biblical Greek</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="curriculum.css">
   <link rel="stylesheet" href="learning-engine.css">
   <link rel="stylesheet" href="morphology-lab.css">
   <link rel="stylesheet" href="vocabulary.css">
+  <link rel="stylesheet" href="reader.css">
 </head>
 <body>
 <div class="app">
@@ -47,23 +48,19 @@
       <section id="learn" class="view">
         <div class="eyebrow">Structured course</div><h1>Learn in reading order.</h1>
         <p class="lede">Each concept moves quickly from explanation to retrieval and Scripture. The five interactive lessons remain prototypes; their answers feed the canonical evidence model.</p>
-        <div id="lesson-list" class="lesson-list"></div>
-        <div id="lesson-stage"></div>
+        <div id="lesson-list" class="lesson-list"></div><div id="lesson-stage"></div>
       </section>
 
       <section id="drill" class="view"><div class="eyebrow">Morphology laboratory</div><h1>Loading reviewed forms…</h1></section>
 
       <section id="read" class="view">
-        <div class="eyebrow">Guided reader</div><h1>John 1:1</h1>
-        <p class="lede">Select a word. Assistance progresses from grammatical cue → lemma → full parse. Hint use and reader exposure are recorded separately from mastery evidence.</p>
-        <div class="two-col reader-layout">
-          <article class="panel reader-text" id="reader-text"></article>
-          <aside class="panel word-panel"><div class="eyebrow">Word inspector</div><div class="word-form" id="word-form">Select a word</div><p id="word-prompt">Attempt the form before asking for help.</p><div class="hint-box" id="hint-box">No hint revealed.</div><div class="hint-actions"><button class="btn" id="hint-1">Hint</button><button class="btn" id="hint-2">Lemma</button><button class="btn primary" id="hint-3">Full parse</button></div><button class="btn" id="add-review">Add to review</button></aside>
-        </div>
-        <div class="panel translation-panel"><button class="btn" id="show-translation">Reveal translation</button><p id="translation" hidden>In the beginning was the Word, and the Word was with God, and the Word was God.</p></div>
+        <div class="eyebrow">Greek New Testament reader</div><h1>Loading corpus…</h1>
+        <p class="lede">The full reader is initializing from the pinned corpus.</p>
+        <div class="two-col reader-layout"><article class="panel reader-text" id="reader-text"></article><aside class="panel word-panel"><div class="word-form" id="word-form">Select a word</div><p id="word-prompt">Attempt before reveal.</p><div class="hint-box" id="hint-box"></div><div class="hint-actions"><button class="btn" id="hint-1">Hint</button><button class="btn" id="hint-2">Lemma</button><button class="btn primary" id="hint-3">Full parse</button></div><button class="btn" id="add-review">Add to review</button></aside></div>
+        <div class="panel translation-panel"><button class="btn" id="show-translation">Translation assistance</button><p id="translation" hidden>Translation assistance is passage-dependent.</p></div>
       </section>
 
-      <section id="tutor" class="view"><div class="eyebrow">Socratic tutor</div><h1>Ask, then reason.</h1><p class="lede">The current tutor is deterministic and course-aware. A secure AI backend can replace it later.</p><div class="panel"><div id="chat" class="chat"><div class="bubble ai">Ask about a case, article, noun ending, present active verb, or John 1:1.</div></div><div class="chat-input"><textarea id="tutor-input" placeholder="Why is ἀρχῇ dative?"></textarea><button class="btn primary" id="send-tutor">Ask</button></div></div></section>
+      <section id="tutor" class="view"><div class="eyebrow">Socratic tutor</div><h1>Ask, then reason.</h1><p class="lede">The current tutor is deterministic and course-aware. A secure AI backend can replace it later.</p><div class="panel"><div id="chat" class="chat"><div class="bubble ai">Ask about a case, article, noun ending, present active verb, or a reader passage.</div></div><div class="chat-input"><textarea id="tutor-input" placeholder="Why is ἀρχῇ dative?"></textarea><button class="btn primary" id="send-tutor">Ask</button></div></div></section>
 
       <section id="review" class="view"><div class="eyebrow">Adaptive review</div><h1>Fix what failed.</h1><p class="lede">Prototype review items remain visible here while the canonical engine separately tracks error type, unit, recurrence, and remediation priority.</p><div class="panel" id="review-list"></div></section>
 
