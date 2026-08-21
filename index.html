@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#182338">
+  <meta name="description" content="Interactive Biblical Greek learning with lessons, parsing drills, guided New Testament reading, review, and progress tracking.">
+  <title>Koinē Path — Biblical Greek</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><small>New Testament Greek</small><strong>Koinē Path</strong><span>Read Scripture, not just paradigms.</span></div>
+    <nav class="nav" aria-label="Learning sections">
+      <button class="active" data-view="today">Today</button>
+      <button data-view="learn">Learn</button>
+      <button data-view="drill">Drill</button>
+      <button data-view="read">Read</button>
+      <button data-view="tutor">Tutor</button>
+      <button data-view="review">Review</button>
+      <button data-view="progress">Progress</button>
+    </nav>
+    <div class="side-progress"><small>Course mastery</small><strong id="side-pct">0%</strong><div class="track"><i id="side-bar"></i></div></div>
+  </aside>
+
+  <main class="main">
+    <header class="top"><div><strong id="top-title">Today</strong><span id="top-sub">Your next highest-value Greek task.</span></div><div class="pill">Foundation track</div></header>
+    <div class="content">
+      <section id="today" class="view active">
+        <div class="eyebrow">Daily study</div><h1>Build reading ability.</h1>
+        <p class="lede">Grammar, active recall, parsing, and actual New Testament Greek in one learning loop.</p>
+        <div class="metrics">
+          <div class="metric"><span>Lessons mastered</span><strong id="m-lessons">0 / 5</strong></div>
+          <div class="metric"><span>Parsing accuracy</span><strong id="m-accuracy">—</strong></div>
+          <div class="metric"><span>Review due</span><strong id="m-review">0</strong></div>
+          <div class="metric"><span>Words explored</span><strong id="m-words">0</strong></div>
+        </div>
+        <div class="section-head"><div><h2>Recommended next</h2><p>One focused action.</p></div></div>
+        <div class="panel hero"><div><div class="eyebrow">Next task</div><h2 id="next-title">Learn the Greek alphabet</h2><p id="next-text">Start with recognition before morphology.</p></div><button class="btn light" id="next-btn">Begin</button></div>
+      </section>
+
+      <section id="learn" class="view">
+        <div class="eyebrow">Structured course</div><h1>Learn in reading order.</h1>
+        <p class="lede">Each concept moves quickly from explanation to retrieval and Scripture.</p>
+        <div id="lesson-list" class="lesson-list"></div>
+        <div id="lesson-stage"></div>
+      </section>
+
+      <section id="drill" class="view">
+        <div class="eyebrow">Active recall</div><h1>Parse before reveal.</h1>
+        <p class="lede">Build fast recognition of forms instead of passive familiarity.</p>
+        <div class="two-col">
+          <div class="panel drill-card"><div class="drill-prompt"><span class="greek" id="drill-form">λόγος</span><p id="drill-ask">Identify this form.</p></div><div id="drill-options" class="options"></div><div id="drill-feedback" class="feedback" aria-live="polite"></div><button class="btn primary" id="new-drill">Next form</button></div>
+          <aside class="panel"><h2>Session</h2><div class="metric"><span>Accuracy</span><strong id="session-accuracy">—</strong></div><div class="metric"><span>Total attempts</span><strong id="total-attempts">0</strong></div><div class="metric"><span>Correct</span><strong id="total-correct">0</strong></div></aside>
+        </div>
+      </section>
+
+      <section id="read" class="view">
+        <div class="eyebrow">Guided reader</div><h1>John 1:1</h1>
+        <p class="lede">Select a word. Assistance progresses from grammatical cue → lemma → full parse.</p>
+        <div class="two-col reader-layout">
+          <article class="panel reader-text" id="reader-text"></article>
+          <aside class="panel word-panel"><div class="eyebrow">Word inspector</div><div class="word-form" id="word-form">Select a word</div><p id="word-prompt">Attempt the form before asking for help.</p><div class="hint-box" id="hint-box">No hint revealed.</div><div class="hint-actions"><button class="btn" id="hint-1">Hint</button><button class="btn" id="hint-2">Lemma</button><button class="btn primary" id="hint-3">Full parse</button></div><button class="btn" id="add-review">Add to review</button></aside>
+        </div>
+        <div class="panel translation-panel"><button class="btn" id="show-translation">Reveal translation</button><p id="translation" hidden>In the beginning was the Word, and the Word was with God, and the Word was God.</p></div>
+      </section>
+
+      <section id="tutor" class="view">
+        <div class="eyebrow">Socratic tutor</div><h1>Ask, then reason.</h1>
+        <p class="lede">The current tutor is deterministic and course-aware. A secure AI backend can replace it later.</p>
+        <div class="panel"><div id="chat" class="chat"><div class="bubble ai">Ask about a case, article, noun ending, present active verb, or John 1:1.</div></div><div class="chat-input"><textarea id="tutor-input" placeholder="Why is ἀρχῇ dative?"></textarea><button class="btn primary" id="send-tutor">Ask</button></div></div>
+      </section>
+
+      <section id="review" class="view">
+        <div class="eyebrow">Adaptive review</div><h1>Fix what failed.</h1>
+        <p class="lede">Wrong drill answers and difficult reader words accumulate here.</p>
+        <div class="panel" id="review-list"></div>
+      </section>
+
+      <section id="progress" class="view">
+        <div class="eyebrow">Meaningful progress</div><h1>Track competence.</h1>
+        <p class="lede">Progress reflects grammar and reading behavior rather than XP.</p>
+        <div class="metrics"><div class="metric"><span>Course mastery</span><strong id="p-mastery">0%</strong></div><div class="metric"><span>Parsing attempts</span><strong id="p-attempts">0</strong></div><div class="metric"><span>Parsing correct</span><strong id="p-correct">0</strong></div><div class="metric"><span>Reading independence</span><strong id="p-reading">0%</strong></div></div>
+        <div class="section-head"><div><h2>Competencies</h2><p>Foundation targets.</p></div></div><div class="panel" id="competencies"></div>
+      </section>
+    </div>
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
