@@ -22,17 +22,20 @@ jobs:
 
       - name: Validate release contract and learner-state migrations
         run: |
+          node --check scripts/test-course-content.cjs
           node --check scripts/test-release-contract.cjs
           node --check scripts/test-release-state-migrations.cjs
           node --check scripts/generate-release-candidate-manifest.cjs
+          node scripts/test-course-content.cjs
           node scripts/test-release-contract.cjs
           node scripts/test-release-state-migrations.cjs
 
       - name: Rebuild exact pinned Greek NT corpus
         run: node scripts/build-full-corpus.mjs
 
-      - name: Re-run scholarly content certification
+      - name: Re-run certified content suite
         run: |
+          node scripts/test-course-content.cjs
           node scripts/test-content-qa.cjs
           node scripts/test-morphology-lab.cjs
           node scripts/test-vocabulary-engine.cjs
@@ -45,7 +48,7 @@ jobs:
           node scripts/validate-fluency-corpus.cjs
           node scripts/validate-exegesis-corpus.cjs
           node scripts/generate-content-qa-manifest.cjs
-          node -e "const c=require('./RELEASE_CANDIDATE.json'),m=require('./generated/content-qa-manifest.json');if(m.certifiedContentFingerprint!==c.bg15ContentFingerprint){console.error('BG15 fingerprint drift');process.exit(1)}console.log('Frozen BG15 fingerprint verified:',m.certifiedContentFingerprint)"
+          node -e "const c=require('./RELEASE_CANDIDATE.json'),m=require('./generated/content-qa-manifest.json');if(m.certifiedContentFingerprint!==c.certifiedContentFingerprint){console.error('Certified content fingerprint drift');process.exit(1)}if(m.counts.courseUnits!==50||m.counts.courseCheckpoints!==150){console.error('Course completeness drift');process.exit(1)}console.log('Frozen certified content fingerprint verified:',m.certifiedContentFingerprint)"
 
       - name: Build and validate release PWA shell
         run: |
@@ -79,12 +82,12 @@ jobs:
         run: |
           node scripts/generate-release-candidate-manifest.cjs
           test -s generated/release-candidate-manifest.json
-          node -e "const m=require('./generated/release-candidate-manifest.json');if(m.verdicts.technical!=='TECHNICAL_RC_CERTIFIED'||m.verdicts.product!=='V1_RELEASE_BLOCKED')process.exit(1);if(!/^[0-9a-f]{64}$/.test(m.releaseCandidateFingerprint))process.exit(1);console.log('RC fingerprint:',m.releaseCandidateFingerprint);console.log('Product verdict:',m.verdicts.product)"
+          node -e "const m=require('./generated/release-candidate-manifest.json');if(m.candidate!=='1.0.0-rc.2'||m.verdicts.technical!=='TECHNICAL_RC_CERTIFIED'||m.verdicts.product!=='V1_RELEASE_CERTIFIED'||m.releaseBlockers.length!==0)process.exit(1);if(!/^[0-9a-f]{64}$/.test(m.releaseCandidateFingerprint))process.exit(1);console.log('RC fingerprint:',m.releaseCandidateFingerprint);console.log('Product verdict:',m.verdicts.product)"
 
       - name: Upload release certification artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: bg16-release-certification
+          name: bg16-b001-release-certification
           path: |
             generated/content-qa-manifest.json
             generated/release-candidate-manifest.json
