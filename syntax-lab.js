@@ -1,0 +1,27 @@
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root)root.KoineSyntax=api;})(typeof globalThis!=='undefined'?globalThis:this,function(){
+'use strict';
+const STORAGE_KEY='koine-path-syntax-lab-v1',SCHEMA=1,ASSIST={none:'none',hint:'hint',diagram:'lemma',reveal:'full'};
+const clone=v=>JSON.parse(JSON.stringify(v));const safe=s=>{try{return JSON.parse(s)}catch{return null}};const iso=d=>new Date(d).toISOString();
+class MemoryStorage{constructor(seed={}){this.m=new Map(Object.entries(seed))}getItem(k){return this.m.has(k)?this.m.get(k):null}setItem(k,v){this.m.set(k,String(v))}}
+function initial(){return{schemaVersion:SCHEMA,attempts:0,correct:0,byExercise:{},byUnit:{},drafts:{},recent:[],createdAt:null,updatedAt:null}}
+class SyntaxEngine{
+ constructor({data,learningEngine=null,storage=null,clock=()=>new Date(),fetchFn=null,basePath='generated/corpus/books'}={}){if(!data?.exercises)throw new Error('SyntaxEngine requires reviewed syntax data.');this.data=data;this.learningEngine=learningEngine;this.storage=storage||((typeof localStorage!=='undefined')?localStorage:new MemoryStorage());this.clock=clock;this.fetchFn=fetchFn||((typeof fetch!=='undefined')?fetch.bind(globalThis):null);this.basePath=basePath;this.bookCache=new Map();this.state={...initial(),...(safe(this.storage.getItem(STORAGE_KEY))||{})};this.state.createdAt=this.state.createdAt||iso(this.clock());this.persist()}
+ persist(){this.state.updatedAt=iso(this.clock());this.storage.setItem(STORAGE_KEY,JSON.stringify(this.state))}
+ exercise(id){return this.data.exercises.find(e=>e.id===id)||null}
+ async loadBook(id){if(this.bookCache.has(id))return this.bookCache.get(id);if(!this.fetchFn)throw new Error('Corpus fetch unavailable');const r=await this.fetchFn(`${this.basePath}/${encodeURIComponent(id)}.json`,{cache:'force-cache'});if(!r.ok)throw new Error(`${id}: HTTP ${r.status}`);const b=await r.json();this.bookCache.set(id,b);return b}
+ async passage(ex){ex=typeof ex==='string'?this.exercise(ex):ex;if(!ex)throw new Error('Unknown syntax exercise');const b=await this.loadBook(ex.ref.book),tokens=b.chapters?.[String(ex.ref.chapter)]?.[String(ex.ref.verse)];if(!tokens)throw new Error(`Missing corpus reference ${ex.ref.book}.${ex.ref.chapter}.${ex.ref.verse}`);return{book:b.book,tokens,text:tokens.map(t=>t.text).join(' '),id:`${ex.ref.book}.${ex.ref.chapter}.${ex.ref.verse}`}}
+ recordAssistance(ex,level){if(!ex||level==='none')return;const u=this.learningEngine?.getUnit?.(ex.unitId);if(u?.accessible)this.learningEngine.recordHint({unitId:ex.unitId,itemId:ex.id,level:ASSIST[level]||'hint',source:'syntax-lab'})}
+ answer(id,choice,{assistance='none'}={}){const ex=this.exercise(id);if(!ex)throw new Error('Unknown syntax exercise');const correct=Number(choice)===ex.answer;this.state.attempts++;if(correct)this.state.correct++;const rec=this.state.byExercise[id]||{attempts:0,correct:0,lastAt:null};rec.attempts++;if(correct)rec.correct++;rec.lastAt=iso(this.clock());this.state.byExercise[id]=rec;const ur=this.state.byUnit[String(ex.unitId)]||{attempts:0,correct:0};ur.attempts++;if(correct)ur.correct++;this.state.byUnit[String(ex.unitId)]=ur;this.state.recent=[id,...this.state.recent.filter(x=>x!==id)].slice(0,8);
+   if(this.learningEngine){const u=this.learningEngine.getUnit(ex.unitId);if(u?.accessible)this.learningEngine.recordEvidence({unitId:ex.unitId,dimension:ex.dimension||'recognition',correct,hintLevel:ASSIST[assistance]||'none',errorType:correct?null:(ex.errorType||'syntax_relation'),itemId:ex.id,source:'syntax-lab',confidence:.8});else this.learningEngine.recordExposure({unitId:ex.unitId,itemId:ex.id,source:'syntax-lab-preview'})}
+   this.persist();return{correct,exercise:clone(ex)}
+ }
+ saveDraft(id,text){const ex=this.exercise(id);if(!ex)throw new Error('Unknown syntax exercise');this.state.drafts[id]={text:String(text||''),updatedAt:iso(this.clock())};this.persist();return clone(this.state.drafts[id])}
+ draft(id){return clone(this.state.drafts[id]||{text:'',updatedAt:null})}
+ candidates({unit='all',type='all'}={}){return this.data.exercises.filter(e=>(unit==='all'||e.unitId===Number(unit))&&(type==='all'||e.type===type))}
+ weight(ex){const rec=this.state.byExercise[ex.id]||{attempts:0,correct:0},accuracy=rec.attempts?rec.correct/rec.attempts:0;let w=1+(1-accuracy)*2;if(!rec.attempts)w+=1.5;if(this.state.recent.includes(ex.id))w*=.2;const u=this.learningEngine?.getUnit?.(ex.unitId);if(u?.reviewDue)w+=2;if(u&&!u.accessible)w*=.35;return Math.max(.05,w)}
+ next(filters={}){const c=this.candidates(filters);if(!c.length)return null;const weighted=c.map(e=>({e,w:this.weight(e)})),sum=weighted.reduce((s,x)=>s+x.w,0);let n=Math.random()*sum;for(const x of weighted){n-=x.w;if(n<=0)return clone(x.e)}return clone(weighted[weighted.length-1].e)}
+ stats(){const units={};for(let id=38;id<=44;id++){const r=this.state.byUnit[String(id)]||{attempts:0,correct:0};units[id]={...r,accuracy:r.attempts?Math.round(r.correct/r.attempts*100):null}}return{attempts:this.state.attempts,correct:this.state.correct,accuracy:this.state.attempts?Math.round(this.state.correct/this.state.attempts*100):null,drafts:Object.keys(this.state.drafts).length,units}}
+ exercisesForLocation(book,chapter,verse=null){return this.data.exercises.filter(e=>e.ref.book===book&&e.ref.chapter===Number(chapter)&&(verse==null||e.ref.verse===Number(verse))).map(clone)}
+}
+return{STORAGE_KEY,SCHEMA,MemoryStorage,SyntaxEngine};
+});
