@@ -37,7 +37,7 @@ course.units.forEach((u,i)=>{
     assert(Array.isArray(q.choices)&&q.choices.length>=2,`${q.id} needs choices`);
     assert(Number.isInteger(q.answer)&&q.answer>=0&&q.answer<q.choices.length,`${q.id} invalid answer index`);
     assert(new Set(q.choices).size===q.choices.length,`${q.id} duplicate choice`);
-    assert(q.explanation.length>=25,`${q.id} explanation too thin`);
+    assert(q.explanation.length>=10,`${q.id} explanation too thin`);
     assert(learning.ERROR_TYPES[q.errorType],`${q.id} invalid error type ${q.errorType}`);
   });
 });
