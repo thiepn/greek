@@ -88,31 +88,36 @@ async function legacyMigrationSmoke(browserType,name){
 }
 
 // Offline recovery is intentionally isolated from the 50-unit interaction stress
-// context. Both contracts remain strict: course traversal may not manufacture
-// mastery, and a clean installed reader must cache/recover independently offline.
+// context. Bootstrap the worker in one page, then open a fresh page in the same
+// context so the installed-app launch is service-worker-controlled from its first
+// request. This avoids racing the app's controllerchange reload with a test reload.
 async function chromiumOfflineSmoke(){
   const browser=await chromium.launch({headless:true});
   const context=await browser.newContext({viewport:{width:1280,height:900}});
+  const bootstrap=await context.newPage();
+  await bootstrap.goto(BASE,{waitUntil:'domcontentloaded'});
+  await bootstrap.waitForSelector('#main-content');
+  const swSupported=await bootstrap.evaluate(()=>('serviceWorker'in navigator));
+  assert(swSupported,'chromium-offline: Service Worker API unavailable on localhost');
+  await bootstrap.evaluate(async()=>{await navigator.serviceWorker.ready;});
+
   const page=await context.newPage();
   const pageErrors=[];page.on('pageerror',err=>pageErrors.push(String(err)));
   await page.goto(BASE,{waitUntil:'domcontentloaded'});
   await page.waitForSelector('#main-content');
+  assert(await page.evaluate(()=>!!navigator.serviceWorker.controller),'chromium-offline: fresh installed launch is not controlled by service worker');
+  await bootstrap.close().catch(()=>{});
   await page.evaluate(()=>localStorage.setItem('bg16-release-sentinel','preserve'));
-  const swSupported=await page.evaluate(()=>('serviceWorker'in navigator));
-  assert(swSupported,'chromium-offline: Service Worker API unavailable on localhost');
-  await page.evaluate(async()=>{await navigator.serviceWorker.ready;});
-  await page.reload({waitUntil:'domcontentloaded'});
-  await page.waitForSelector('#main-content');
-  assert(await page.evaluate(()=>!!navigator.serviceWorker.controller),'chromium-offline: page is not controlled by service worker after reload');
 
   await page.locator('.nav button[data-view="read"]').first().click();
   await page.waitForSelector('#reader-text .reader-verse',{timeout:30000});
   const before=await page.locator('#reader-text .reader-verse').count();
-  assert(before>0,'chromium-offline: reader did not render online before offline transition');
+  assert(before>0,'chromium-offline: reader did not render online under service-worker control');
 
   await context.setOffline(true);
   await page.reload({waitUntil:'domcontentloaded',timeout:30000});
   await page.waitForSelector('#main-content',{timeout:30000});
+  assert(await page.evaluate(()=>!!navigator.serviceWorker.controller),'chromium-offline: offline reload lost service-worker control');
   await page.locator('.nav button[data-view="read"]').first().click();
   await page.waitForSelector('#reader-text .reader-verse',{timeout:30000});
   assert((await page.locator('#reader-text .reader-verse').count())>0,'chromium-offline: cached reader did not recover offline');
