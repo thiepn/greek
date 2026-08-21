@@ -5,7 +5,7 @@ const URL=process.env.KOINE_TEST_URL||'http://127.0.0.1:4173/';
 const browser=await chromium.launch({headless:true});
 async function openContext(viewport,{mobile=false}={}){
   const context=await browser.newContext({viewport,hasTouch:mobile,isMobile:mobile,serviceWorkers:'block'});
-  await context.addInitScript(()=>localStorage.setItem('koine-path-accessibility-v1',JSON.stringify({motion:'on',contrast:'system',textSize:'normal'})));
+  await context.addInitScript(()=>{if(!localStorage.getItem('koine-path-accessibility-v1'))localStorage.setItem('koine-path-accessibility-v1',JSON.stringify({motion:'on',contrast:'system',textSize:'normal'}))});
   const page=await context.newPage();await page.goto(URL,{waitUntil:'networkidle'});await page.waitForTimeout(250);return{context,page};
 }
 async function axe(page,label){
