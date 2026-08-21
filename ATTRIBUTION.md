@@ -12,46 +12,68 @@ Koinē Path separates Greek text, morphology/lemmatization, corpus frequency, le
 - Official license: Creative Commons Attribution 4.0 International (CC BY 4.0)
 - License: https://www.sblgnt.com/license/
 
-Koinē Path reproduces and may technically normalize SBLGNT text under CC BY 4.0. Attribution is retained here and in the machine-readable source manifest. No endorsement by SBL, Logos, or Faithlife is implied.
+Koinē Path reproduces and technically restructures SBLGNT text under CC BY 4.0. Attribution is retained here and in the generated machine-readable corpus manifest. No endorsement by SBL, Logos, or Faithlife is implied.
 
 ## MorphGNT: SBLGNT Edition
 
-**Role in Koinē Path:** token boundaries, normalized forms, lemmas, part-of-speech codes, morphological parse codes, and the underlying lemmatization used by the vocabulary-frequency source.
+**Role in Koinē Path:** token boundaries, normalized forms, lemmas, part-of-speech codes, morphological parse codes, and the lemmatization used to regenerate canonical NT-wide frequency.
 
 - Repository: https://github.com/morphgnt/sblgnt
-- Pinned BG2 revision: `aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d`
+- Pinned revision: `aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d`
 - Data citation: Tauber, J. K., ed. (2017), *MorphGNT: SBLGNT Edition*, Version 6.12. DOI: 10.5281/zenodo.376200
 - Morphological parsing and lemmatization license: CC BY-SA 3.0
 - License: https://creativecommons.org/licenses/by-sa/3.0/
 
-The MorphGNT repository README uses older wording for SBLGNT text licensing. Koinē Path follows the current official SBLGNT license page for the text itself and MorphGNT's stated CC BY-SA terms for morphology and lemmatization.
+The MorphGNT repository README uses older wording for SBLGNT text licensing. Koinē Path follows the current official SBLGNT license page for the Greek text itself and MorphGNT's stated CC BY-SA terms for morphology and lemmatization.
 
-## Core GNT Vocabulary frequency source
+## BG6 generated full-corpus layer
 
-**Role in BG5:** NT-wide lemma occurrence counts and rank ordering used to bootstrap the 1,000-core / 1,200-stretch vocabulary system.
+BG6 builds the runtime reader corpus directly from all 27 MorphGNT book files at the pinned revision above.
+
+The generation process creates:
+
+- one manifest;
+- one exact-corpus lemma frequency index;
+- 27 lazy-loaded book chunks.
+
+The generated corpus therefore uses the same pinned source revision for reader text, lemmas, morphology, and runtime frequency counts. The build is validated before GitHub Pages deployment.
+
+Generated corpus files are derivative runtime artifacts. Source attribution and licensing remain attached through this document and the generated manifest.
+
+## Core GNT Vocabulary frequency bootstrap
+
+**Role in BG5/BG6:** fallback/bootstrap rank and count data while the BG6-generated canonical frequency index is unavailable.
 
 - Repository: https://github.com/jtauber/core-gnt-vocab
 - Pinned revision: `136cc6464f1d4dfca9dec63fbbe5fd013982459c`
-- Runtime file: `lemma_95.tsv`
+- Runtime source file: `lemma_95.tsv`
 - Upstream method: counts lemmas across all 27 books using MorphGNT lemmatization, then sorts by occurrence count.
 
-Koinē Path loads at most the first 1,200 ranked rows and caches them locally. Frequency and rank are corpus statistics; they do **not** determine lexical meaning. The BG5 source is version-pinned so vocabulary ordering cannot silently change upstream.
+BG5 introduced this source before Koinē Path had a full local reader corpus. BG6 now regenerates frequency directly from the exact pinned MorphGNT corpus used by the reader and treats that generated index as the preferred runtime authority. The `core-gnt-vocab` source remains a version-pinned fallback and a useful independent cross-check.
 
-This BG5 frequency layer is separate from the BG2 token corpus. BG2 still contains only a local John 1:1 token fixture; a later full-corpus ingest should regenerate the rank table directly from the same pinned corpus used by the reader and can replace the BG5 bootstrap without changing the SRS schema.
+Frequency and rank are corpus statistics. They do **not** determine lexical meaning.
 
 ## Dodson Greek-English Lexicon
 
-**Role in BG5:** compact reference gloss prompts present in the upstream core-vocabulary table.
+**Role in BG5/BG6:** compact reference-gloss prompts present in the upstream core-vocabulary table.
 
 John Jeffrey Dodson released his Greek-English lexicon into the public domain. Koinē Path treats these strings only as **reference gloss prompts**. They are not complete lexical definitions and are never authoritative evidence for the contextual sense of a word in a particular verse.
 
 Relevant machine-readable edition: https://github.com/biblicalhumanities/Dodson-Greek-Lexicon
+
+BG6 exact-corpus frequency replaces ranks and counts, not these independently sourced lexical prompts. A lemma without a reviewed reference gloss may therefore have exact frequency while its English prompt remains unavailable.
 
 ## Koinē Path learning annotations
 
 **Role:** pedagogical hints, selected contextual notes, course mappings, difficulty metadata, and reviewed instructional content.
 
 These are project-created editorial annotations. They remain outside canonical text/morphology/frequency fields so that a hint, gloss, or pedagogical simplification can never masquerade as source data.
+
+## English translation policy
+
+BG6 does not bundle a complete English Bible translation. The full reader therefore does not silently redistribute an English translation or generate one as though it were a canonical source.
+
+A future comparison translation must have an explicit source, edition, license, and attribution policy before inclusion.
 
 ## Semantic boundary
 
@@ -62,4 +84,4 @@ The application must keep these claims distinct:
 3. `X means … here` — contextual interpretation requiring passage evidence;
 4. `therefore this verse teaches …` — interpretive/theological reasoning beyond lexical lookup.
 
-BG5 may support steps 1–2 and reviewed passage-specific learning notes. It may not automatically infer steps 3–4 from a flashcard gloss.
+The reader and SRS may support steps 1–2 and reviewed passage-specific learning notes. They may not automatically infer steps 3–4 from a flashcard gloss or morphology tag.
