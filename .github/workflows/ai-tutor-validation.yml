@@ -1,0 +1,47 @@
+name: Secure AI Tutor Validation
+
+on:
+  pull_request:
+    paths:
+      - 'ai-tutor.js'
+      - 'ai-tutor-ui.js'
+      - 'ai-tutor.css'
+      - 'AI_TUTOR.md'
+      - 'worker/**'
+      - 'scripts/test-ai-tutor.cjs'
+      - 'scripts/test-ai-worker.mjs'
+      - 'index.html'
+      - '.gitignore'
+      - '.github/workflows/ai-tutor-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test tutor client
+        run: node scripts/test-ai-tutor.cjs
+      - name: Test secure Worker contract
+        run: node scripts/test-ai-worker.mjs
+      - name: Check browser runtime syntax
+        run: |
+          node --check ai-tutor.js
+          node --check ai-tutor-ui.js
+          node --check worker/src/index.js
+      - name: Reject committed secret files and key literals
+        run: |
+          test ! -f worker/.dev.vars
+          test ! -f worker/.env
+          if grep -RInE 'sk-[A-Za-z0-9_-]{20,}' --exclude-dir=.git --exclude='AI_TUTOR.md' .; then
+            echo 'Potential API key literal found in repository.'
+            exit 1
+          fi
