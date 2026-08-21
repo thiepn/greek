@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#182338">
+  <meta name="theme-color" content="#f3efe7">
   <meta name="description" content="Interactive Biblical Greek learning with lessons, parsing drills, guided New Testament reading, review, and progress tracking.">
   <title>Koinē Path — Biblical Greek</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="curriculum.css">
 </head>
 <body>
 <div class="app">
@@ -42,7 +43,7 @@
 
       <section id="learn" class="view">
         <div class="eyebrow">Structured course</div><h1>Learn in reading order.</h1>
-        <p class="lede">Each concept moves quickly from explanation to retrieval and Scripture.</p>
+        <p class="lede">Each concept moves quickly from explanation to retrieval and Scripture. The current beta implements the opening foundation lessons; BG1 now defines the complete 50-unit learning spine.</p>
         <div id="lesson-list" class="lesson-list"></div>
         <div id="lesson-stage"></div>
       </section>
@@ -82,11 +83,15 @@
         <div class="eyebrow">Meaningful progress</div><h1>Track competence.</h1>
         <p class="lede">Progress reflects grammar and reading behavior rather than XP.</p>
         <div class="metrics"><div class="metric"><span>Course mastery</span><strong id="p-mastery">0%</strong></div><div class="metric"><span>Parsing attempts</span><strong id="p-attempts">0</strong></div><div class="metric"><span>Parsing correct</span><strong id="p-correct">0</strong></div><div class="metric"><span>Reading independence</span><strong id="p-reading">0%</strong></div></div>
-        <div class="section-head"><div><h2>Competencies</h2><p>Foundation targets.</p></div></div><div class="panel" id="competencies"></div>
+        <div class="section-head"><div><h2>Competencies</h2><p>Current beta targets.</p></div></div><div class="panel" id="competencies"></div>
+        <div class="section-head"><div><h2>Full curriculum</h2><p>BG1 canonical map · 8 stages · 50 units.</p></div></div>
+        <div id="curriculum-map" class="curriculum-map" aria-label="Full Biblical Greek curriculum"></div>
       </section>
     </div>
   </main>
 </div>
+<script src="curriculum.js"></script>
 <script src="app.js"></script>
+<script src="curriculum-ui.js"></script>
 </body>
 </html>
