@@ -65,8 +65,9 @@ jobs:
         run: |
           ! grep -Eq "localStorage\.(clear|removeItem)" offline-engine.js pwa-manager.js sw.js
           ! grep -Eq "recordEvidence" offline-engine.js pwa-manager.js sw.js
-      - name: Preserve project-path scope
+      - name: Preserve project-path and update scope
         run: |
           grep -q '"start_url": "./"' manifest.webmanifest
           grep -q '"scope": "./"' manifest.webmanifest
-          grep -q "register('./sw.js',{scope:'./'})" pwa-manager.js
+          grep -q "register('./sw.js',{scope:'./',updateViaCache:'none'})" pwa-manager.js
+          grep -q "importScripts('./generated/pwa-version.js')" sw.js
