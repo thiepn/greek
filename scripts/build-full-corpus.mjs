@@ -32,7 +32,28 @@ await fs.rm(OUT,{recursive:true,force:true});
 await ensure(path.join(OUT,'books'));
 const manifestBooks=[];
 const frequency=new Map();
+const lexical=new Map();
 let totalTokens=0,totalVerses=0;
+
+function lexemeRecord(lemma){
+  if(!lexical.has(lemma))lexical.set(lemma,{count:0,books:new Map(),sampleRefs:[],sampleRefSet:new Set(),nearby:new Map()});
+  return lexical.get(lemma);
+}
+function recordLexeme(token,bookId){
+  const x=lexemeRecord(token.lemma),ref=`${bookId}.${token.chapter}.${token.verse}`;
+  x.count++;x.books.set(bookId,(x.books.get(bookId)||0)+1);
+  if(x.sampleRefs.length<40&&!x.sampleRefSet.has(ref)){x.sampleRefSet.add(ref);x.sampleRefs.push(ref)}
+}
+function recordNearby(tokens){
+  const window=3;
+  for(let i=0;i<tokens.length;i++){
+    const x=lexemeRecord(tokens[i].lemma);
+    for(let j=Math.max(0,i-window);j<=Math.min(tokens.length-1,i+window);j++){
+      if(i===j||tokens[j].lemma===tokens[i].lemma)continue;
+      x.nearby.set(tokens[j].lemma,(x.nearby.get(tokens[j].lemma)||0)+1);
+    }
+  }
+}
 
 for(let bookIndex=0;bookIndex<BOOKS.length;bookIndex++){
   const [file,id,name]=BOOKS[bookIndex];
@@ -53,8 +74,10 @@ for(let bookIndex=0;bookIndex<BOOKS.length;bookIndex++){
     };
     chapters[c][v].push(token);
     frequency.set(row.lemma,(frequency.get(row.lemma)||0)+1);
+    recordLexeme({...token,chapter:row.chapter,verse:row.verse},id);
     totalTokens++;
   }
+  for(const chapter of Object.values(chapters))for(const verseTokens of Object.values(chapter))recordNearby(verseTokens);
   const chapterNumbers=Object.keys(chapters).map(Number).sort((a,b)=>a-b);
   const verseCount=chapterNumbers.reduce((sum,c)=>sum+Object.keys(chapters[String(c)]).length,0);
   const book={schemaVersion:1,sourceRevision:REVISION,book:{index:bookIndex+1,id,name,file,chapters:chapterNumbers.length,verses:verseCount,tokens:rows.length},chapters};
@@ -63,6 +86,7 @@ for(let bookIndex=0;bookIndex<BOOKS.length;bookIndex++){
 }
 
 const ranked=[...frequency.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'el')).map(([lemma,count],i)=>({lemma,count,rank:i+1,band:i<100?'F1':i<300?'F2':i<600?'F3':i<1000?'F4':'F5'}));
+const lexicalEntries=ranked.map(r=>{const x=lexical.get(r.lemma);return{...r,books:[...x.books.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).map(([book,count])=>({book,count})),sampleRefs:x.sampleRefs,nearbyLemmas:[...x.nearby.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'el')).slice(0,12).map(([lemma,count])=>({lemma,count}))}});
 const manifest={
   schemaVersion:1,datasetVersion:'bg6.0.0',generatedAt:new Date().toISOString(),unicodeNormalization:'NFC',
   source:{text:'SBLGNT',morphology:'MorphGNT: SBLGNT Edition 6.12',revision:REVISION,licenseText:'CC BY 4.0',licenseMorphology:'CC BY-SA 3.0'},
@@ -71,4 +95,5 @@ const manifest={
 };
 await fs.writeFile(path.join(OUT,'manifest.json'),JSON.stringify(manifest));
 await fs.writeFile(path.join(OUT,'frequency.json'),JSON.stringify({schemaVersion:1,sourceRevision:REVISION,countingUnit:'lemma',tokens:totalTokens,entries:ranked}));
-console.log(`BG6 corpus built: ${manifest.coverage.books} books, ${manifest.coverage.chapters} chapters, ${manifest.coverage.verses} verses, ${totalTokens} tokens, ${ranked.length} lemmas.`);
+await fs.writeFile(path.join(OUT,'lexical-index.json'),JSON.stringify({schemaVersion:1,datasetVersion:'bg11.0.0',sourceRevision:REVISION,countingUnit:'lemma',nearbyWindowTokens:3,sampleRefsLimit:40,note:'nearbyLemmas are raw ±3-token co-occurrence counts, not semantic definitions or normalized association scores',entries:lexicalEntries}));
+console.log(`BG6 corpus built: ${manifest.coverage.books} books, ${manifest.coverage.chapters} chapters, ${manifest.coverage.verses} verses, ${totalTokens} tokens, ${ranked.length} lemmas. BG11 lexical index generated.`);
