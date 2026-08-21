@@ -10,8 +10,9 @@ The five currently interactive lessons are prototype foundation content used to 
 
 Current interactive systems include:
 
-- foundation lessons
-- parsing drills with persistent accuracy
+- prototype foundation lessons
+- adaptive morphology laboratory
+- parsing, form-building, minimal-contrast, and principal-part drills
 - guided John 1:1 reader with progressive hints
 - adaptive learner-state engine
 - typed remediation and review scheduling
@@ -65,7 +66,7 @@ See:
 - [`learning-engine-ui.js`](./learning-engine-ui.js) — live Progress-state rendering
 - [`scripts/test-learning-engine.cjs`](./scripts/test-learning-engine.cjs) — deterministic engine tests
 
-Every canonical unit now tracks four dimensions:
+Every canonical unit tracks four dimensions:
 
 1. concept
 2. recognition
@@ -80,6 +81,33 @@ The previous `koine-path-v01` browser state is migrated into schema v3. Legacy l
 
 Reader hint use is recorded as assistance/exposure rather than as successful mastery evidence.
 
+## BG4 morphology laboratory
+
+BG4 replaces the prototype random parsing drill with a substantial adaptive morphology laboratory.
+
+See:
+
+- [`MORPHOLOGY_LAB.md`](./MORPHOLOGY_LAB.md) — morphology-lab behavior and provenance contract
+- [`data/morphology-lab-data.js`](./data/morphology-lab-data.js) — reviewed paradigm inventory
+- [`morphology-lab.js`](./morphology-lab.js) — exercise generation, adaptation, diagnosis, persistence, and BG3 integration
+- [`morphology-lab-ui.js`](./morphology-lab-ui.js) — interactive laboratory interface
+- [`scripts/test-morphology-lab.cjs`](./scripts/test-morphology-lab.cjs) — deterministic BG4 validation
+
+Current modes:
+
+1. **Parse** — identify morphology from a Greek form;
+2. **Build** — select the Greek form matching a requested morphology;
+3. **Contrast** — identify the single morphological feature that changes between a minimal pair;
+4. **Principal parts** — identify the principal-part slot represented by a form.
+
+The reviewed inventory covers articles, first/second/representative third-declension nouns, adjectives, pronouns, present systems, major indicative systems, participles, infinitives, subjunctives, imperatives, μι-verbs, and principal-part recognition.
+
+BG4 explicitly models **syncretism**. Contextless forms such as `τῶν` or `λύω` are not forced into one false parse when multiple modeled parses are legitimate.
+
+Adaptive selection increases the probability of weak morphology families, review-due units, and units with recurring BG3 errors while down-weighting recently shown forms. Hint, lemma, and full-answer use is passed to BG3 so assisted success receives appropriately weaker mastery evidence.
+
+Reviewed paradigm forms are tracked separately from corpus-derived tokens. A paradigm exercise is never presented as a direct SBLGNT occurrence unless it has an explicit corpus-token reference.
+
 ## Layer separation
 
 Koinē Path keeps these layers separate:
@@ -87,7 +115,7 @@ Koinē Path keeps these layers separate:
 1. Greek text / edition data
 2. morphology and lemma data
 3. deterministic derived data such as stable IDs and frequency counts
-4. reviewed learning annotations
+4. reviewed morphology paradigms and learning annotations
 5. reviewed grammar curriculum
 6. learner state and mastery evidence
 7. generative AI explanation/coaching
