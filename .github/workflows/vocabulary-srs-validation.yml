@@ -26,3 +26,9 @@ jobs:
           node-version: '22'
       - name: Run vocabulary SRS tests
         run: node scripts/test-vocabulary-engine.cjs
+      - name: Verify pinned NT frequency source
+        run: |
+          curl -fsSL 'https://raw.githubusercontent.com/jtauber/core-gnt-vocab/136cc6464f1d4dfca9dec63fbbe5fd013982459c/lemma_95.tsv' -o /tmp/lemma_95.tsv
+          test "$(head -n 1 /tmp/lemma_95.tsv)" = $'lemma\tcount\tgloss'
+          grep -q $'^ὁ\t19769\t' /tmp/lemma_95.tsv
+          test "$(wc -l < /tmp/lemma_95.tsv)" -gt 1200
