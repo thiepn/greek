@@ -1,0 +1,37 @@
+name: Greek Data Validation
+
+on:
+  pull_request:
+    paths:
+      - 'data/**'
+      - 'scripts/validate-greek-data.cjs'
+      - 'DATA_ARCHITECTURE.md'
+      - 'ATTRIBUTION.md'
+      - '.github/workflows/data-validation.yml'
+      - 'index.html'
+      - 'app.js'
+  push:
+    branches: [main]
+    paths:
+      - 'data/**'
+      - 'scripts/validate-greek-data.cjs'
+      - 'DATA_ARCHITECTURE.md'
+      - 'ATTRIBUTION.md'
+      - 'index.html'
+      - 'app.js'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate canonical Greek data
+        run: node scripts/validate-greek-data.cjs
