@@ -4,12 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#f3efe7">
-  <meta name="description" content="Interactive Biblical Greek learning with lessons, morphology training, guided New Testament reading, adaptive review, and mastery tracking.">
+  <meta name="description" content="Interactive Biblical Greek learning with lessons, morphology, vocabulary SRS, guided New Testament reading, adaptive review, and mastery tracking.">
   <title>Koinē Path — Biblical Greek</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="curriculum.css">
   <link rel="stylesheet" href="learning-engine.css">
   <link rel="stylesheet" href="morphology-lab.css">
+  <link rel="stylesheet" href="vocabulary.css">
 </head>
 <body>
 <div class="app">
@@ -32,7 +33,7 @@
     <div class="content">
       <section id="today" class="view active">
         <div class="eyebrow">Daily study</div><h1>Build reading ability.</h1>
-        <p class="lede">Grammar, active recall, morphology, and actual New Testament Greek in one learning loop. Known weaknesses are prioritized before novelty.</p>
+        <p class="lede">Grammar, active recall, morphology, vocabulary, and actual New Testament Greek in one learning loop. Known weaknesses are prioritized before novelty.</p>
         <div class="metrics">
           <div class="metric"><span>Prototype lessons</span><strong id="m-lessons">0 / 5</strong></div>
           <div class="metric"><span>Morphology accuracy</span><strong id="m-accuracy">—</strong></div>
@@ -50,9 +51,7 @@
         <div id="lesson-stage"></div>
       </section>
 
-      <section id="drill" class="view">
-        <div class="eyebrow">Morphology laboratory</div><h1>Loading reviewed forms…</h1>
-      </section>
+      <section id="drill" class="view"><div class="eyebrow">Morphology laboratory</div><h1>Loading reviewed forms…</h1></section>
 
       <section id="read" class="view">
         <div class="eyebrow">Guided reader</div><h1>John 1:1</h1>
@@ -64,27 +63,16 @@
         <div class="panel translation-panel"><button class="btn" id="show-translation">Reveal translation</button><p id="translation" hidden>In the beginning was the Word, and the Word was with God, and the Word was God.</p></div>
       </section>
 
-      <section id="tutor" class="view">
-        <div class="eyebrow">Socratic tutor</div><h1>Ask, then reason.</h1>
-        <p class="lede">The current tutor is deterministic and course-aware. A secure AI backend can replace it later.</p>
-        <div class="panel"><div id="chat" class="chat"><div class="bubble ai">Ask about a case, article, noun ending, present active verb, or John 1:1.</div></div><div class="chat-input"><textarea id="tutor-input" placeholder="Why is ἀρχῇ dative?"></textarea><button class="btn primary" id="send-tutor">Ask</button></div></div>
-      </section>
+      <section id="tutor" class="view"><div class="eyebrow">Socratic tutor</div><h1>Ask, then reason.</h1><p class="lede">The current tutor is deterministic and course-aware. A secure AI backend can replace it later.</p><div class="panel"><div id="chat" class="chat"><div class="bubble ai">Ask about a case, article, noun ending, present active verb, or John 1:1.</div></div><div class="chat-input"><textarea id="tutor-input" placeholder="Why is ἀρχῇ dative?"></textarea><button class="btn primary" id="send-tutor">Ask</button></div></div></section>
 
-      <section id="review" class="view">
-        <div class="eyebrow">Adaptive review</div><h1>Fix what failed.</h1>
-        <p class="lede">Prototype review items remain visible here while the canonical engine separately tracks error type, unit, recurrence, and remediation priority.</p>
-        <div class="panel" id="review-list"></div>
-      </section>
+      <section id="review" class="view"><div class="eyebrow">Adaptive review</div><h1>Fix what failed.</h1><p class="lede">Prototype review items remain visible here while the canonical engine separately tracks error type, unit, recurrence, and remediation priority.</p><div class="panel" id="review-list"></div></section>
 
       <section id="progress" class="view">
-        <div class="eyebrow">Meaningful progress</div><h1>Track competence.</h1>
-        <p class="lede">Progress reflects canonical unit evidence rather than one-time completion or XP.</p>
+        <div class="eyebrow">Meaningful progress</div><h1>Track competence.</h1><p class="lede">Progress reflects canonical unit evidence rather than one-time completion or XP.</p>
         <div class="metrics"><div class="metric"><span>Canonical mastery</span><strong id="p-mastery">0%</strong></div><div class="metric"><span>Morphology attempts</span><strong id="p-attempts">0</strong></div><div class="metric"><span>Morphology correct</span><strong id="p-correct">0</strong></div><div class="metric"><span>Reading evidence</span><strong id="p-reading">0%</strong></div></div>
-        <div class="section-head"><div><h2>Learning engine</h2><p>Current evidence, stage gate, remediation, and recommendation.</p></div></div>
-        <div id="learning-engine-summary" class="panel"></div>
+        <div class="section-head"><div><h2>Learning engine</h2><p>Current evidence, stage gate, remediation, and recommendation.</p></div></div><div id="learning-engine-summary" class="panel"></div>
         <div class="section-head"><div><h2>Focus-unit competencies</h2><p>Concept · recognition · application · reading transfer.</p></div></div><div class="panel" id="competencies"></div>
-        <div class="section-head"><div><h2>Full curriculum</h2><p>BG1 canonical map · decorated with live unit state.</p></div></div>
-        <div id="curriculum-map" class="curriculum-map" aria-label="Full Biblical Greek curriculum"></div>
+        <div class="section-head"><div><h2>Full curriculum</h2><p>BG1 canonical map · decorated with live unit state.</p></div></div><div id="curriculum-map" class="curriculum-map" aria-label="Full Biblical Greek curriculum"></div>
       </section>
     </div>
   </main>
@@ -92,12 +80,15 @@
 <script src="curriculum.js"></script>
 <script src="data/greek-data.js"></script>
 <script src="data/morphology-lab-data.js"></script>
+<script src="data/vocabulary-seed.js"></script>
 <script src="learning-engine.js"></script>
 <script src="morphology-lab.js"></script>
+<script src="vocabulary-engine.js"></script>
 <script src="app.js"></script>
 <script src="canonical-reader.js"></script>
 <script src="curriculum-ui.js"></script>
 <script src="learning-engine-ui.js"></script>
 <script src="morphology-lab-ui.js"></script>
+<script src="vocabulary-ui.js"></script>
 </body>
 </html>
