@@ -13,7 +13,8 @@ Current interactive systems include:
 - foundation lessons
 - parsing drills with persistent accuracy
 - guided John 1:1 reader with progressive hints
-- review queue generated from mistakes and difficult words
+- adaptive learner-state engine
+- typed remediation and review scheduling
 - competency-based progress tracking
 - deterministic Socratic tutor designed for a later secure AI backend
 - local-first browser persistence
@@ -49,11 +50,37 @@ The current runtime foundation uses:
 - MorphGNT revision `aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d` as the pinned source revision;
 - Koinē Path editorial annotations as a separate pedagogical layer.
 
-The reader now consumes the canonical John 1:1 token dataset rather than maintaining an independent hand-written parsing copy inside `app.js`.
+The reader consumes the canonical John 1:1 token dataset rather than maintaining an independent hand-written parsing copy inside `app.js`.
 
 BG2 deliberately leaves NT-wide frequency counts null until a complete pinned corpus is ingested. Partial samples are never labeled as global frequency data.
 
-## Data-layer separation
+## BG3 learning engine
+
+BG3 turns curriculum and Greek data into persistent learner state.
+
+See:
+
+- [`LEARNING_ENGINE.md`](./LEARNING_ENGINE.md) — mastery, decay, stage-gate, and recommendation contract
+- [`learning-engine.js`](./learning-engine.js) — browser/CommonJS engine
+- [`learning-engine-ui.js`](./learning-engine-ui.js) — live Progress-state rendering
+- [`scripts/test-learning-engine.cjs`](./scripts/test-learning-engine.cjs) — deterministic engine tests
+
+Every canonical unit now tracks four dimensions:
+
+1. concept
+2. recognition
+3. application
+4. reading transfer
+
+A single correct response cannot grant mastery. The engine requires repeated evidence, penalizes assistance, creates typed remediation for diagnostic errors, schedules review, applies bounded evidence decay, enforces prerequisites and stage gates, and chooses the next task with this priority:
+
+**remediation → due review → weakest in-progress unit → next available unit → general reading practice**
+
+The previous `koine-path-v01` browser state is migrated into schema v3. Legacy lesson completion is preserved as low-confidence evidence and never grants canonical mastery automatically.
+
+Reader hint use is recorded as assistance/exposure rather than as successful mastery evidence.
+
+## Layer separation
 
 Koinē Path keeps these layers separate:
 
