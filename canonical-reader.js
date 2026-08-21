@@ -8,7 +8,7 @@
   const MANIFEST_URL='generated/corpus/manifest.json';
   const FREQUENCY_URL='generated/corpus/frequency.json';
   const bookCache=new Map();
-  let manifest=null,frequency=null,currentBook=null,currentChapter=1;
+  let manifest=null,frequency=null,currentBook=null,currentChapter=1,selectedWord=null;
   const POS={
     'A-':'adjective','C-':'conjunction','D-':'adverb','I-':'interjection','N-':'noun','P-':'preposition','RA':'article',
     'RD':'demonstrative pronoun','RI':'interrogative / indefinite pronoun','RP':'personal pronoun','RR':'relative pronoun','V-':'verb','X-':'particle'
