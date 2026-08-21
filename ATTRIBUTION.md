@@ -4,19 +4,27 @@ Koinē Path separates Greek text, morphology/lemmatization, corpus frequency, le
 
 ## SBL Greek New Testament (SBLGNT)
 
-**Role in Koinē Path:** canonical Greek surface text.
+**Role in Koinē Path:** canonical Greek surface-text family; the exact runtime snapshot is fixed by the pinned MorphGNT revision documented below.
 
 - Title: *SBL Greek New Testament (SBLGNT)*
 - Copyright: Society of Biblical Literature and Logos Bible Software
-- Official site: https://www.sblgnt.com/
+- Official repository: https://github.com/LogosBible/SBLGNT
 - Official license: Creative Commons Attribution 4.0 International (CC BY 4.0)
 - License: https://www.sblgnt.com/license/
 
 Koinē Path reproduces and technically restructures SBLGNT text under CC BY 4.0. Attribution is retained here and in the generated machine-readable corpus manifest. No endorsement by SBL, Logos, or Faithlife is implied.
 
+### Exact text snapshot used by Koinē Path
+
+The reader does **not** silently track the newest official SBLGNT release. Its exact surface text is the SBLGNT text embedded in MorphGNT revision `aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d`.
+
+This distinction matters because the official Faithlife/Logos SBLGNT repository records later release changes, including v1.2 (2023), which added John 7:53–8:11. The pinned MorphGNT snapshot used by Koinē Path does not contain token-bearing John 7:53–8:11 and begins John 8 at verse 12. Koinē Path therefore labels its corpus as a **pinned SBLGNT/MorphGNT snapshot**, not as “the latest SBLGNT.”
+
+A future corpus update must be an explicit source-revision migration with regenerated counts, hashes, QA, and reader validation; it must never happen merely because an upstream repository changes.
+
 ## MorphGNT: SBLGNT Edition
 
-**Role in Koinē Path:** token boundaries, normalized forms, lemmas, part-of-speech codes, morphological parse codes, and the lemmatization used to regenerate canonical NT-wide frequency and BG11 lexical-distribution data.
+**Role in Koinē Path:** exact text-snapshot anchor plus token boundaries, normalized forms, lemmas, part-of-speech codes, morphological parse codes, and the lemmatization used to regenerate canonical NT-wide frequency and BG11 lexical-distribution data.
 
 - Repository: https://github.com/morphgnt/sblgnt
 - Pinned revision: `aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d`
@@ -24,7 +32,7 @@ Koinē Path reproduces and technically restructures SBLGNT text under CC BY 4.0.
 - Morphological parsing and lemmatization license: CC BY-SA 3.0
 - License: https://creativecommons.org/licenses/by-sa/3.0/
 
-The MorphGNT repository README uses older wording for SBLGNT text licensing. Koinē Path follows the current official SBLGNT license page for the Greek text itself and MorphGNT's stated CC BY-SA terms for morphology and lemmatization.
+The MorphGNT repository README uses older wording for SBLGNT text licensing. Koinē Path follows the current official SBLGNT license/repository for the Greek text license itself and MorphGNT's stated CC BY-SA terms for morphology and lemmatization.
 
 ## BG6/BG11 generated full-corpus layer
 
@@ -43,6 +51,8 @@ The BG11 lexical index derives only deterministic corpus statistics from the sam
 - per-book distribution;
 - deterministic sample verse references;
 - raw ±3-token nearby-lemma counts.
+
+Canonical frequency order is occurrence-count descending with an explicit normalized-lemma **Unicode code-point** tie-break. Locale collation is not used for canonical rank assignment.
 
 These nearby-lemma counts are not semantic definitions, senses, syntactic dependencies, or normalized statistical association scores. They are exploratory corpus evidence that must be inspected in context.
 
@@ -74,7 +84,7 @@ BG11 CI fetches the pinned apparatus source and verifies the exact source string
 
 ## Core GNT Vocabulary frequency bootstrap
 
-**Role in BG5/BG6:** fallback/bootstrap rank and count data while the BG6-generated canonical frequency index is unavailable.
+**Role in BG5/BG6:** fallback/bootstrap count data and verified ranks where present while the BG6-generated canonical frequency index is unavailable.
 
 - Repository: https://github.com/jtauber/core-gnt-vocab
 - Pinned revision: `136cc6464f1d4dfca9dec63fbbe5fd013982459c`
@@ -82,6 +92,8 @@ BG11 CI fetches the pinned apparatus source and verifies the exact source string
 - Upstream method: counts lemmas across all 27 books using MorphGNT lemmatization, then sorts by occurrence count.
 
 BG5 introduced this source before Koinē Path had a full local reader corpus. BG6 now regenerates frequency directly from the exact pinned MorphGNT corpus used by the reader and treats that generated index as the preferred runtime authority. The `core-gnt-vocab` source remains a version-pinned fallback and a useful independent cross-check.
+
+The local fallback seed is intentionally sparse. BG15 forbids using a sparse-subset position as an NT-wide rank. Only ranks verified against the source are populated; supplemental fallback entries may carry `rank: null` until canonical BG6 frequency is available.
 
 Frequency and rank are corpus statistics. They do **not** determine lexical meaning.
 
