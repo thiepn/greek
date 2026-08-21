@@ -21,7 +21,7 @@ Current interactive systems include:
 
 ## BG1 curriculum architecture
 
-The canonical course is now defined as **50 units across 8 stages**, from script recognition through independent New Testament reading and introductory exegetical competence.
+The canonical course is defined as **50 units across 8 stages**, from script recognition through independent New Testament reading and introductory exegetical competence.
 
 See [`CURRICULUM.md`](./CURRICULUM.md) for the pedagogical contract and [`curriculum.js`](./curriculum.js) for the machine-readable manifest consumed by the application.
 
@@ -29,28 +29,40 @@ The canonical learning loop is:
 
 **Learn → Retrieve → Parse → Read → Explain → Review → Read again**
 
-Major curriculum rules include:
+Major curriculum rules include attempt before reveal, recognition before production, real New Testament text from the beginning, frequency-first vocabulary, responsible tense/aspect teaching, and explicit separation of morphology, syntax, semantics, interpretation, and theology.
 
-- attempt before reveal;
-- recognition before production;
-- real New Testament text from the beginning;
-- deterministic grammar and morphology facts;
-- frequency-first, passage-sensitive vocabulary;
-- explicit separation of morphology, syntax, semantics, interpretation, and theology;
-- no simplistic tense/aspect slogans;
-- responsible lexical semantics;
-- configurable pronunciation profiles;
-- mastery that can decay and trigger remediation.
+## BG2 Greek data foundation
 
-## Data architecture direction
+BG2 establishes the source-of-truth layer consumed by future lessons, drills, readers, review, and AI tutoring.
 
-Koinē Path will keep these layers separate:
+See:
+
+- [`DATA_ARCHITECTURE.md`](./DATA_ARCHITECTURE.md) — canonical data contract
+- [`ATTRIBUTION.md`](./ATTRIBUTION.md) — source attribution and licensing
+- [`data/greek-data.js`](./data/greek-data.js) — runtime source manifest and validated John 1:1 fixture
+- [`scripts/validate-greek-data.cjs`](./scripts/validate-greek-data.cjs) — deterministic validation gates
+
+The current runtime foundation uses:
+
+- **SBLGNT** for canonical Greek text under CC BY 4.0;
+- **MorphGNT: SBLGNT Edition 6.12** for normalization, lemmas, POS, and morphology under CC BY-SA 3.0;
+- MorphGNT revision `aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d` as the pinned source revision;
+- Koinē Path editorial annotations as a separate pedagogical layer.
+
+The reader now consumes the canonical John 1:1 token dataset rather than maintaining an independent hand-written parsing copy inside `app.js`.
+
+BG2 deliberately leaves NT-wide frequency counts null until a complete pinned corpus is ingested. Partial samples are never labeled as global frequency data.
+
+## Data-layer separation
+
+Koinē Path keeps these layers separate:
 
 1. Greek text / edition data
 2. morphology and lemma data
-3. vocabulary and frequency data
-4. reviewed grammar curriculum
-5. learner state and mastery evidence
-6. generative AI explanation/coaching
+3. deterministic derived data such as stable IDs and frequency counts
+4. reviewed learning annotations
+5. reviewed grammar curriculum
+6. learner state and mastery evidence
+7. generative AI explanation/coaching
 
 The static client deliberately contains no AI API secret. A real model-backed tutor must connect through a secure serverless proxy.
