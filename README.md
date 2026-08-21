@@ -1,6 +1,6 @@
 # Koinē Path
 
-Interactive Biblical Greek learning app focused on active recall, morphology, vocabulary acquisition, full New Testament reading, syntax/translation training, adaptive review, and grounded tutoring.
+Interactive Biblical Greek learning app focused on active recall, morphology, vocabulary acquisition, full New Testament reading, syntax/translation training, adaptive review, reading fluency, and grounded tutoring.
 
 **Live:** https://thiepn.github.io/greek/
 
@@ -19,6 +19,8 @@ Current interactive systems include:
 - reviewed syntax and translation laboratory covering Units 38–44;
 - secure-proxy-ready grounded AI tutor with deterministic fallback;
 - unified BG9 adaptive review scheduler across remediation, vocabulary, morphology, syntax, unit decay, and reading transfer;
+- BG10 continuous-reading fluency sessions with first-pass / analysis / reread separation;
+- 1 John, Mark, and Philippians fluency programs plus whole-chapter practice;
 - adaptive learner-state engine;
 - typed remediation and review scheduling;
 - competency-based progress tracking;
@@ -166,6 +168,24 @@ The default mixed-review budget is 20 minutes, with 10/35/50-minute alternatives
 
 BG9 preserves the mastery firewall: opening a task, visiting it during a session, or finishing the session never writes mastery evidence. The source learning interaction remains authoritative. BG8 AI output is not accepted as canonical scheduler evidence.
 
+## BG10 reading fluency mode
+
+BG10 builds a dedicated continuous-reading environment on top of the BG6 corpus. See [`READING_FLUENCY.md`](./READING_FLUENCY.md), [`data/fluency-programs.js`](./data/fluency-programs.js), [`reading-fluency.js`](./reading-fluency.js), and [`reading-fluency-ui.js`](./reading-fluency-ui.js).
+
+Every scored session uses:
+
+**First pass → Comprehension checkpoint → Assisted analysis → Reread → Comparison**
+
+The first pass provides no lemma or parse reveal. Learners may mark unknown words without revealing help. The analysis pass counts unique tokens that required assistance, then rereading measures whether the same passage becomes less effortful.
+
+BG10 tracks first-pass and reread pace, approximate clauses/minute, unknown-word rate, tool-interruption rate, reviewed comprehension, passage length, completed reading days, and consecutive reading-day streaks. WPM is descriptive only and never creates mastery evidence.
+
+Automatic passage length progresses from **micro → short → medium → whole chapter**. Recommendations prefer unseen material and use BG5 known-vocabulary state plus curriculum-accessible grammar as suitability signals. Reviewed programs cover Unit 45 (1 John), Unit 46 (Mark), and Unit 47 (Philippians), while any current BG6 reader chapter can be opened as an unscored whole-chapter fluency session.
+
+Current R3→R4 readiness uses the latest five scored sessions: ≥80% comprehension, ≤12% first-pass unknown rate, ≤8% analysis assistance, and at least three passages of 100+ tokens. There is intentionally no speed threshold.
+
+BG9 reading-transfer review for advanced Units 45–50 now routes into Fluency rather than the generic reader.
+
 ## Layer separation
 
 Koinē Path keeps these layers distinct:
@@ -175,9 +195,9 @@ Koinē Path keeps these layers distinct:
 3. corpus frequency data;
 4. lexical reference glosses;
 5. reviewed morphology paradigms and learning annotations;
-6. reviewed syntactic relationships and translation scaffolds;
+6. reviewed syntactic relationships, translation scaffolds, and fluency comprehension checkpoints;
 7. reviewed grammar curriculum;
-8. learner state, SRS history, reading state, drafts, mastery evidence, and deterministic review scheduling;
+8. learner state, SRS history, reading/fluency state, drafts, mastery evidence, and deterministic review scheduling;
 9. grounded generative explanation/coaching.
 
 The static client contains no AI API secret. Model access must pass through the server-side BG8 proxy.
