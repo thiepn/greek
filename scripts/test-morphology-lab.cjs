@@ -1,24 +1,40 @@
 const assert=require('assert');
 const data=require('../data/morphology-lab-data.js');
+require('../data/morphology-bg15-corrections.js')(data);
 const {MorphologyLab,MemoryStorage}=require('../morphology-lab.js');
 
 function rngSeq(values){let i=0;return()=>values[i++%values.length];}
 function labWith(opts={}){return new MorphologyLab({data,storage:new MemoryStorage(),rng:opts.rng||rngSeq([.13,.71,.37,.89,.22]),learningEngine:opts.learningEngine||null});}
 
 (function datasetIntegrity(){
-  assert(data.items.length>=100,'BG4 should contain a substantial reviewed morphology inventory');
+  assert.equal(data.items.length,130,'BG15 reviewed morphology inventory should contain 130 modeled parses');
   assert(data.items.every(x=>x.id&&x.form&&x.lemma&&x.unitId&&x.sourceId),'every morphology item needs identity, lemma, unit, and provenance');
   assert(data.items.every(x=>x.sourceId===data.source.id),'reviewed paradigm provenance must be explicit');
+  assert.equal(new Set(data.items.map(x=>x.id)).size,data.items.length,'morphology ids must be unique');
+  assert(data.items.every(x=>x.form===x.form.normalize('NFC')&&x.lemma===x.lemma.normalize('NFC')),'morphology Greek must be NFC');
 })();
 
 (function syncretismIsExplicit(){
   const lab=labWith();
-  const item=data.items.find(x=>x.form==='τῶν'&&x.lemma==='ὁ');
-  const answer=lab.combinedParse(item);
-  assert(answer.includes('masculine')&&answer.includes('feminine')&&answer.includes('neuter'),'τῶν must not be forced into one gender without context');
-  const lyuo=data.items.find(x=>x.form==='λύω'&&x.family==='verb-present-active');
-  const verbAnswer=lab.combinedParse(lyuo);
-  assert(verbAnswer.includes('indicative')&&verbAnswer.includes('subjunctive'),'contextless λύω ambiguity must be represented');
+  const answerFor=(form,family=null)=>{const item=data.items.find(x=>x.form===form&&(!family||x.family===family));assert(item,`missing ${form}`);return lab.combinedParse(item)};
+  const ton=answerFor('τῶν');
+  assert(ton.includes('masculine')&&ton.includes('feminine')&&ton.includes('neuter'),'τῶν must not be forced into one gender without context');
+  const lyuo=answerFor('λύω','verb-present-active');
+  assert(lyuo.includes('indicative')&&lyuo.includes('subjunctive'),'contextless λύω ambiguity must be represented');
+  assert(answerFor('λύῃ').includes('subjunctive'),'λύῃ must expose indicative/subjunctive identity');
+  assert(answerFor('λύετε','verb-present-active').includes('imperative'),'contextless λύετε must include indicative/imperative identity');
+  const elyon=answerFor('ἔλυον');
+  assert(elyon.includes('1st person')&&elyon.includes('3rd person')&&elyon.includes('plural'),'ἔλυον must include 1sg/3pl ambiguity');
+  const kalon=answerFor('καλόν');
+  assert(kalon.includes('nominative')&&kalon.includes('accusative')&&kalon.includes('masculine')&&kalon.includes('neuter'),'καλόν must expose masculine-accusative and neuter nominative/accusative ambiguity');
+  assert(answerFor('καλά').includes('accusative'),'καλά must include neuter nominative/accusative plural ambiguity');
+  assert(answerFor('αὐτό').includes('accusative'),'αὐτό must include nominative/accusative neuter ambiguity');
+  assert(answerFor('αὐτά').includes('accusative'),'αὐτά must include nominative/accusative neuter plural ambiguity');
+  assert(answerFor('λῦον').includes('accusative'),'λῦον participle must include nominative/accusative neuter ambiguity');
+  const lyso=answerFor('λύσω','verb-indicative-systems');
+  assert(lyso.includes('future')&&lyso.includes('aorist')&&lyso.includes('subjunctive'),'λύσω must expose future indicative / aorist subjunctive identity');
+  const lysai=answerFor('λῦσαι','infinitive');
+  assert(lysai.includes('infinitive')&&lysai.includes('imperative')&&lysai.includes('middle'),'λῦσαι must expose aorist active infinitive / aorist middle imperative identity');
 })();
 
 (function parseQuestionHasOneCorrectOption(){
@@ -79,4 +95,4 @@ function labWith(opts={}){return new MorphologyLab({data,storage:new MemoryStora
   const families=new Set(data.items.map(x=>x.family));['article','noun-2m','noun-2n','noun-1f','adjective','noun-3','pronoun','verb-present-active','verb-indicative-systems','participle','infinitive','subjunctive','imperative','mi-verb'].forEach(f=>assert(families.has(f),`missing morphology family ${f}`));
 })();
 
-console.log('BG4 morphology-lab tests passed: 13 suites');
+console.log('BG4/BG15 morphology-lab tests passed: 13 suites, 130 modeled parses');

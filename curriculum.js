@@ -1,5 +1,5 @@
 window.KOINE_CURRICULUM = Object.freeze({
-  version: 'bg1.0',
+  version: 'bg15.0',
   title: 'Koinē Path Canonical Curriculum',
   totalUnits: 50,
   principles: [
@@ -8,6 +8,7 @@ window.KOINE_CURRICULUM = Object.freeze({
     'real-text-early',
     'deterministic-grammar-facts',
     'lexical-restraint',
+    'tense-form-is-not-a-mechanical-time-or-action-kind',
     'grammar-is-not-theology'
   ],
   mastery: {
@@ -59,8 +60,8 @@ window.KOINE_CURRICULUM = Object.freeze({
       ]
     },
     {
-      id: 'S3', title: 'Indicative Timeframes & Principal Parts', units: [17,18,19,20,21,22,23], vocabTarget: 320, reader: ['R1'],
-      outcome: 'Recognize the major indicative systems and think in stems and principal parts.',
+      id: 'S3', title: 'Indicative Systems, Aspect & Principal Parts', units: [17,18,19,20,21,22,23], vocabTarget: 320, reader: ['R1'],
+      outcome: 'Recognize the major indicative tense-forms and stems, use principal parts as a recognition system, and keep morphological form distinct from contextual temporal/aspectual interpretation.',
       unitTitles: [
         'Imperfect indicative',
         'Future active & middle',

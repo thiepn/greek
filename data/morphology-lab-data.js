@@ -8,7 +8,7 @@
   const source={
     id:'koine-reviewed-morphology-v1',
     role:'reviewed-pedagogical-paradigms',
-    note:'Reviewed paradigm forms for training. These are pedagogical forms and are not claimed to be corpus occurrences unless corpusTokenId is present.'
+    note:'Reviewed paradigm forms for training. These are pedagogical forms and are not claimed to be corpus occurrences unless corpusTokenId is present. Contextless surface forms may have more than one modeled parse; all modeled alternatives must remain explicit.'
   };
 
   const items=[];
@@ -45,11 +45,11 @@
     ['γραφαί','nominative','plural'],['γραφῶν','genitive','plural'],['γραφαῖς','dative','plural'],['γραφάς','accusative','plural']
   ].forEach(([form,case_,number])=>add(form,'γραφή','noun-1f',9,{partOfSpeech:'noun',declension:'first',case:case_,number,gender:'feminine'}));
 
-  // Adjectives — Unit 10.
+  // Adjectives — Unit 10. Neuter nominative/accusative syncretism is explicit.
   [
-    ['καλός','nominative','singular','masculine'],['καλή','nominative','singular','feminine'],['καλόν','nominative','singular','neuter'],
+    ['καλός','nominative','singular','masculine'],['καλή','nominative','singular','feminine'],['καλόν','nominative','singular','neuter'],['καλόν','accusative','singular','neuter'],
     ['καλοῦ','genitive','singular','masculine'],['καλῆς','genitive','singular','feminine'],['καλοῦ','genitive','singular','neuter'],
-    ['καλοί','nominative','plural','masculine'],['καλαί','nominative','plural','feminine'],['καλά','nominative','plural','neuter']
+    ['καλοί','nominative','plural','masculine'],['καλαί','nominative','plural','feminine'],['καλά','nominative','plural','neuter'],['καλά','accusative','plural','neuter']
   ].forEach(([form,case_,number,gender])=>add(form,'καλός','adjective',10,{partOfSpeech:'adjective',case:case_,number,gender,degree:'positive'}));
 
   // Present-system verbs — Units 12–15.
@@ -62,17 +62,17 @@
 
   // Indicative systems / principal parts — Units 17–23.
   [
-    ['ἔλυον','imperfect','active','indicative',1,'singular'],['ἔλυες','imperfect','active','indicative',2,'singular'],['ἔλυε','imperfect','active','indicative',3,'singular'],
+    ['ἔλυον','imperfect','active','indicative',1,'singular'],['ἔλυον','imperfect','active','indicative',3,'plural'],['ἔλυες','imperfect','active','indicative',2,'singular'],['ἔλυε','imperfect','active','indicative',3,'singular'],
     ['λύσω','future','active','indicative',1,'singular'],['λύσεις','future','active','indicative',2,'singular'],['λύσει','future','active','indicative',3,'singular'],
     ['ἔλυσα','aorist','active','indicative',1,'singular'],['ἔλυσας','aorist','active','indicative',2,'singular'],['ἔλυσε','aorist','active','indicative',3,'singular'],
     ['ἐλύθην','aorist','passive','indicative',1,'singular'],['ἐλύθης','aorist','passive','indicative',2,'singular'],['ἐλύθη','aorist','passive','indicative',3,'singular'],
     ['λέλυκα','perfect','active','indicative',1,'singular']
   ].forEach(([form,tense,voice,mood,person,number])=>add(form,'λύω','verb-indicative-systems',tense==='imperfect'?17:tense==='future'?18:tense==='aorist'&&voice==='passive'?21:tense==='aorist'?19:30,{partOfSpeech:'verb',tense,voice,mood,person,number}));
 
-  // Pronouns — Units 26–28.
+  // Pronouns — Units 26–28. Neuter nominative/accusative syncretism is explicit.
   [
     ['αὐτός','nominative','singular','masculine'],['αὐτοῦ','genitive','singular','masculine'],['αὐτῷ','dative','singular','masculine'],['αὐτόν','accusative','singular','masculine'],
-    ['αὐτή','nominative','singular','feminine'],['αὐτήν','accusative','singular','feminine'],['αὐτό','nominative','singular','neuter'],['αὐτά','nominative','plural','neuter']
+    ['αὐτή','nominative','singular','feminine'],['αὐτήν','accusative','singular','feminine'],['αὐτό','nominative','singular','neuter'],['αὐτό','accusative','singular','neuter'],['αὐτά','nominative','plural','neuter'],['αὐτά','accusative','plural','neuter']
   ].forEach(([form,case_,number,gender])=>add(form,'αὐτός','pronoun',26,{partOfSpeech:'pronoun',case:case_,number,gender}));
 
   // Third declension — Units 24–25.
@@ -84,16 +84,18 @@
 
   // Participles, infinitives, subjunctive, imperatives, μι verbs — Units 31–37.
   [
-    ['λύων','present','active','participle','nominative','singular','masculine'],['λύουσα','present','active','participle','nominative','singular','feminine'],['λῦον','present','active','participle','nominative','singular','neuter'],
+    ['λύων','present','active','participle','nominative','singular','masculine'],['λύουσα','present','active','participle','nominative','singular','feminine'],['λῦον','present','active','participle','nominative','singular','neuter'],['λῦον','present','active','participle','accusative','singular','neuter'],
     ['λύσας','aorist','active','participle','nominative','singular','masculine'],['λυθείς','aorist','passive','participle','nominative','singular','masculine']
   ].forEach(([form,tense,voice,mood,case_,number,gender])=>add(form,'λύω','participle',32,{partOfSpeech:'verb',tense,voice,mood,case:case_,number,gender}));
   [
     ['λύειν','present','active'],['λῦσαι','aorist','active'],['λυθῆναι','aorist','passive']
   ].forEach(([form,tense,voice])=>add(form,'λύω','infinitive',34,{partOfSpeech:'verb',tense,voice,mood:'infinitive'}));
   [
-    ['λύω',1,'singular'],['λύῃς',2,'singular'],['λύῃ',3,'singular'],['λύωμεν',1,'plural'],['λύητε',2,'plural'],['λύωσιν',3,'plural']
-  ].forEach(([form,person,number])=>add(form,'λύω','subjunctive',35,{partOfSpeech:'verb',tense:'present',voice:'active',mood:'subjunctive',person,number}));
-  [['λῦε',2,'singular'],['λύετε',2,'plural']].forEach(([form,person,number])=>add(form,'λύω','imperative',36,{partOfSpeech:'verb',tense:'present',voice:'active',mood:'imperative',person,number}));
+    ['λύω','present',1,'singular'],['λύῃς','present',2,'singular'],['λύῃ','present',3,'singular'],['λύωμεν','present',1,'plural'],['λύητε','present',2,'plural'],['λύωσιν','present',3,'plural'],['λύσω','aorist',1,'singular']
+  ].forEach(([form,tense,person,number])=>add(form,'λύω','subjunctive',35,{partOfSpeech:'verb',tense,voice:'active',mood:'subjunctive',person,number}));
+  [
+    ['λῦε','present','active',2,'singular'],['λύετε','present','active',2,'plural'],['λῦσαι','aorist','middle',2,'singular']
+  ].forEach(([form,tense,voice,person,number])=>add(form,'λύω','imperative',36,{partOfSpeech:'verb',tense,voice,mood:'imperative',person,number}));
   [['δίδωμι','δίδωμι'],['τίθημι','τίθημι'],['ἵστημι','ἵστημι']].forEach(([form,lemma])=>add(form,lemma,'mi-verb',37,{partOfSpeech:'verb',tense:'present',voice:'active',mood:'indicative',person:1,number:'singular'}));
 
   // Principal-part recognition set.
@@ -113,5 +115,5 @@
   }
   function difference(a,b){return featureOrder.filter(k=>(a.features[k]||null)!==(b.features[k]||null));}
 
-  return Object.freeze({version:'bg4.0',source,items,principalParts,featureOrder,label,difference});
+  return Object.freeze({version:'bg15.0',source,items,principalParts,featureOrder,label,difference});
 });

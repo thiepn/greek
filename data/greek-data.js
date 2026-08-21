@@ -7,23 +7,23 @@
     sblgnt:{
       id:'sblgnt',
       title:'SBL Greek New Testament',
-      role:'canonical-text',
+      role:'canonical-text-snapshot',
       license:'CC BY 4.0',
       licenseUrl:'https://www.sblgnt.com/license/',
-      sourceUrl:'https://www.sblgnt.com/',
+      sourceUrl:'https://github.com/LogosBible/SBLGNT',
       attribution:'SBL Greek New Testament (SBLGNT), copyright Society of Biblical Literature and Logos Bible Software.',
-      note:'Text may be reproduced and adapted under CC BY 4.0 with attribution.'
+      note:'Koinē Path uses the SBLGNT surface text embedded in the pinned MorphGNT revision below. This identifies an exact reader snapshot and does not imply identity with later official SBLGNT releases. The Greek text is licensed CC BY 4.0 with attribution.'
     },
     morphgnt:{
       id:'morphgnt-sblgnt-6.12',
       title:'MorphGNT: SBLGNT Edition',
-      role:'morphology-lemma-normalization',
+      role:'morphology-lemma-normalization-and-text-snapshot',
       license:'CC BY-SA 3.0',
       licenseUrl:'https://creativecommons.org/licenses/by-sa/3.0/',
       sourceUrl:'https://github.com/morphgnt/sblgnt',
       revision:'aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d',
       citation:'Tauber, J. K., ed. (2017) MorphGNT: SBLGNT Edition. Version 6.12. DOI: 10.5281/zenodo.376200',
-      note:'Morphological parsing and lemmatization are licensed separately from the Greek text.'
+      note:'Morphological parsing and lemmatization are licensed separately from the Greek text. The pinned revision also fixes the exact SBLGNT surface snapshot used by the reader.'
     },
     koineEditorial:{
       id:'koine-path-editorial-v1',
@@ -48,6 +48,7 @@
       textSource:'sblgnt',
       morphologySource:'morphgnt-sblgnt-6.12',
       sourceRevision:'aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d',
+      textSnapshot:'SBLGNT surface embedded in pinned MorphGNT revision aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d',
       unicodeNormalization:'NFC',
       surface:'Ἐν ἀρχῇ ἦν ὁ λόγος, καὶ ὁ λόγος ἦν πρὸς τὸν θεόν, καὶ θεὸς ἦν ὁ λόγος.',
       tokens:[
@@ -99,21 +100,21 @@
       lemma:t.lemma,
       normalizedLemma:t.lemma.normalize('NFC'),
       posFamilies:[pos[t.posCode]||t.posCode],
-      frequency:{corpus:'SBLGNT',count:null,rank:null,band:null,status:'pending-full-corpus-ingest'}
+      frequency:{corpus:'pinned MorphGNT/SBLGNT snapshot',count:null,rank:null,band:null,status:'pending-full-corpus-ingest'}
     };
     else if(!lexemes[t.lemma].posFamilies.includes(pos[t.posCode]||t.posCode)) lexemes[t.lemma].posFamilies.push(pos[t.posCode]||t.posCode);
   }));
 
   return {
     schemaVersion:1,
-    datasetVersion:'bg2.0.0',
+    datasetVersion:'bg2.1.0-bg15',
     unicodeNormalization:'NFC',
     generatedFromPinnedSources:true,
     coverage:{status:'foundation-sample',books:1,passages:1,verses:1,tokens:17,fullCorpusIngested:false},
     sources,pos,passages,lexemes,learningAnnotations,
     vocabularyModel:{
       countingUnit:'normalized-lemma',
-      corpus:'SBLGNT',
+      corpus:'pinned MorphGNT/SBLGNT snapshot',
       includeProperNames:true,
       tieBreak:'lemma-codepoint-order',
       bands:[{id:'F1',minRank:1,maxRank:100},{id:'F2',minRank:101,maxRank:300},{id:'F3',minRank:301,maxRank:600},{id:'F4',minRank:601,maxRank:1000},{id:'F5',minRank:1001,maxRank:null}],

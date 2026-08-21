@@ -1,0 +1,69 @@
+name: Content QA Validation
+
+on:
+  pull_request:
+    paths:
+      - 'curriculum.js'
+      - 'data/**'
+      - 'scripts/**'
+      - 'ATTRIBUTION.md'
+      - 'CONTENT_QA.md'
+      - '.github/workflows/content-qa-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check BG15 QA script syntax
+        run: |
+          node --check scripts/test-content-qa.cjs
+          node --check scripts/generate-content-qa-manifest.cjs
+
+      - name: Validate reviewed content contract
+        run: node scripts/test-content-qa.cjs
+
+      - name: Validate morphology and vocabulary corrections
+        run: |
+          node scripts/test-morphology-lab.cjs
+          node scripts/test-vocabulary-engine.cjs
+
+      - name: Validate reviewed syntax, fluency, exegesis and pronunciation
+        run: |
+          node scripts/test-syntax-lab.cjs
+          node scripts/test-reading-fluency.cjs
+          node scripts/test-exegesis-lab.cjs
+          node scripts/test-pronunciation-engine.cjs
+
+      - name: Rebuild exact pinned Greek NT corpus
+        run: node scripts/build-full-corpus.mjs
+
+      - name: Validate full corpus and reviewed passage references
+        run: |
+          node scripts/validate-full-corpus.mjs
+          node scripts/validate-syntax-references.mjs
+          node scripts/validate-fluency-corpus.cjs
+          node scripts/validate-exegesis-corpus.cjs
+
+      - name: Generate deterministic BG15 content manifest
+        run: |
+          node scripts/generate-content-qa-manifest.cjs
+          test -s generated/content-qa-manifest.json
+          node -e "const m=require('./generated/content-qa-manifest.json'); if(!/^[0-9a-f]{64}$/.test(m.certifiedContentFingerprint)) process.exit(1); console.log('Certified content fingerprint:',m.certifiedContentFingerprint)"
+
+      - name: Upload BG15 content QA manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: bg15-content-qa-manifest
+          path: generated/content-qa-manifest.json
+          if-no-files-found: error
+          retention-days: 90

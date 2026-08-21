@@ -5,10 +5,13 @@ const read=async p=>JSON.parse(await fs.readFile(path.join(ROOT,p),'utf8'));
 const manifest=await read('manifest.json');
 const frequency=await read('frequency.json');
 const assert=(condition,message)=>{if(!condition)throw new Error(message)};
+function codepointCompare(a,b){const A=Array.from(a),B=Array.from(b),n=Math.min(A.length,B.length);for(let i=0;i<n;i++){const x=A[i].codePointAt(0),y=B[i].codePointAt(0);if(x!==y)return x-y}return A.length-B.length}
 
 const EXPECTED={books:27,chapters:260,verses:7927,tokens:137554,lemmas:5461};
 assert(manifest.schemaVersion===1,'unexpected manifest schema');
 assert(manifest.source.revision==='aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d','wrong MorphGNT revision');
+assert(/pinned MorphGNT revision/i.test(manifest.source.snapshotNote),'corpus must identify itself as a pinned text snapshot');
+assert(manifest.vocabularyOrdering?.tieBreak==='normalized-lemma-codepoint-order','canonical frequency tie-break contract changed');
 assert(manifest.coverage.fullCorpusIngested===true,'corpus must declare full ingestion');
 for(const [key,value] of Object.entries(EXPECTED))assert(manifest.coverage[key]===value,`pinned corpus ${key} changed: expected ${value}, got ${manifest.coverage[key]}`);
 assert(manifest.books.length===27,'manifest book list incomplete');
@@ -49,12 +52,19 @@ const john11=john.chapters['1']['1'];
 assert(john11.length===17,'John 1:1 must have 17 tokens');
 assert(john11.map(t=>t.text).join(' ')==='Ἐν ἀρχῇ ἦν ὁ λόγος, καὶ ὁ λόγος ἦν πρὸς τὸν θεόν, καὶ θεὸς ἦν ὁ λόγος.','John 1:1 surface reconstruction mismatch');
 assert(john11[1].lemma==='ἀρχή'&&john11[1].parseCode==='----DSF-','John 1:1 morphology fixture mismatch');
-assert(!john.chapters['8']['1']&&!john.chapters['8']['11']&&john.chapters['8']['12'],'John 8 critical-text versification invariant changed');
+assert(!john.chapters['8']['1']&&!john.chapters['8']['11']&&john.chapters['8']['12'],'pinned MorphGNT/SBLGNT snapshot John 8 invariant changed');
 
 assert(frequency.sourceRevision===manifest.source.revision,'frequency revision mismatch');
+assert(frequency.tieBreak==='normalized-lemma-codepoint-order','frequency tie-break metadata mismatch');
 assert(frequency.tokens===manifest.coverage.tokens,'frequency token total mismatch');
 assert(frequency.entries.length===manifest.coverage.lemmas,'lemma count mismatch');
 assert(frequency.entries[0].lemma==='ὁ','expected article ὁ to be most frequent lemma');
 assert(frequency.entries[0].count===19769,'top lemma count changed unexpectedly');
-frequency.entries.forEach((e,i)=>{assert(e.rank===i+1,'frequency ranks must be contiguous');if(i)assert(frequency.entries[i-1].count>=e.count,'frequency must be descending')});
+frequency.entries.forEach((e,i)=>{
+  assert(e.rank===i+1,'frequency ranks must be contiguous');
+  if(!i)return;
+  const prev=frequency.entries[i-1];
+  assert(prev.count>=e.count,'frequency must be descending');
+  if(prev.count===e.count)assert(codepointCompare(prev.lemma,e.lemma)<=0,`equal-frequency lemmas violate code-point tie-break: ${prev.lemma} / ${e.lemma}`);
+});
 console.log(`BG6 full-corpus validation passed: ${manifest.coverage.tokens} tokens, ${manifest.coverage.verses} token-bearing verses, ${manifest.coverage.lemmas} lemmas across 27 books.`);
