@@ -1,14 +1,16 @@
 const assert=require('assert');
 const data=require('../data/morphology-lab-data.js');
+require('../data/morphology-bg15-corrections.js')(data);
 const {MorphologyLab,MemoryStorage}=require('../morphology-lab.js');
 
 function rngSeq(values){let i=0;return()=>values[i++%values.length];}
 function labWith(opts={}){return new MorphologyLab({data,storage:new MemoryStorage(),rng:opts.rng||rngSeq([.13,.71,.37,.89,.22]),learningEngine:opts.learningEngine||null});}
 
 (function datasetIntegrity(){
-  assert(data.items.length>=100,'BG4 should contain a substantial reviewed morphology inventory');
+  assert(data.items.length===127,'BG15 reviewed morphology inventory should contain 127 modeled parses');
   assert(data.items.every(x=>x.id&&x.form&&x.lemma&&x.unitId&&x.sourceId),'every morphology item needs identity, lemma, unit, and provenance');
   assert(data.items.every(x=>x.sourceId===data.source.id),'reviewed paradigm provenance must be explicit');
+  assert.equal(new Set(data.items.map(x=>x.id)).size,data.items.length,'morphology ids must be unique');
 })();
 
 (function syncretismIsExplicit(){
@@ -19,6 +21,15 @@ function labWith(opts={}){return new MorphologyLab({data,storage:new MemoryStora
   const lyuo=data.items.find(x=>x.form==='λύω'&&x.family==='verb-present-active');
   const verbAnswer=lab.combinedParse(lyuo);
   assert(verbAnswer.includes('indicative')&&verbAnswer.includes('subjunctive'),'contextless λύω ambiguity must be represented');
+  const lyete=data.items.find(x=>x.form==='λύετε'&&x.family==='verb-present-active');
+  assert(lab.combinedParse(lyete).includes('imperative'),'contextless λύετε must include indicative/imperative identity');
+  const elyon=data.items.find(x=>x.form==='ἔλυον');const elyonAnswer=lab.combinedParse(elyon);
+  assert(elyonAnswer.includes('1st person')&&elyonAnswer.includes('3rd person')&&elyonAnswer.includes('plural'),'ἔλυον must include 1sg/3pl ambiguity');
+  const kalon=data.items.find(x=>x.form==='καλόν');const kalonAnswer=lab.combinedParse(kalon);
+  assert(kalonAnswer.includes('nominative')&&kalonAnswer.includes('accusative')&&kalonAnswer.includes('masculine')&&kalonAnswer.includes('neuter'),'καλόν must expose modeled case/gender ambiguity');
+  const auto=data.items.find(x=>x.form==='αὐτό');assert(lab.combinedParse(auto).includes('accusative'),'αὐτό must include nominative/accusative neuter ambiguity');
+  const auta=data.items.find(x=>x.form==='αὐτά');assert(lab.combinedParse(auta).includes('accusative'),'αὐτά must include nominative/accusative neuter plural ambiguity');
+  const lyon=data.items.find(x=>x.form==='λῦον');assert(lab.combinedParse(lyon).includes('accusative'),'λῦον participle must include nominative/accusative neuter ambiguity');
 })();
 
 (function parseQuestionHasOneCorrectOption(){
@@ -79,4 +90,4 @@ function labWith(opts={}){return new MorphologyLab({data,storage:new MemoryStora
   const families=new Set(data.items.map(x=>x.family));['article','noun-2m','noun-2n','noun-1f','adjective','noun-3','pronoun','verb-present-active','verb-indicative-systems','participle','infinitive','subjunctive','imperative','mi-verb'].forEach(f=>assert(families.has(f),`missing morphology family ${f}`));
 })();
 
-console.log('BG4 morphology-lab tests passed: 13 suites');
+console.log('BG4/BG15 morphology-lab tests passed: 13 suites, 127 modeled parses');
