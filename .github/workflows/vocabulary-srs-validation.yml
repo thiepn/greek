@@ -1,0 +1,28 @@
+name: Vocabulary SRS Validation
+
+on:
+  pull_request:
+    paths:
+      - 'vocabulary-engine.js'
+      - 'vocabulary-ui.js'
+      - 'vocabulary.css'
+      - 'data/vocabulary-seed.js'
+      - 'scripts/test-vocabulary-engine.cjs'
+      - '.github/workflows/vocabulary-srs-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run vocabulary SRS tests
+        run: node scripts/test-vocabulary-engine.cjs
