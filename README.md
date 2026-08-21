@@ -1,6 +1,6 @@
 # Koinē Path
 
-Interactive Biblical Greek learning app focused on active recall, morphology, vocabulary acquisition, full New Testament reading, syntax/translation training, adaptive review, reading fluency, intermediate exegesis, and grounded tutoring.
+Interactive Biblical Greek learning app focused on active recall, morphology, vocabulary acquisition, full New Testament reading, syntax/translation training, adaptive review, reading fluency, intermediate exegesis, audio/pronunciation, and grounded tutoring.
 
 **Live:** https://thiepn.github.io/greek/
 
@@ -24,6 +24,8 @@ Current interactive systems include:
 - BG11 Exegesis workspace for Units 48–50;
 - exact-corpus lexical study profiles for all 5,461 lemmas in the pinned 137,554-token corpus;
 - 27 reviewed intermediate/exegetical cases, including five source-pinned edition-awareness cases;
+- BG12 Audio workspace with reconstructed Koinē, Erasmian, and Modern Greek profiles;
+- profile-specific pronunciation cues, Modern Greek browser speech, listening-only drills, reader/fluency audio hooks, and local microphone shadowing;
 - adaptive learner-state engine;
 - typed remediation and review scheduling;
 - competency-based progress tracking;
@@ -140,11 +142,27 @@ The system contains **27 reviewed cases**:
 - **Unit 49:** edition awareness, textual variants, tool hierarchy, and explicit distinction between the SBLGNT edition-comparison apparatus and manuscript evidence;
 - **Unit 50:** verbal aspect, advanced participial/infinitival syntax, discourse, argument tracing, ambiguity, and grammar/theology boundaries.
 
-The full-corpus generator now also creates `generated/corpus/lexical-index.json` for all **5,461 lemmas**, containing exact count/rank, per-book distribution, deterministic sample references, and raw ±3-token nearby-lemma counts. Co-occurrence counts are explicitly exploratory evidence, not definitions or semantic verdicts.
+The full-corpus generator also creates `generated/corpus/lexical-index.json` for all **5,461 lemmas**, containing exact count/rank, per-book distribution, deterministic sample references, and raw ±3-token nearby-lemma counts. Co-occurrence counts are explicitly exploratory evidence, not definitions or semantic verdicts.
 
 Five Unit 49 cases are pinned to Faithlife/SBLGNT apparatus data at revision `c4d241a9c1c479a55b989ba35a4976c1d0b8052c`: Mark 1:1, John 1:18, John 1:34, Romans 5:1, and Romans 8:1. BG11 treats that source as an **edition-comparison apparatus**, not a full manuscript apparatus.
 
 Exegetical notebook entries, lexical searches, corpus statistics, apparatus inspection, and reviewed-analysis reveals never create mastery. Only scored reviewed cases may write BG3 evidence, and locked Units 48–50 remain exposure-only.
+
+## BG12 audio & pronunciation
+
+BG12 adds a dedicated **Audio** workspace. See [`AUDIO_PRONUNCIATION.md`](./AUDIO_PRONUNCIATION.md), [`data/pronunciation-profiles.js`](./data/pronunciation-profiles.js), [`pronunciation-engine.js`](./pronunciation-engine.js), and the pronunciation UI/bridge modules.
+
+The selectable profiles are:
+
+- **Reconstructed Koinē** — Roman-period teaching reconstruction and the default profile;
+- **Academic Erasmian** — explicit classroom convention;
+- **Modern Greek** — contemporary pronunciation with optional browser `el-GR` speech synthesis.
+
+Historical profiles never substitute Modern Greek TTS. When no verified historical recording pack is installed, the app provides deterministic profile-specific pronunciation cues instead of falsely labeling Modern speech as Koinē/Erasmian audio.
+
+BG12 includes alphabet/sound orientation, distinction drills, listening-only comprehension when an honest audio source exists, reader word-pronunciation integration, BG10 analysis/reread audio hooks with synchronized token highlighting, adjustable playback rate, and local microphone shadowing/replay.
+
+Microphone audio remains a session-local Blob and is never uploaded or persisted. Pronunciation/listening activity has no `recordEvidence()` path and therefore remains separate from BG3 grammar mastery.
 
 ## Layer separation
 
@@ -158,8 +176,9 @@ Koinē Path keeps these layers distinct:
 6. reviewed syntax/translation/fluency annotations;
 7. edition-comparison apparatus data;
 8. reviewed BG11 exegetical cases and reasoning ladders;
-9. reviewed grammar curriculum;
-10. learner state, SRS history, reading/fluency state, drafts/notebooks, mastery evidence, and deterministic review scheduling;
-11. grounded generative explanation/coaching.
+9. pronunciation profile rules and independently identified audio sources;
+10. reviewed grammar curriculum;
+11. learner state, SRS history, reading/fluency/pronunciation state, drafts/notebooks, mastery evidence, and deterministic review scheduling;
+12. grounded generative explanation/coaching.
 
 The static client contains no AI API secret. Model access must pass through the server-side BG8 proxy.
