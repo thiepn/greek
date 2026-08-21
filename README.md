@@ -1,6 +1,6 @@
 # Koinē Path
 
-Interactive Biblical Greek learning app focused on active recall, morphology, vocabulary acquisition, full New Testament reading, syntax/translation training, adaptive review, and AI-ready tutoring.
+Interactive Biblical Greek learning app focused on active recall, morphology, vocabulary acquisition, full New Testament reading, syntax/translation training, adaptive review, and grounded tutoring.
 
 **Live:** https://thiepn.github.io/greek/
 
@@ -17,10 +17,10 @@ Current interactive systems include:
 - R0–R4 reader assistance, morphology self-checks, bookmarks, history, and chapter completion;
 - reader-generated vocabulary cards and canonical NT-wide frequency synchronization;
 - reviewed syntax and translation laboratory covering Units 38–44;
+- secure-proxy-ready grounded AI tutor with deterministic fallback;
 - adaptive learner-state engine;
 - typed remediation and review scheduling;
 - competency-based progress tracking;
-- deterministic Socratic tutor designed for a later secure AI backend;
 - local-first learner persistence;
 - responsive desktop, tablet, and mobile UI.
 
@@ -127,6 +127,25 @@ The laboratory covers:
 
 BG7 does not derive syntax automatically from morphology. MorphGNT provides deterministic forms; Koinē Path syntax claims live in a separate reviewed annotation layer. Translation drafts are not graded by naive string similarity and the app does not supply an unlicensed full English translation.
 
+## BG8 secure AI tutor
+
+BG8 adds the model-backed tutoring architecture while keeping AI downstream from verified Greek data. See [`AI_TUTOR.md`](./AI_TUTOR.md), [`ai-tutor.js`](./ai-tutor.js), [`ai-tutor-ui.js`](./ai-tutor-ui.js), and [`worker/`](./worker/).
+
+The Tutor supports:
+
+- Socratic, explanation, and translation-feedback modes;
+- bounded current reader/syntax context;
+- evidence IDs for canonical morphology, SBLGNT text, reviewed syntax, and curriculum metadata;
+- strict structured model output with grounded/mixed/uncertain confidence;
+- explicit uncertainty and disputed-grammar handling;
+- server-side origin, request-size, context-shape, moderation, and rate-limit controls;
+- local conversation history with a clear-history control;
+- deterministic fallback when the secure proxy is absent or unavailable.
+
+The static GitHub Pages client never contains an OpenAI API key. A Cloudflare Worker stores `OPENAI_API_KEY` as a secret and calls the OpenAI Responses API with `store: false`. AI responses have no write path into BG3 mastery; only deterministic/reviewed learning interactions can change canonical evidence.
+
+Until the Worker is deployed and the endpoint meta value is configured, the Tutor intentionally reports **Local fallback** rather than pretending the AI backend is live.
+
 ## Layer separation
 
 Koinē Path keeps these layers distinct:
@@ -139,6 +158,6 @@ Koinē Path keeps these layers distinct:
 6. reviewed syntactic relationships and translation scaffolds;
 7. reviewed grammar curriculum;
 8. learner state, SRS history, reading state, drafts, and mastery evidence;
-9. generative AI explanation/coaching.
+9. grounded generative explanation/coaching.
 
-The static client contains no AI API secret. A real model-backed tutor must connect through a secure serverless proxy.
+The static client contains no AI API secret. Model access must pass through the server-side BG8 proxy.
