@@ -5,5 +5,6 @@ const context=sanitizeContext({reader:{reference:'John 1:1',passage:'Ἐν ἀρ
 assert.equal(context.evidence.length,24);assert.equal(context.evidence[0].content.length,900);assert.equal(context.reader.selected.lemma,'ἀρχή');
 assert(responseValid({answer:'x',confidence:'grounded',evidence_ids:[],follow_up:[],boundary_note:'',disputed:false}));
 assert(!responseValid({answer:'x',confidence:'certain',evidence_ids:[],follow_up:[],boundary_note:''}));
-const fb=fallback('How do I translate this?',context);assert.match(fb.answer,/structurally|finite predication/i);assert.equal(fb.confidence,'grounded');
+const fb=fallback('How do I translate this?',context);assert.match(fb.answer,/reviewed structure|Why dative/i);assert.equal(fb.confidence,'grounded');
+const generic=fallback('How do I translate this?',{});assert.match(generic.answer,/structurally|finite predication/i);
 (async()=>{const storage=new Memory();const tutor=new AITutor({storage,contextProvider:()=>context});const r=await tutor.ask('Why is this dative?');assert.equal(r.remote,false);assert.match(r.boundary_note,/fallback/i);assert.equal(tutor.history().length,2);tutor.clear();assert.equal(tutor.history().length,0);console.log('BG8 client tutor tests passed.');})().catch(e=>{console.error(e);process.exit(1)});
