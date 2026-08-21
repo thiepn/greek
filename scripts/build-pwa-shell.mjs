@@ -1,8 +1,10 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-const VERSION='bg13.0.0';
+const buildRef=(process.env.GITHUB_SHA||'dev').slice(0,12);
+const VERSION=`bg13-${buildRef}`;
 const OUT=path.resolve('generated/pwa-shell.json');
+const VERSION_OUT=path.resolve('generated/pwa-version.js');
 const html=await fs.readFile('index.html','utf8');
 const attrs=[...html.matchAll(/\b(?:src|href)="([^"]+)"/g)].map(m=>m[1]);
 const local=attrs.filter(x=>!x.startsWith('http:')&&!x.startsWith('https:')&&!x.startsWith('//')&&!x.startsWith('data:')&&!x.startsWith('#'));
@@ -15,4 +17,5 @@ for(const asset of assets){
 await fs.mkdir(path.dirname(OUT),{recursive:true});
 const payload={schemaVersion:1,version:VERSION,generatedAt:new Date().toISOString(),scopeMode:'relative-project-path',assets};
 await fs.writeFile(OUT,JSON.stringify(payload));
+await fs.writeFile(VERSION_OUT,`self.KOINE_PWA_BUILD=${JSON.stringify(VERSION)};\n`);
 console.log(`BG13 PWA shell built: ${assets.length} assets, version ${VERSION}.`);
