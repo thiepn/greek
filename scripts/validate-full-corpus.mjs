@@ -6,13 +6,11 @@ const manifest=await read('manifest.json');
 const frequency=await read('frequency.json');
 const assert=(condition,message)=>{if(!condition)throw new Error(message)};
 
+const EXPECTED={books:27,chapters:260,verses:7927,tokens:137554,lemmas:5461};
 assert(manifest.schemaVersion===1,'unexpected manifest schema');
 assert(manifest.source.revision==='aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d','wrong MorphGNT revision');
 assert(manifest.coverage.fullCorpusIngested===true,'corpus must declare full ingestion');
-assert(manifest.coverage.books===27,'NT must contain 27 books');
-assert(manifest.coverage.chapters===260,'NT must contain 260 chapters');
-assert(manifest.coverage.verses>7900&&manifest.coverage.verses<8000,'token-bearing verse count outside expected critical-NT range');
-assert(manifest.coverage.tokens>130000&&manifest.coverage.tokens<150000,'token count outside expected NT range');
+for(const [key,value] of Object.entries(EXPECTED))assert(manifest.coverage[key]===value,`pinned corpus ${key} changed: expected ${value}, got ${manifest.coverage[key]}`);
 assert(manifest.books.length===27,'manifest book list incomplete');
 assert(new Set(manifest.books.map(b=>b.id)).size===27,'book ids must be unique');
 
@@ -25,7 +23,8 @@ for(const meta of manifest.books){
   let tokenCount=0,verseCount=0;
   for(const [chapter,verses] of Object.entries(book.chapters)){
     const verseNos=Object.keys(verses).map(Number).sort((a,b)=>a-b);
-    assert(verseNos[0]===1,`${meta.id} ${chapter}: chapter must start at verse 1`);
+    assert(verseNos.length>0,`${meta.id} ${chapter}: chapter has no token-bearing verses`);
+    assert(verseNos.every((v,i)=>Number.isInteger(v)&&v>0&&(i===0||v>verseNos[i-1])),`${meta.id} ${chapter}: invalid verse numbering`);
     for(const [verse,tokens] of Object.entries(verses)){
       assert(tokens.length>0,`${meta.id} ${chapter}:${verse}: empty verse`);verseCount++;
       tokens.forEach((token,i)=>{
@@ -50,6 +49,7 @@ const john11=john.chapters['1']['1'];
 assert(john11.length===17,'John 1:1 must have 17 tokens');
 assert(john11.map(t=>t.text).join(' ')==='Ἐν ἀρχῇ ἦν ὁ λόγος, καὶ ὁ λόγος ἦν πρὸς τὸν θεόν, καὶ θεὸς ἦν ὁ λόγος.','John 1:1 surface reconstruction mismatch');
 assert(john11[1].lemma==='ἀρχή'&&john11[1].parseCode==='----DSF-','John 1:1 morphology fixture mismatch');
+assert(!john.chapters['8']['1']&&!john.chapters['8']['11']&&john.chapters['8']['12'],'John 8 critical-text versification invariant changed');
 
 assert(frequency.sourceRevision===manifest.source.revision,'frequency revision mismatch');
 assert(frequency.tokens===manifest.coverage.tokens,'frequency token total mismatch');
@@ -57,4 +57,4 @@ assert(frequency.entries.length===manifest.coverage.lemmas,'lemma count mismatch
 assert(frequency.entries[0].lemma==='ὁ','expected article ὁ to be most frequent lemma');
 assert(frequency.entries[0].count===19769,'top lemma count changed unexpectedly');
 frequency.entries.forEach((e,i)=>{assert(e.rank===i+1,'frequency ranks must be contiguous');if(i)assert(frequency.entries[i-1].count>=e.count,'frequency must be descending')});
-console.log(`BG6 full-corpus validation passed: ${manifest.coverage.tokens} tokens, ${manifest.coverage.verses} token-bearing verses across 27 books.`);
+console.log(`BG6 full-corpus validation passed: ${manifest.coverage.tokens} tokens, ${manifest.coverage.verses} token-bearing verses, ${manifest.coverage.lemmas} lemmas across 27 books.`);
