@@ -5,7 +5,7 @@ const page=await browser.newPage({viewport:{width:1280,height:900}});
 const errors=[];page.on('pageerror',e=>errors.push(String(e)));
 await page.goto(url,{waitUntil:'networkidle'});
 await page.evaluate(()=>{const g=window.KOINE_GUIDANCE_ENGINE;g.saveProfile({experience:'alphabet',goal:'read-nt',sessionMinutes:25,daysPerWeek:5});g.skipPlacement();g.finishOnboarding();window.KOINE_APP_RENDER?.();window.KOINE_WEEKLY_UI?.render?.()});
-await page.locator('#weekly-plan').getByText('This week').waitFor();
+await page.locator('#weekly-plan').getByRole('heading',{name:'This week',exact:true}).waitFor();
 let plan=await page.evaluate(()=>window.KOINE_WEEKLY_PLANNER.getPlan(window.KOINE_GUIDANCE_ENGINE.snapshot().profile,window.KOINE_GUIDANCE_ENGINE.getGuidedPlan()));
 if(plan.targetMinutes!==125||plan.targetDays!==5||plan.sessions.length!==5)throw new Error('Weekly plan did not preserve the configured 25 × 5 capacity.');
 if(plan.priorWeek.observed!==false||plan.priorWeek.unusedMinutes!==0)throw new Error('Fresh learner was assigned false missed-work debt.');
@@ -14,7 +14,7 @@ const learningBefore=await page.evaluate(()=>localStorage.getItem('koine-path-le
 await page.locator('#recalibrate-week').click();
 let learningAfter=await page.evaluate(()=>localStorage.getItem('koine-path-learning-v3'));if(learningBefore!==learningAfter)throw new Error('Weekly recalibration mutated canonical learning state.');
 await page.evaluate(()=>window.KOINE_APP_OPEN_VIEW('progress'));
-await page.locator('#milestones-forecast').getByText('Milestones & forecast').waitFor();
+await page.locator('#milestones-forecast').getByRole('heading',{name:'Milestones & forecast',exact:true}).waitFor();
 await page.locator('#forecast-target').selectOption('stage-S3');
 plan=await page.evaluate(()=>window.KOINE_WEEKLY_PLANNER.getPlan(window.KOINE_GUIDANCE_ENGINE.snapshot().profile,window.KOINE_GUIDANCE_ENGINE.getGuidedPlan()));
 if(plan.selectedTarget.id!=='stage-S3')throw new Error('Canonical forecast target selection did not persist.');
