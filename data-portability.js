@@ -75,6 +75,22 @@
         if(!goal||typeof goal.id!=='string'||!['book','passage','track'].includes(goal.kind)||!Array.isArray(goal.items)||goal.items.length>300)throw new Error('Reading-goal entry is malformed.');
         for(const item of goal.items){if(!item?.ref||typeof item.ref.book!=='string'||!Number.isFinite(Number(item.ref.chapter))||Number(item.ref.chapter)<1)throw new Error('Reading-goal item contains an invalid corpus reference.');}
       }
+    }else if(key==='koine-path-passage-workbench-v1'){
+      const parsed=safeJson(value,key),steps=['observation','morphology','syntax','lexical','discourse','synthesis','boundary'],notes=[...steps,'crossReferences'];
+      if(parsed?.schemaVersion!==1||!Array.isArray(parsed.projects))throw new Error('Passage-workbench state has an unsupported schema.');
+      if(parsed.projects.length>40)throw new Error('Passage-workbench state exceeds the supported project bound.');
+      if(parsed.activeProjectId!==null&&typeof parsed.activeProjectId!=='string')throw new Error('Passage-workbench active project is malformed.');
+      for(const project of parsed.projects){
+        if(!project||typeof project.id!=='string'||!['active','complete','archived'].includes(project.status)||!project.ref||typeof project.ref.book!=='string')throw new Error('Passage-workbench project is malformed.');
+        const chapter=Number(project.ref.chapter),start=Number(project.ref.startVerse),end=Number(project.ref.endVerse);
+        if(!Number.isInteger(chapter)||chapter<1||!Number.isInteger(start)||start<1||!Number.isInteger(end)||end<start)throw new Error('Passage-workbench project contains an invalid corpus reference.');
+        if(!project.notes||typeof project.notes!=='object'||!project.steps||typeof project.steps!=='object')throw new Error('Passage-workbench project is missing structured state.');
+        for(const name of notes)if(typeof project.notes[name]!=='string'||project.notes[name].length>12000)throw new Error('Passage-workbench note is invalid.');
+        for(const name of steps)if(typeof project.steps[name]!=='boolean')throw new Error('Passage-workbench workflow step is invalid.');
+        if(!Array.isArray(project.lexicalNotes)||project.lexicalNotes.length>80)throw new Error('Passage-workbench lexical-note bound exceeded.');
+        if(!Array.isArray(project.questions)||project.questions.length>80)throw new Error('Passage-workbench question bound exceeded.');
+      }
+      if(parsed.activeProjectId!==null&&!parsed.projects.some(p=>p.id===parsed.activeProjectId))throw new Error('Passage-workbench active project is missing.');
     }
   }
 
