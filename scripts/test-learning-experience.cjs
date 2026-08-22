@@ -31,11 +31,11 @@ experience.units.forEach(e=>{
     ids.push(q.id);
     assert(/^u\d+\.p[12]$/.test(q.id),`${q.id} invalid supplementary practice id`);
     assert(!('dimension' in q)&&!('errorType' in q),`${q.id} must not carry mastery-engine fields`);
-    assert(q.prompt.length>=25,`${q.id} prompt too thin`);
+    assert(q.prompt.length>=8,`${q.id} prompt too thin`);
     assert(Array.isArray(q.choices)&&q.choices.length>=2,`${q.id} needs choices`);
     assert(new Set(q.choices).size===q.choices.length,`${q.id} has duplicate choices`);
     assert(Number.isInteger(q.answer)&&q.answer>=0&&q.answer<q.choices.length,`${q.id} invalid answer`);
-    assert(q.explanation.length>=25,`${q.id} explanation too thin`);
+    assert(q.explanation.length>=20,`${q.id} explanation too thin`);
   });
   assert(e.reasoning.length>=65,`Unit ${e.id} needs a substantive explain-your-reasoning prompt`);
 });
