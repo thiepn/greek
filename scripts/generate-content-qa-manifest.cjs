@@ -11,6 +11,7 @@ const loadWindow=(file,key)=>{const context={window:{}};vm.createContext(context
 
 const curriculum=loadWindow('curriculum.js','KOINE_CURRICULUM');
 const course=require('../data/course-content.js');
+const experience=require('../data/course-v1.1-enrichment.js');
 const morph=require('../data/morphology-lab-data.js');require('../data/morphology-bg15-corrections.js')(morph);
 const vocab=require('../data/vocabulary-seed.js');
 const syntax=require('../data/syntax-lab-data.js');
@@ -20,9 +21,9 @@ const pronunciation=loadWindow('data/pronunciation-profiles.js','KOINE_PRONUNCIA
 const greek=require('../data/greek-data.js');
 
 const sourcePaths=[
-  'curriculum.js','data/course-content.js','data/greek-data.js','data/morphology-lab-data.js','data/morphology-bg15-corrections.js',
+  'curriculum.js','data/course-content.js','data/course-v1.1-enrichment.js','data/greek-data.js','data/morphology-lab-data.js','data/morphology-bg15-corrections.js',
   'data/vocabulary-seed.js','data/syntax-lab-data.js','data/fluency-programs.js','data/exegesis-lab-data.js',
-  'data/pronunciation-profiles.js','scripts/build-full-corpus.mjs','ATTRIBUTION.md','CONTENT_QA.md'
+  'data/pronunciation-profiles.js','scripts/build-full-corpus.mjs','ATTRIBUTION.md','CONTENT_QA.md','LEARNING_EXPERIENCE_V1_1.md'
 ].sort();
 const sourceFiles=Object.fromEntries(sourcePaths.map(p=>{const b=read(p);return[p,{sha256:sha(b),bytes:b.length}]}));
 
@@ -34,24 +35,30 @@ const books=corpusManifest.books.map(b=>{const bytes=read(`generated/corpus/book
 const bookSetSha256=sha(books.map(x=>`${x.id}:${x.sha256}`).join('\n'));
 
 const manifest={
-  schemaVersion:2,
-  contentQaVersion:'bg16-b001.0',
+  schemaVersion:3,
+  contentQaVersion:'v1.1.0-learning-experience',
   policy:{
     status:'deterministic-content-QA-snapshot',
     externalPeerReview:false,
-    note:'Passing this manifest/CI means the declared course and reviewed learning content, source provenance, normalization, and pedagogical safeguards match the deterministic contract. It is not a claim of external scholarly peer review.'
+    note:'Passing this manifest/CI means the declared course, v1.1 learning-experience enrichment, reviewed learning content, source provenance, normalization, and pedagogical safeguards match the deterministic contract. It is not a claim of external scholarly peer review or psychometric efficacy.'
   },
   sourceRevisions:{
     morphgnt:greek.sources.morphgnt.revision,
     coreGntVocab:vocab.source.commit,
     sblgntEditionComparison:exegesis.apparatus.revision,
-    course:course.version
+    course:course.version,
+    learningExperience:experience.version
   },
   counts:{
     curriculumUnits:curriculum.stages.reduce((n,s)=>n+s.units.length,0),
     courseUnits:course.units.length,
     courseCheckpoints:course.units.reduce((n,u)=>n+u.checks.length,0),
     courseScriptureTasks:course.units.reduce((n,u)=>n+u.scripture.length,0),
+    enrichedCourseUnits:experience.units.length,
+    supplementaryPracticeItems:experience.units.reduce((n,u)=>n+u.practice.length,0),
+    observationTasks:experience.units.filter(u=>u.observe).length,
+    contrastTasks:experience.units.filter(u=>u.contrast).length,
+    reasoningPrompts:experience.units.filter(u=>u.reasoning).length,
     morphologyParses:morph.items.length,
     principalPartLexemes:Object.keys(morph.principalParts).length,
     syntaxExercises:syntax.exercises.length,
@@ -79,4 +86,4 @@ const out=path.join(ROOT,'generated','content-qa-manifest.json');
 fs.mkdirSync(path.dirname(out),{recursive:true});
 fs.writeFileSync(out,JSON.stringify(manifest,null,2)+'\n');
 console.log(`Content QA manifest generated: ${manifest.certifiedContentFingerprint}`);
-console.log(`Coverage: ${manifest.counts.courseUnits} course units, ${manifest.counts.courseCheckpoints} course checkpoints, ${manifest.counts.morphologyParses} morphology parses, ${manifest.counts.syntaxExercises} syntax exercises, ${manifest.counts.fluencyCheckpoints} fluency checkpoints, ${manifest.counts.exegesisCases} exegesis cases.`);
+console.log(`Coverage: ${manifest.counts.courseUnits} course units, ${manifest.counts.courseCheckpoints} mastery checkpoints, ${manifest.counts.supplementaryPracticeItems} unscored v1.1 practice items, ${manifest.counts.morphologyParses} morphology parses, ${manifest.counts.syntaxExercises} syntax exercises, ${manifest.counts.fluencyCheckpoints} fluency checkpoints, ${manifest.counts.exegesisCases} exegesis cases.`);
