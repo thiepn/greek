@@ -6,19 +6,25 @@ This register distinguishes **release blockers** from optional or claim-limiting
 
 **None currently registered.**
 
-Final technical certification is still required before the release branch may be merged.
+## V1.1 production state
 
-## V1.1 release state
+Koinē Path v1.1.0 passed Final Release Certification and its exact release-candidate deployment was verified on the public GitHub Pages site.
 
-The V1.1 learning-experience work is merged to `main` and frozen into `release/v1.1.0` from main commit:
+Verified deployed release commit:
 
-`a48f7c781b3665fdd601abf5080282a1cc2ae29a`
+`27eadce94b823c2be45ae6b03c8c9f6da101dce1`
+
+Verified PWA build:
+
+`bg13-27eadce94b82`
 
 Frozen V1.1 certified-content fingerprint:
 
 `800642ad7fdc25f2a1b576abe6e013940da7171c1857d1718cb0d84d2a2660c1`
 
-Production verification remains pending until the certified release PR is merged to `main` and the exact public GitHub Pages deployment is checked. Release-branch certification alone is not production certification.
+Production Deployment Verification run `32589598659`, job `97071184937`, completed with `V1_1_RELEASE_DEPLOYMENT_VERIFIED`.
+
+The production-promotion metadata records `PRODUCTION_CERTIFIED`. After that metadata-only promotion is merged, the resulting Pages deployment should receive one final identity probe so the production-certified metadata itself is confirmed live at the new `main` SHA.
 
 ## Historical resolved blocker — BG16-B001
 
