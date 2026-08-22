@@ -5,7 +5,8 @@ const portability=require('../data-portability.js');
 
 let now=new Date('2026-08-17T08:00:00Z');
 const clock=()=>new Date(now);
-const storage=new sessions.MemoryStorage({'koine-path-learning-v3':'canonical-learning-marker','other-app':'keep'});
+const canonicalLearning=JSON.stringify({schemaVersion:3,units:{}});
+const storage=new sessions.MemoryStorage({'koine-path-learning-v3':canonicalLearning,'other-app':'keep'});
 const engine=new sessions.SessionEngine({storage,clock});
 assert.equal(sessions.STATE_KEY,'koine-path-sessions-v1');
 assert.ok(sessions.STATE_KEY.startsWith(portability.STORAGE_PREFIX));
