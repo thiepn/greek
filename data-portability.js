@@ -62,6 +62,10 @@
       const parsed=safeJson(value,key);
       if(parsed?.schemaVersion!==1||!Array.isArray(parsed.history)||(parsed.active!==null&&typeof parsed.active!=='object'))throw new Error('Daily-session state has an unsupported schema.');
       if(parsed.history.length>400)throw new Error('Daily-session history exceeds the supported retention bound.');
+    }else if(key==='koine-path-weekly-plan-v1'){
+      const parsed=safeJson(value,key);
+      if(parsed?.schemaVersion!==1||!parsed.preferences||typeof parsed.preferences!=='object'||typeof parsed.preferences.targetId!=='string'||!Array.isArray(parsed.archive)||(parsed.current!==null&&typeof parsed.current!=='object'))throw new Error('Weekly-planning state has an unsupported schema.');
+      if(parsed.archive.length>20)throw new Error('Weekly-planning archive exceeds the supported retention bound.');
     }
   }
 
