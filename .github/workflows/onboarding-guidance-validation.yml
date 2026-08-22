@@ -1,0 +1,63 @@
+name: Onboarding & Guided Study Validation
+
+on:
+  pull_request:
+    paths:
+      - 'onboarding-engine.js'
+      - 'onboarding-ui.js'
+      - 'onboarding.css'
+      - 'data-portability.js'
+      - 'index.html'
+      - 'app.js'
+      - 'GUIDED_STUDY_V1_3.md'
+      - 'scripts/test-onboarding-guidance.cjs'
+      - 'scripts/test-onboarding-browser.mjs'
+      - '.github/workflows/onboarding-guidance-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax checks
+        run: |
+          node --check onboarding-engine.js
+          node --check onboarding-ui.js
+          node --check data-portability.js
+          node --check scripts/test-onboarding-guidance.cjs
+          node --check scripts/test-onboarding-browser.mjs
+      - name: Validate deterministic guidance contract
+        run: node scripts/test-onboarding-guidance.cjs
+      - name: Build pinned full NT corpus
+        run: node scripts/build-full-corpus.mjs
+      - name: Build and inspect PWA shell
+        run: |
+          node scripts/build-pwa-shell.mjs
+          node -e "const p=require('./generated/pwa-shell.json');for(const a of ['onboarding-engine.js','onboarding-ui.js','onboarding.css'])if(!p.assets.includes(a))process.exit(1);console.log('V1.3 assets are present in the generated offline shell.')"
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local app server
+        run: |
+          python3 -m http.server 4173 > /tmp/koine-v13-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/koine-v13-http.log
+          exit 1
+      - name: Exercise onboarding, placement and guided path in Chromium
+        env:
+          KOINE_TEST_URL: http://127.0.0.1:4173/
+        run: node scripts/test-onboarding-browser.mjs
+      - name: Preserve placement mastery firewall
+        run: |
+          ! grep -Eq 'recordEvidence\s*\(' onboarding-engine.js onboarding-ui.js
+          ! grep -Eq 'recordExposure\s*\(' onboarding-engine.js onboarding-ui.js
+          ! grep -Eq 'recordHint\s*\(' onboarding-engine.js onboarding-ui.js
