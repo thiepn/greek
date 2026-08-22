@@ -3,7 +3,7 @@ import { chromium } from 'playwright';
 
 const BASE=process.env.KOINE_LEARNING_URL||'http://127.0.0.1:4173/greek/';
 const browser=await chromium.launch({headless:true});
-const context=await browser.newContext({viewport:{width:1280,height:900}});
+const context=await browser.newContext({viewport:{width:1280,height:900},serviceWorkers:'block'});
 const page=await context.newPage();
 const pageErrors=[];
 page.on('pageerror',e=>pageErrors.push(String(e)));
