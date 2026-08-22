@@ -1,0 +1,35 @@
+name: Learner Data Portability Validation
+
+on:
+  pull_request:
+    paths:
+      - 'data-portability.js'
+      - 'data-portability-ui.js'
+      - 'index.html'
+      - 'scripts/test-data-portability.cjs'
+      - '.github/workflows/data-portability-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax checks
+        run: |
+          node --check data-portability.js
+          node --check data-portability-ui.js
+          node --check scripts/test-data-portability.cjs
+      - name: Run portability and recovery contract
+        run: node scripts/test-data-portability.cjs
+      - name: Verify PWA shell includes V1.2 runtime
+        run: |
+          node scripts/build-pwa-shell.mjs
+          node -e "const p=require('./generated/pwa-shell.json');for(const a of ['data-portability.js','data-portability-ui.js'])if(!p.assets.includes(a))process.exit(1);console.log('V1.2 assets are present in the generated offline shell.')"
