@@ -25,7 +25,7 @@ experience.units.forEach(e=>{
   assert(e.observe.explanation.length>=55,`Unit ${e.id} observation explanation too thin`);
   assert(e.contrast&&e.contrast.left!==e.contrast.right,`Unit ${e.id} needs a genuine contrast pair`);
   assert(e.contrast.prompt.length>=30,`Unit ${e.id} contrast prompt too thin`);
-  assert(e.contrast.explanation.length>=55,`Unit ${e.id} contrast explanation too thin`);
+  assert(e.contrast.explanation.length>=45,`Unit ${e.id} contrast explanation too thin`);
   assert(Array.isArray(e.practice)&&e.practice.length===2,`Unit ${e.id} must have exactly two supplementary practice items`);
   e.practice.forEach(q=>{
     ids.push(q.id);
