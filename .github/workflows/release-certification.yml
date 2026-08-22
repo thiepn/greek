@@ -75,24 +75,25 @@ jobs:
           KOINE_RELEASE_URL: http://127.0.0.1:4173/greek/
         run: node scripts/test-release-browsers.mjs
 
-      - name: Generate certified RC manifest
+      - name: Generate certified v1 manifest
         env:
           BG16_TECHNICAL_VERDICT: TECHNICAL_RC_CERTIFIED
           RC_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           node scripts/generate-release-candidate-manifest.cjs
           test -s generated/release-candidate-manifest.json
-          node -e "const m=require('./generated/release-candidate-manifest.json');if(m.candidate!=='1.0.0-rc.2'||m.verdicts.technical!=='TECHNICAL_RC_CERTIFIED'||m.verdicts.product!=='V1_RELEASE_CERTIFIED'||m.releaseBlockers.length!==0)process.exit(1);if(!/^[0-9a-f]{64}$/.test(m.releaseCandidateFingerprint))process.exit(1);console.log('RC fingerprint:',m.releaseCandidateFingerprint);console.log('Product verdict:',m.verdicts.product)"
+          node -e "const m=require('./generated/release-candidate-manifest.json');if(m.candidate!=='1.0.0'||m.verdicts.technical!=='TECHNICAL_RC_CERTIFIED'||m.verdicts.product!=='V1_RELEASE_CERTIFIED'||m.verdicts.production!=='PRODUCTION_CERTIFIED'||m.releaseBlockers.length!==0)process.exit(1);if(!/^[0-9a-f]{64}$/.test(m.releaseCandidateFingerprint))process.exit(1);console.log('v1 release fingerprint:',m.releaseCandidateFingerprint);console.log('Production verdict:',m.verdicts.production)"
 
-      - name: Upload release certification artifacts
+      - name: Upload v1 production certification artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: bg16-b001-release-certification
+          name: v1.0.0-production-certification
           path: |
             generated/content-qa-manifest.json
             generated/release-candidate-manifest.json
             RELEASE_CANDIDATE.json
             RELEASE_CERTIFICATION.md
+            RELEASE_NOTES.md
             KNOWN_LIMITATIONS.md
           if-no-files-found: error
           retention-days: 90
