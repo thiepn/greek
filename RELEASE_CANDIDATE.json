@@ -1,12 +1,12 @@
 {
   "schemaVersion": 3,
-  "candidate": "1.0.0",
-  "phase": "BG16-production-promotion",
-  "status": "production-certified",
-  "contentSourceHead": "701ae7f3e3eaafcb8b2e33590df26ba665c8bab8",
-  "certifiedContentFingerprint": "e654a810fca0c9fbfa88c8808fa275204fba5a3806ac5ffd4f052a4ef0e9e445",
-  "releaseCandidateSourceHead": "ad88a25e5d59f4ab1a02f7bd84400607aa0697d5",
-  "releaseCandidateFingerprint": "7deb0d2f913498fae9c90a95655e032b39753fb5302332185480738eb3398714",
+  "candidate": "1.1.0",
+  "phase": "V1.1-release-certification",
+  "status": "release-candidate",
+  "contentSourceHead": "a48f7c781b3665fdd601abf5080282a1cc2ae29a",
+  "certifiedContentFingerprint": "800642ad7fdc25f2a1b576abe6e013940da7171c1857d1718cb0d84d2a2660c1",
+  "releaseCandidateSourceHead": null,
+  "releaseCandidateFingerprint": null,
   "corpusRevision": "aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d",
   "apparatusRevision": "c4d241a9c1c479a55b989ba35a4976c1d0b8052c",
   "expectedCorpus": {
@@ -19,11 +19,17 @@
   "expectedCourse": {
     "units": 50,
     "checkpoints": 150,
+    "enrichedUnits": 50,
+    "supplementaryPracticeItems": 100,
+    "observations": 50,
+    "contrasts": 50,
+    "reasoningPrompts": 50,
     "minimumScriptureTasksPerUnit": 1
   },
   "releaseVerdictPolicy": {
     "technicalRcMayPassWithDocumentedOptionalLimitations": true,
     "v1RequiresCompleteCanonicalCourseContent": true,
+    "v1_1RequiresFullLearningExperienceDeepening": true,
     "productionCertificationRequiresMainDeploymentVerification": true,
     "manualAssistiveTechnologyClaimsRequireActualManualTesting": true,
     "internalEditorialCertificationIsNotExternalPeerReview": true
@@ -33,29 +39,27 @@
     {
       "id": "BG16-B001",
       "resolvedAtContentFingerprint": "e654a810fca0c9fbfa88c8808fa275204fba5a3806ac5ffd4f052a4ef0e9e445",
-      "resolution": "All 50 canonical units now have production instructional content, Scripture-transfer work, explicit safeguards, and exactly 150 deterministic checkpoints integrated with prerequisite-aware mastery evidence."
+      "resolution": "All 50 canonical units have production instructional content, Scripture-transfer work, explicit safeguards, and exactly 150 deterministic checkpoints integrated with prerequisite-aware mastery evidence."
     }
   ],
   "verdicts": {
-    "technical": "TECHNICAL_RC_CERTIFIED",
-    "product": "V1_RELEASE_CERTIFIED",
-    "production": "PRODUCTION_CERTIFIED"
+    "technical": "PENDING_VALIDATION",
+    "product": null,
+    "production": "PENDING_MAIN_DEPLOYMENT"
   },
   "productionVerification": {
-    "status": "verified",
-    "verifiedAt": "2026-08-22T00:45:12Z",
+    "status": "pending-main-deployment",
+    "expectedBranch": "main"
+  },
+  "previousProduction": {
+    "candidate": "1.0.0",
+    "status": "production-certified",
     "mainCommit": "60b7028017dfb7cc1b3adab9b153f00ab6c72b6f",
-    "pwaBuild": "bg13-60b7028017df",
+    "certifiedContentFingerprint": "e654a810fca0c9fbfa88c8808fa275204fba5a3806ac5ffd4f052a4ef0e9e445",
+    "releaseCandidateFingerprint": "7deb0d2f913498fae9c90a95655e032b39753fb5302332185480738eb3398714",
     "verificationWorkflowRun": 32540664820,
     "verificationJob": 96951794130,
-    "liveCorpus": {
-      "books": 27,
-      "chapters": 260,
-      "tokenBearingVerses": 7927,
-      "tokens": 137554,
-      "lemmas": 5461,
-      "fullCorpusIngested": true
-    }
+    "verifiedAt": "2026-08-22T00:45:12Z"
   },
   "claimLimitations": {
     "manualAssistiveTechnology": "not-manually-certified",
