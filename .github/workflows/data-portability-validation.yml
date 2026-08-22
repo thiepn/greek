@@ -6,6 +6,8 @@ on:
       - 'data-portability.js'
       - 'data-portability-ui.js'
       - 'index.html'
+      - 'DATA_PORTABILITY.md'
+      - 'V1_2_IMPLEMENTATION.md'
       - 'scripts/test-data-portability.cjs'
       - '.github/workflows/data-portability-validation.yml'
   workflow_dispatch:
@@ -29,6 +31,8 @@ jobs:
           node --check scripts/test-data-portability.cjs
       - name: Run portability and recovery contract
         run: node scripts/test-data-portability.cjs
+      - name: Build pinned corpus required by PWA shell
+        run: node scripts/build-full-corpus.mjs
       - name: Verify PWA shell includes V1.2 runtime
         run: |
           node scripts/build-pwa-shell.mjs
