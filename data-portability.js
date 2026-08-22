@@ -58,6 +58,10 @@
     }else if(key==='koine-path-guidance-v1'){
       const parsed=safeJson(value,key);
       if(parsed?.schemaVersion!==1||!parsed.profile||typeof parsed.profile!=='object'||!parsed.placement||typeof parsed.placement!=='object')throw new Error('Guided-study state has an unsupported schema.');
+    }else if(key==='koine-path-sessions-v1'){
+      const parsed=safeJson(value,key);
+      if(parsed?.schemaVersion!==1||!Array.isArray(parsed.history)||(parsed.active!==null&&typeof parsed.active!=='object'))throw new Error('Daily-session state has an unsupported schema.');
+      if(parsed.history.length>400)throw new Error('Daily-session history exceeds the supported retention bound.');
     }
   }
 

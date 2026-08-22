@@ -1,0 +1,67 @@
+name: Daily Session & Analytics Validation
+
+on:
+  pull_request:
+    paths:
+      - 'session-engine.js'
+      - 'session-ui.js'
+      - 'session.css'
+      - 'onboarding-engine.js'
+      - 'onboarding-ui.js'
+      - 'app.js'
+      - 'index.html'
+      - 'data-portability.js'
+      - 'data-portability-ui.js'
+      - 'scripts/test-session-engine.cjs'
+      - 'scripts/test-session-browser.mjs'
+      - 'DAILY_SESSIONS_V1_4.md'
+      - '.github/workflows/session-analytics-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax checks
+        run: |
+          node --check session-engine.js
+          node --check session-ui.js
+          node --check data-portability.js
+          node --check scripts/test-session-engine.cjs
+          node --check scripts/test-session-browser.mjs
+      - name: Validate deterministic session and analytics contract
+        run: node scripts/test-session-engine.cjs
+      - name: Build pinned full NT corpus
+        run: node scripts/build-full-corpus.mjs
+      - name: Build and inspect PWA shell
+        run: |
+          node scripts/build-pwa-shell.mjs
+          node -e "const p=require('./generated/pwa-shell.json');for(const a of ['session-engine.js','session-ui.js','session.css'])if(!p.assets.includes(a))process.exit(1);console.log('V1.4 assets are present in the generated offline shell.')"
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local app server
+        run: |
+          python3 -m http.server 4173 > /tmp/koine-v14-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/koine-v14-http.log
+          exit 1
+      - name: Exercise daily sessions and analytics in Chromium
+        env:
+          KOINE_TEST_URL: http://127.0.0.1:4173/
+        run: node scripts/test-session-browser.mjs
+      - name: Preserve session mastery firewall
+        run: |
+          ! grep -Eq "recordEvidence|recordExposure|recordHint" session-engine.js session-ui.js
+          grep -q "koine-path-sessions-v1" session-engine.js
+          grep -q "id=\"daily-session\"" index.html
+          grep -q "id=\"learning-analytics\"" index.html

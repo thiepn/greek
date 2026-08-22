@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#f3efe7">
   <meta name="koine-ai-endpoint" content="">
-  <meta name="description" content="Interactive Biblical Greek learning with a complete 50-unit course, guided study paths, placement, morphology, vocabulary SRS, full Greek New Testament reading, syntax, reading fluency, intermediate exegesis, audio/pronunciation, grounded tutoring, adaptive review, and mastery tracking.">
+  <meta name="description" content="Interactive Biblical Greek learning with a complete 50-unit course, guided study paths, placement, daily sessions, learning analytics, morphology, vocabulary SRS, full Greek New Testament reading, syntax, reading fluency, intermediate exegesis, audio/pronunciation, grounded tutoring, adaptive review, and mastery tracking.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>Koinē Path — Biblical Greek</title>
@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="pronunciation.css">
   <link rel="stylesheet" href="pwa.css">
   <link rel="stylesheet" href="onboarding.css">
+  <link rel="stylesheet" href="session.css">
   <link rel="stylesheet" href="accessibility.css">
   <link rel="stylesheet" href="accessibility-support.css">
 </head>
@@ -61,6 +62,7 @@
         </div>
         <div class="section-head"><div><h2>Recommended next</h2><p>Chosen by prerequisite, weakness, review, and remediation state.</p></div></div>
         <div class="panel hero"><div><div class="eyebrow">Learning engine</div><h2 id="next-title">Begin Unit 1</h2><p id="next-text">Start with recognition before morphology.</p></div><button class="btn light" id="next-btn">Open</button></div>
+        <div id="daily-session" aria-label="Daily study session"></div>
         <div id="guided-plan" aria-label="Guided study plan"></div>
       </section>
 
@@ -87,6 +89,7 @@
         <div class="eyebrow">Meaningful progress</div><h1>Track competence.</h1><p class="lede">Progress reflects canonical unit evidence rather than one-time completion or XP.</p>
         <div class="metrics"><div class="metric"><span>Canonical mastery</span><strong id="p-mastery">0%</strong></div><div class="metric"><span>Morphology attempts</span><strong id="p-attempts">0</strong></div><div class="metric"><span>Morphology correct</span><strong id="p-correct">0</strong></div><div class="metric"><span>Reading evidence</span><strong id="p-reading">0%</strong></div></div>
         <div class="section-head"><div><h2>Study path</h2><p>Goal, workload, and provisional placement routing.</p></div></div><div id="study-path-settings"></div>
+        <div class="section-head"><div><h2>Learning analytics</h2><p>Foreground study time, session completion, workload fit, and activity distribution. No XP or streak score.</p></div></div><div id="learning-analytics"></div>
         <div class="section-head"><div><h2>Learning engine</h2><p>Current evidence, stage gate, remediation, and recommendation.</p></div></div><div id="learning-engine-summary" class="panel"></div>
         <div class="section-head"><div><h2>Focus-unit competencies</h2><p>Concept · recognition · application · reading transfer.</p></div></div><div class="panel" id="competencies"></div>
         <div class="section-head"><div><h2>Full curriculum</h2><p>BG1 canonical map · decorated with live unit state.</p></div></div><div id="curriculum-map" class="curriculum-map" aria-label="Full Biblical Greek curriculum"></div>
@@ -107,6 +110,7 @@
 <script src="data/pronunciation-profiles.js"></script>
 <script src="learning-engine.js"></script>
 <script src="onboarding-engine.js"></script>
+<script src="session-engine.js"></script>
 <script src="morphology-lab.js"></script>
 <script src="vocabulary-engine.js"></script>
 <script src="syntax-lab.js"></script>
@@ -136,5 +140,6 @@
 <script src="accessibility.js"></script>
 <script src="course-ui.js"></script>
 <script src="onboarding-ui.js"></script>
+<script src="session-ui.js"></script>
 </body>
 </html>
