@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 const engine=window.KOINE_READING_GOALS,api=window.KoineReadingGoals,tracks=window.KOINE_READING_TRACKS?.tracks||{},reader=window.KOINE_FULL_READER,learning=window.KOINE_LEARNING_ENGINE;if(!engine||!api||!reader||!learning)return;
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function until(fn,timeout=3500){const end=Date.now()+timeout;while(Date.now()<end){const v=fn();if(v)return v;await sleep(40)}return null}
 function completedChapters(){return reader.state?.completed||[]}
