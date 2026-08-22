@@ -66,6 +66,15 @@
       const parsed=safeJson(value,key);
       if(parsed?.schemaVersion!==1||!parsed.preferences||typeof parsed.preferences!=='object'||typeof parsed.preferences.targetId!=='string'||!Array.isArray(parsed.archive)||(parsed.current!==null&&typeof parsed.current!=='object'))throw new Error('Weekly-planning state has an unsupported schema.');
       if(parsed.archive.length>20)throw new Error('Weekly-planning archive exceeds the supported retention bound.');
+    }else if(key==='koine-path-reading-goals-v1'){
+      const parsed=safeJson(value,key),passages=parsed?.coverage?.passages;
+      if(parsed?.schemaVersion!==1||!Array.isArray(parsed.goals)||!passages||typeof passages!=='object'||Array.isArray(passages))throw new Error('Reading-goal state has an unsupported schema.');
+      if(parsed.goals.length>24)throw new Error('Reading-goal state exceeds the supported goal bound.');
+      if(Object.keys(passages).length>500)throw new Error('Reading-goal passage coverage exceeds the supported retention bound.');
+      for(const goal of parsed.goals){
+        if(!goal||typeof goal.id!=='string'||!['book','passage','track'].includes(goal.kind)||!Array.isArray(goal.items)||goal.items.length>300)throw new Error('Reading-goal entry is malformed.');
+        for(const item of goal.items){if(!item?.ref||typeof item.ref.book!=='string'||!Number.isFinite(Number(item.ref.chapter))||Number(item.ref.chapter)<1)throw new Error('Reading-goal item contains an invalid corpus reference.');}
+      }
     }
   }
 
