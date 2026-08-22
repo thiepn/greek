@@ -4,16 +4,29 @@ Interactive Biblical Greek learning app focused on active recall, morphology, vo
 
 **Live:** https://thiepn.github.io/greek/
 
-## v1.0.0
+## v1.1.0
 
-Koinē Path is production-certified as **v1.0.0**. The complete canonical course contains **50 units across 8 stages** with **150 deterministic checkpoints**, Scripture-transfer work in every unit, prerequisite-aware mastery, and integrated reading/exegesis practice.
+Koinē Path is production-certified as **v1.1.0**. It preserves the complete canonical **50-unit / 150-checkpoint** course from v1.0 and deepens every unit with observation, contrast, unscored retrieval, learner reasoning, Scripture transfer, and reduced-assistance rereading.
 
-The production deployment was verified against `main` commit `60b7028017dfb7cc1b3adab9b153f00ab6c72b6f`, PWA build `bg13-60b7028017df`, and certified-content fingerprint `e654a810fca0c9fbfa88c8808fa275204fba5a3806ac5ffd4f052a4ef0e9e445`.
+The V1.1 learning loop is:
+
+**Reading problem → Observe → Learn → Forms → Contrast → Unscored Practice → Safeguard → Explain reasoning → Scripture → Canonical Checkpoint → Read again**
+
+The **100 supplementary V1.1 practice questions are deliberately unscored** and cannot write canonical mastery evidence. The original 150 reviewed mastery checkpoints remain authoritative.
+
+The exact release-candidate deployment was verified against:
+
+- `main` commit `27eadce94b823c2be45ae6b03c8c9f6da101dce1`;
+- PWA build `bg13-27eadce94b82`;
+- certified-content fingerprint `800642ad7fdc25f2a1b576abe6e013940da7171c1857d1718cb0d84d2a2660c1`;
+- Production Deployment Verification run `32589598659`, job `97071184937`;
+- verifier result `V1_1_RELEASE_DEPLOYMENT_VERIFIED`.
 
 Current production systems include:
 
 - complete 50-unit canonical Biblical Greek course;
-- 150 deterministic course checkpoints with Scripture transfer;
+- 150 deterministic canonical mastery checkpoints with Scripture transfer;
+- 50 V1.1 observation tasks, 50 contrast tasks, 50 reasoning prompts, and 100 unscored supplementary retrieval items;
 - adaptive morphology laboratory;
 - frequency-aware vocabulary workspace with spaced review;
 - full 27-book Greek New Testament reader generated from the pinned SBLGNT/MorphGNT corpus;
@@ -36,7 +49,7 @@ Current production systems include:
 - installable PWA and revision-aware offline corpus management;
 - responsive desktop, tablet, and mobile UI with automated accessibility/reflow validation.
 
-See [`RELEASE_CERTIFICATION.md`](./RELEASE_CERTIFICATION.md), [`RELEASE_NOTES.md`](./RELEASE_NOTES.md), and [`RELEASE_CANDIDATE.json`](./RELEASE_CANDIDATE.json) for the exact release boundary and certification metadata.
+See [`LEARNING_EXPERIENCE_V1_1.md`](./LEARNING_EXPERIENCE_V1_1.md), [`RELEASE_CERTIFICATION.md`](./RELEASE_CERTIFICATION.md), [`RELEASE_NOTES.md`](./RELEASE_NOTES.md), and [`RELEASE_CANDIDATE.json`](./RELEASE_CANDIDATE.json) for the exact V1.1 release boundary and certification metadata.
 
 ## BG1 curriculum architecture
 
