@@ -31,7 +31,10 @@ async function courseSmoke(page,name,allUnits=false){
   for(const id of unitIds){
     await page.locator(`#lesson-list [data-course-unit="${id}"]`).click();
     await page.waitForSelector('#lesson-stage:not([hidden]) .course-lesson');
-    assert.equal(await page.locator('#lesson-stage .course-checkpoint').count(),3,`${name}: Unit ${id} must render exactly three deterministic checkpoints`);
+    assert.equal(await page.locator('#lesson-stage .course-checkpoints > .course-checkpoint').count(),3,`${name}: Unit ${id} must render exactly three canonical mastery checkpoints`);
+    assert.equal(await page.locator('#lesson-stage .course-practice-item').count(),2,`${name}: Unit ${id} must render exactly two V1.1 supplementary practice items`);
+    assert.equal(await page.locator('#lesson-stage .course-practice-item [data-course-q]').count(),0,`${name}: Unit ${id} supplementary practice must not masquerade as canonical checkpoint evidence`);
+    assert.equal(await page.locator('#lesson-stage .course-checkpoints [data-course-practice]').count(),0,`${name}: Unit ${id} canonical checkpoint region must not contain supplementary practice controls`);
     assert((await page.locator('#lesson-stage .course-teaching .course-movement').count())>=3,`${name}: Unit ${id} must render substantive teaching movements`);
     assert((await page.locator('#lesson-stage .course-scripture article').count())>=1,`${name}: Unit ${id} must render Scripture transfer`);
     if(id===1)assert.equal(await page.locator('#lesson-stage .course-preview-note').count(),0,`${name}: Unit 1 must be accessible on a clean learner state`);
@@ -137,4 +140,4 @@ for(const [name,browserType] of engines){
 }
 
 await chromiumOfflineSmoke();
-console.log('BG16-B001 cross-browser release matrix passed: all 12 mandatory workspaces in Chromium/Firefox/WebKit; Chromium exercised all 50 course units; Firefox/WebKit representative course views; isolated Chromium service-worker/offline recovery verified.');
+console.log('V1.1.0 cross-browser release matrix passed: all 12 mandatory workspaces in Chromium/Firefox/WebKit; canonical mastery checkpoints remain distinct from V1.1 supplementary practice; Chromium exercised all 50 course units; Firefox/WebKit representative course views; isolated Chromium service-worker/offline recovery verified.');
