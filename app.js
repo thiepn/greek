@@ -16,6 +16,7 @@ function openView(id){
   document.querySelectorAll('.nav button').forEach(b=>{const active=b.dataset.view===id;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
   const title=titles[id];
   if(title){document.querySelector('#top-title')?.replaceChildren(title[0]);document.querySelector('#top-sub')?.replaceChildren(title[1]);}
+  window.KOINE_SESSION_ENGINE?.setContextView?.(id);
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -50,7 +51,7 @@ function renderToday(){
   };
 }
 
-function renderAll(){renderToday();renderProgress();window.renderLearningEngineUI?.();window.renderCourseUI?.();window.KOINE_GUIDANCE_UI?.render?.();}
+function renderAll(){renderToday();renderProgress();window.renderLearningEngineUI?.();window.renderCourseUI?.();window.KOINE_GUIDANCE_UI?.render?.();window.KOINE_SESSION_UI?.render?.();}
 window.KOINE_APP_OPEN_VIEW=openView;
 window.KOINE_APP_RENDER=renderAll;
 renderAll();
