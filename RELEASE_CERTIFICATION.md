@@ -14,6 +14,34 @@ Frozen V1.1 certified-content fingerprint:
 
 This candidate preserves the exact pinned Greek corpus and the complete canonical 50-unit course while adding the V1.1 learning-experience layer to every unit.
 
+## Final release certification record
+
+The v1.1.0 release candidate passed the complete `Final Release Certification` gate on **2026-08-22**.
+
+Certified runtime head:
+
+`d319d149e4daa35b96ec0b35ecac3aafea9a58e4`
+
+Certification evidence:
+
+- workflow run: `32588533293`;
+- certification job: `97068507129`;
+- generated release-candidate fingerprint: `f269ba35d5a73a26ab9eafa7624f4775d12c6c30d4ce9371d2221b37c15e55c8`;
+- release-certification artifact ID: `9479708118`;
+- artifact SHA-256: `9620e086998dc3d6233b28b5f14854b3a371326e6f2c1a72cfea2895c3fa5930`;
+- frozen content fingerprint reverified: `800642ad7fdc25f2a1b576abe6e013940da7171c1857d1718cb0d84d2a2660c1`.
+
+Generated verdicts:
+
+- technical: **`TECHNICAL_RC_CERTIFIED`**;
+- product: **`V1_RELEASE_CERTIFIED`**;
+- production: **`PENDING_MAIN_DEPLOYMENT`**;
+- registered release blockers: **0**.
+
+The successful browser matrix certified all 12 mandatory workspaces in Chromium, Firefox, and WebKit. Chromium exercised all 50 course units; Firefox and WebKit exercised representative early, middle, and final course views. The matrix separately verified exactly three canonical mastery checkpoints and two unscored V1.1 practice items per tested unit, legacy learner-state migration, persistent local state, service-worker control, exact corpus fetches, and offline reader recovery.
+
+This record is documentation evidence only. It is deliberately excluded from the application runtime fingerprint; `RELEASE_CANDIDATE.json` is not made self-referential by embedding the generated release fingerprint into the runtime snapshot.
+
 ## V1.1 learning contract
 
 Every canonical unit must preserve the underlying production lesson and add the following learning functions:
@@ -85,17 +113,13 @@ The independent V1.1 learner simulation and BG14 mobile/axe accessibility suites
 
 ### Technical RC
 
-Before the release workflow passes:
-
-**`PENDING_VALIDATION`**
-
-A successful Final Release Certification run promotes the generated certification artifact to:
+The certified release artifact for the runtime snapshot records:
 
 **`TECHNICAL_RC_CERTIFIED`**
 
 ### Product
 
-The release blocker register is empty. Once technical certification succeeds, the generated release manifest may return:
+The release blocker register is empty and the certified release artifact records:
 
 **`V1_RELEASE_CERTIFIED`**
 
