@@ -1,0 +1,29 @@
+(function(){
+  'use strict';
+  const api=globalThis.KoineDataPortability;
+  if(!api||typeof document==='undefined'||typeof localStorage==='undefined')return;
+
+  const css=`
+  .data-portability{margin-top:1.25rem}.data-portability .dp-actions{display:flex;flex-wrap:wrap;gap:.65rem;margin:.9rem 0}.data-portability .dp-note{font-size:.9rem;opacity:.8}.data-portability .dp-status{margin-top:.8rem;padding:.75rem .9rem;border:1px solid currentColor;border-radius:.45rem;line-height:1.45}.data-portability .dp-status[hidden]{display:none}.data-portability .dp-preview{margin:.75rem 0;font-size:.92rem}.data-portability .dp-danger{border-color:#9a5b52}.data-portability input[type=file]{position:absolute;inline-size:1px;block-size:1px;opacity:0;pointer-events:none}.data-portability .dp-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.65rem;margin:.85rem 0}.data-portability .dp-meta div{padding:.7rem;border:1px solid rgba(80,70,60,.18);border-radius:.45rem}.data-portability .dp-meta small{display:block;opacity:.72}.data-portability .dp-meta strong{display:block;margin-top:.2rem}`;
+  const style=document.createElement('style');style.textContent=css;document.head.appendChild(style);
+
+  function fmtBytes(bytes){if(bytes<1024)return `${bytes} B`;if(bytes<1024*1024)return `${(bytes/1024).toFixed(1)} KB`;return `${(bytes/1024/1024).toFixed(2)} MB`;}
+  function status(node,message,type='info'){node.hidden=false;node.className=`dp-status${type==='error'?' dp-danger':''}`;node.textContent=message;}
+  function download(text){const blob=new Blob([text],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');const stamp=new Date().toISOString().slice(0,10);a.href=url;a.download=`koine-path-backup-${stamp}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),0);}
+
+  function mount(){
+    const progress=document.getElementById('progress');if(!progress||document.getElementById('data-portability-panel'))return;
+    const wrapper=document.createElement('div');wrapper.className='data-portability';wrapper.id='data-portability-panel';
+    wrapper.innerHTML=`<div class="section-head"><div><h2>Backup & recovery</h2><p>Move or recover your learner state without an account.</p></div></div><div class="panel"><div class="dp-meta"><div><small>Storage records</small><strong id="dp-key-count">0</strong></div><div><small>Recovery point</small><strong id="dp-recovery-state">None</strong></div></div><p class="dp-note">Backups contain your learning history, review state, reading progress, drafts, and other local Koinē Path data. They are not encrypted. Keep the JSON file private.</p><div class="dp-actions"><button class="btn" id="dp-export">Export backup</button><button class="btn" id="dp-import">Choose backup</button><button class="btn primary" id="dp-restore" disabled>Restore selected backup</button><button class="btn" id="dp-rollback" hidden>Undo last restore</button></div><input id="dp-file" type="file" accept="application/json,.json"><div class="dp-preview" id="dp-preview" hidden></div><div class="dp-status" id="dp-status" role="status" aria-live="polite" hidden></div></div>`;
+    progress.appendChild(wrapper);
+    const $=id=>wrapper.querySelector(`#${id}`),file=$('dp-file'),preview=$('dp-preview'),restore=$('dp-restore'),rollback=$('dp-rollback'),message=$('dp-status');let selected=null;
+    function refresh(){const count=Object.keys(api.collectStores(localStorage)).length,journal=api.getRecoveryJournal(localStorage);$('dp-key-count').textContent=String(count);$('dp-recovery-state').textContent=journal?'Available':'None';rollback.hidden=!journal;}
+    $('dp-export').addEventListener('click',()=>{try{const text=api.serializeBackup(localStorage,{appVersion:'v1.2'});download(text);status(message,`Backup exported successfully (${fmtBytes(new TextEncoder().encode(text).length)}).`);}catch(error){status(message,error.message,'error');}});
+    $('dp-import').addEventListener('click',()=>file.click());
+    file.addEventListener('change',async()=>{selected=null;restore.disabled=true;preview.hidden=true;const chosen=file.files?.[0];if(!chosen)return;try{const text=await chosen.text(),info=api.inspectBackup(text);selected=text;preview.hidden=false;preview.textContent=`Selected: ${chosen.name} · ${info.keyCount} records · ${fmtBytes(info.bytes)}${info.exportedAt?` · exported ${new Date(info.exportedAt).toLocaleString()}`:''}`;restore.disabled=false;status(message,'Backup passed integrity and schema validation. Nothing has been changed yet.');}catch(error){status(message,error.message,'error');}});
+    restore.addEventListener('click',()=>{if(!selected)return;const confirmed=globalThis.confirm('Replace current Koinē Path learner data with the selected backup? A recovery point of your current data will be saved first.');if(!confirmed)return;try{const result=api.restoreBackup(localStorage,selected);selected=null;restore.disabled=true;file.value='';preview.hidden=true;refresh();status(message,`Restore completed: ${result.restoredKeys} records. Reload the app to use the restored state.`);if(globalThis.confirm('Reload Koinē Path now?'))globalThis.location.reload();}catch(error){status(message,`Restore failed and current data was preserved: ${error.message}`,'error');refresh();}});
+    rollback.addEventListener('click',()=>{if(!globalThis.confirm('Undo the most recent restore and return to the automatically saved recovery point?'))return;try{const result=api.rollbackLastRestore(localStorage);refresh();status(message,`Previous learner state restored (${result.restoredKeys} records). Reload the app to use it.`);if(globalThis.confirm('Reload Koinē Path now?'))globalThis.location.reload();}catch(error){status(message,error.message,'error');refresh();}});
+    refresh();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+})();
