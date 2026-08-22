@@ -7,10 +7,12 @@ on:
       - 'data/**'
       - 'course-ui.js'
       - 'course.css'
+      - 'course-v1.1.css'
       - 'index.html'
       - 'scripts/**'
       - 'ATTRIBUTION.md'
       - 'CONTENT_QA.md'
+      - 'LEARNING_EXPERIENCE_V1_1.md'
       - '.github/workflows/content-qa-validation.yml'
   workflow_dispatch:
 
@@ -30,11 +32,14 @@ jobs:
       - name: Check QA script syntax
         run: |
           node --check scripts/test-course-content.cjs
+          node --check scripts/test-learning-experience.cjs
           node --check scripts/test-content-qa.cjs
           node --check scripts/generate-content-qa-manifest.cjs
 
-      - name: Validate complete canonical course
-        run: node scripts/test-course-content.cjs
+      - name: Validate complete canonical course and v1.1 learning experience
+        run: |
+          node scripts/test-course-content.cjs
+          node scripts/test-learning-experience.cjs
 
       - name: Validate reviewed content contract
         run: node scripts/test-content-qa.cjs
@@ -65,7 +70,7 @@ jobs:
         run: |
           node scripts/generate-content-qa-manifest.cjs
           test -s generated/content-qa-manifest.json
-          node -e "const m=require('./generated/content-qa-manifest.json'); if(!/^[0-9a-f]{64}$/.test(m.certifiedContentFingerprint)) process.exit(1); if(m.counts.courseUnits!==50||m.counts.courseCheckpoints!==150) process.exit(1); console.log('Certified content fingerprint:',m.certifiedContentFingerprint)"
+          node -e "const m=require('./generated/content-qa-manifest.json'); if(!/^[0-9a-f]{64}$/.test(m.certifiedContentFingerprint)) process.exit(1); if(m.counts.courseUnits!==50||m.counts.courseCheckpoints!==150||m.counts.enrichedCourseUnits!==50||m.counts.supplementaryPracticeItems!==100) process.exit(1); console.log('Certified content fingerprint:',m.certifiedContentFingerprint)"
 
       - name: Upload content QA manifest
         uses: actions/upload-artifact@v4
