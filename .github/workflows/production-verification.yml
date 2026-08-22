@@ -1,0 +1,25 @@
+name: Production Deployment Verification
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/verify-v1.1-production-deployment.mjs'
+      - '.github/workflows/production-verification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate production probe syntax
+        run: node --check scripts/verify-v1.1-production-deployment.mjs
+      - name: Verify exact GitHub Pages v1.1 deployment
+        run: node scripts/verify-v1.1-production-deployment.mjs
