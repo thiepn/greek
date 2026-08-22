@@ -50,7 +50,7 @@ function renderToday(){
   };
 }
 
-function renderAll(){renderToday();renderProgress();window.renderLearningEngineUI?.();window.renderCourseUI?.();}
+function renderAll(){renderToday();renderProgress();window.renderLearningEngineUI?.();window.renderCourseUI?.();window.KOINE_GUIDANCE_UI?.render?.();}
 window.KOINE_APP_OPEN_VIEW=openView;
 window.KOINE_APP_RENDER=renderAll;
 renderAll();

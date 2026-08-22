@@ -55,6 +55,9 @@
     }else if(key==='koine-path-vocab-corpus-v1'){
       const parsed=safeJson(value,key);
       if(typeof parsed?.commit!=='string'||!Array.isArray(parsed.entries))throw new Error('Vocabulary corpus cache is malformed.');
+    }else if(key==='koine-path-guidance-v1'){
+      const parsed=safeJson(value,key);
+      if(parsed?.schemaVersion!==1||!parsed.profile||typeof parsed.profile!=='object'||!parsed.placement||typeof parsed.placement!=='object')throw new Error('Guided-study state has an unsupported schema.');
     }
   }
 
