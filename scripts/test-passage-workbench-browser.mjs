@@ -24,7 +24,7 @@ await page.locator('#workbench .workbench-token').first().click();
 await page.locator('#wb-token-inspector .greek').first().waitFor();
 await page.locator('#wb-token-note').fill('Track this form only insofar as it affects the passage argument.');
 await page.locator('#wb-add-token-note').click();
-await page.getByText('Token / lexical notes',{exact:true}).waitFor();
+await page.locator('.workbench-lexical-note').getByText('Track this form only insofar as it affects the passage argument.',{exact:true}).waitFor({timeout:5000});
 
 const tabs={
   'Observations':'Repeated wording and participant relationships should be established before interpretation.',
@@ -36,7 +36,7 @@ const tabs={
   'Evidence & interpretation boundary':'Morphology and syntax constrain readings, but grammar alone does not establish the complete theological synthesis.'
 };
 for(const [label,note] of Object.entries(tabs)){
-  await page.locator(`[data-wb-tab]`).filter({hasText:label}).click();
+  await page.locator('[data-wb-tab]').filter({hasText:label}).click();
   await page.locator('#wb-note').fill(note);
   const step=page.locator('#wb-step');if(await step.count())await step.check();
   await page.locator('#wb-save-note').click();
@@ -47,7 +47,7 @@ await page.locator('.workbench-question').getByText('Which claims come directly 
 learningAfter=await page.evaluate(()=>localStorage.getItem('koine-path-learning-v3'));if(learningAfter!==learningBefore)throw new Error('Workbench notes/checkpoints/questions mutated canonical learning state.');
 
 await page.locator('#wb-complete').click();
-await page.locator('.workbench-status').getByText('complete',{exact:true}).waitFor();
+await page.locator('.workbench-status').filter({hasText:'complete'}).waitFor();
 const state=await page.evaluate(()=>window.KOINE_PASSAGE_WORKBENCH.snapshot());const active=state.projects.find(p=>p.id===state.activeProjectId);if(!active||active.status!=='complete'||active.lexicalNotes.length!==1||active.questions.length!==1)throw new Error('Completed workbench project did not persist structured project state.');
 if(Object.values(active.steps).filter(Boolean).length!==7)throw new Error('Project completion did not preserve all seven workflow checkpoints.');
 learningAfter=await page.evaluate(()=>localStorage.getItem('koine-path-learning-v3'));if(learningAfter!==learningBefore)throw new Error('Completing a workbench project mutated canonical learning state.');
