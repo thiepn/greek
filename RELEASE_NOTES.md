@@ -1,100 +1,85 @@
 # Koinē Path — Release notes
 
-## 1.0.0 — Production release
+## 1.1.0-rc.1 — Learning-experience deepening candidate
 
-Koinē Path v1.0.0 promotes the fully certified `1.0.0-rc.2` build after exact GitHub Pages production verification.
+Koinē Path v1.1.0-rc.1 promotes the V1.1 Full Learning-Experience Audit & Course Deepening work merged through PR #24 into the formal release-certification pipeline.
 
-### Production certification
+Release source baseline:
 
-The complete BG1–BG16 stack was merged to `main` at:
-
-`60b7028017dfb7cc1b3adab9b153f00ab6c72b6f`
-
-Production Deployment Verification subsequently confirmed that the public `/greek/` deployment serves:
-
-- PWA build marker `bg13-60b7028017df`;
-- the accepted release metadata;
-- generated corpus artifacts;
-- pinned corpus revision `aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d`;
-- exactly 27 books, 260 chapters, 7,927 token-bearing verses, 137,554 tokens, and 5,461 lemmas;
-- a valid generated John corpus chunk.
-
-The deployment check completed with `PRODUCTION_DEPLOYMENT_VERIFIED`.
-
-Final verdicts:
-
-- **`TECHNICAL_RC_CERTIFIED`**
-- **`V1_RELEASE_CERTIFIED`**
-- **`PRODUCTION_CERTIFIED`**
-- open v1 blockers: **0**
+`a48f7c781b3665fdd601abf5080282a1cc2ae29a`
 
 Frozen certified-content fingerprint:
 
-`e654a810fca0c9fbfa88c8808fa275204fba5a3806ac5ffd4f052a4ef0e9e445`
+`800642ad7fdc25f2a1b576abe6e013940da7171c1857d1718cb0d84d2a2660c1`
 
-Accepted RC2 fingerprint:
+### Learning-experience reconstruction
 
-`7deb0d2f913498fae9c90a95655e032b39753fb5302332185480738eb3398714`
+All 50 canonical units now explicitly train a fuller reading-learning loop:
 
-### v1.0.0 product scope
+**Reading problem → Observe → Learn → Forms → Contrast → Unscored Practice → Safeguard → Explain reasoning → Scripture → Canonical Checkpoint → Read again**
 
-- complete canonical 50-unit Biblical Greek course;
-- exactly 150 deterministic course checkpoints with Scripture transfer;
-- prerequisite-aware multidimensional mastery and remediation;
-- adaptive morphology laboratory with explicit syncretism;
-- frequency-aware vocabulary/SRS engine;
-- full pinned 27-book Greek New Testament reader;
-- reviewed syntax and translation laboratory;
-- secure-proxy-ready grounded AI tutor with deterministic fallback;
-- unified adaptive review;
-- continuous reading-fluency mode;
-- intermediate/exegetical Greek laboratory;
-- corpus-based lexical analysis and edition-awareness safeguards;
-- reconstructed Koinē, Erasmian, and Modern Greek pronunciation profiles;
-- listening, playback, and local microphone shadowing tools;
-- installable PWA with revision-aware offline corpus management;
-- responsive mobile shell and automated accessibility/reflow validation;
-- deterministic scholarly-content and release fingerprinting;
-- clean-state, legacy-migration, cross-browser, offline, and production-deployment certification.
+V1.1 adds:
+
+- 50 unit-specific reading-problem orientations;
+- 50 observation tasks;
+- 50 contrast/minimal-pair tasks;
+- exactly **100 supplementary retrieval questions**;
+- 50 explain-your-reasoning prompts;
+- reduced-assistance Scripture re-reading after the checkpoint;
+- progressive disclosure for explanations.
+
+The existing **150 canonical mastery checkpoints are preserved**.
+
+### Mastery firewall
+
+The 100 V1.1 practice questions are deliberately unscored rehearsal. They do not call the canonical evidence/exposure writers and cannot increase mastery merely by completion.
+
+The dedicated Chromium learner simulation verifies that supplementary practice leaves `koine-path-learning-v3` unchanged while canonical checkpoints still write learner evidence.
+
+### V1.1 content QA
+
+The deterministic content manifest now includes the learning-experience layer itself. The certified snapshot requires exact 50-unit enrichment coverage, exact 100-practice-item coverage, unique IDs, NFC-normalized Greek, valid observation/contrast/reasoning structures, preservation of the 150 canonical checkpoints, and anti-slogan safeguards for tense/aspect, article syntax, case functions, discourse, lexical semantics, and textual criticism.
+
+### Release certification boundary
+
+This RC must pass:
+
+- Final Release Certification;
+- Chromium / Firefox / WebKit release smoke;
+- full pinned-corpus rebuild;
+- learner-state migration tests;
+- Content QA Validation;
+- Learning Experience Validation;
+- Mobile Accessibility Validation;
+- PWA Offline Validation;
+- all inherited Greek-data, morphology, vocabulary, syntax, fluency, exegesis, pronunciation, adaptive-review, and secure-tutor regressions.
+
+Production remains **`PENDING_MAIN_DEPLOYMENT`** until the certified release is merged to `main`, deployed, and the exact public GitHub Pages revision is verified.
 
 ### Claim boundaries
 
-v1.0.0 does not claim independent external scholarly peer review. Manual VoiceOver/TalkBack/NVDA testing on physical devices remains outside the automated certification claim. Remote AI remains optional and requires a separately deployed secure BG8 Worker; the static client contains no OpenAI API secret.
+V1.1 does not claim independent external scholarly peer review. Automated WCAG-oriented checks do not replace manual VoiceOver, TalkBack, or NVDA certification. Remote AI remains optional and requires the separately deployed secure BG8 Worker.
 
-## 1.0.0-rc.2 — BG16-B001 course-complete candidate
+---
 
-RC2 resolved the only v1 product blocker found by the original BG16 certification pass. The structured Learn workspace implements the entire canonical **50-unit Biblical Greek course** rather than five prototype lessons.
+## 1.0.0 — Production release
 
-### Course completion
+Koinē Path v1.0.0 is the previously production-certified baseline. It established the complete 50-unit course, exactly 150 canonical mastery checkpoints, the full pinned Greek NT reader, morphology/vocabulary/syntax/fluency/exegesis/pronunciation systems, PWA/offline support, mobile/accessibility infrastructure, content fingerprinting, cross-browser release certification, and exact GitHub Pages production verification.
 
-- all Units 1–50 use the exact canonical curriculum order and titles;
-- every unit has a learning objective and at least three substantive teaching movements;
-- every unit includes worked Greek forms/patterns;
-- every unit contains an explicit safeguard against common grammatical, lexical, discourse, or textual-critical overreading;
-- every unit returns to a named Scripture passage with a reading/application task;
-- exactly **150 deterministic checkpoints** (three per unit) integrate with the canonical mastery/remediation engine;
-- inaccessible future units remain readable in preview mode but cannot generate canonical mastery evidence;
-- the obsolete five-prototype lesson bootstrap was removed from `app.js`;
-- the production Learn UI is responsive and preserves visible keyboard focus.
+Production main commit:
 
-### Certified content snapshot
+`60b7028017dfb7cc1b3adab9b153f00ab6c72b6f`
 
-BG16-B001 certified-content fingerprint:
+Frozen v1.0.0 content fingerprint:
 
 `e654a810fca0c9fbfa88c8808fa275204fba5a3806ac5ffd4f052a4ef0e9e445`
 
-That snapshot passed the complete course contract, BG15 content safeguards, morphology/vocabulary/syntax/fluency/exegesis/pronunciation regressions, and the pinned 27-book / 7,927-verse / 137,554-token / 5,461-lemma GNT rebuild and validation.
+Accepted v1.0.0 RC fingerprint:
 
-RC2 finished with `TECHNICAL_RC_CERTIFIED`, `V1_RELEASE_CERTIFIED`, and zero v1 blockers before production deployment verification.
+`7deb0d2f913498fae9c90a95655e032b39753fb5302332185480738eb3398714`
 
-## 1.0.0-rc.1 — Historical platform candidate
+The v1.0.0 deployment was verified by workflow run `32540664820` / job `96951794130` with `PRODUCTION_DEPLOYMENT_VERIFIED`.
 
-RC1 certified the BG1–BG16 technical platform but correctly returned **`V1_RELEASE_BLOCKED`** because Learn contained only five interactive prototype lessons. That blocker was registered as `BG16-B001` and was resolved by RC2.
+## Historical 1.0 release candidates
 
-RC1 frozen content fingerprint:
-
-`81f780289ed6d8719463092af9392fb5be85293aab20c50b26d0aa6758f130c5`
-
-RC1 release-candidate fingerprint:
-
-`6e70ef0d9cc5038e284da2ea6fb8ca830ef7a6fb03dc32aa96f82fdf432e0468`
+`1.0.0-rc.2` resolved `BG16-B001` by replacing the five-lesson prototype with production instructional content for all 50 canonical units. `1.0.0-rc.1` had correctly blocked product certification while that course-completeness gap remained.

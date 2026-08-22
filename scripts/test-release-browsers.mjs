@@ -31,7 +31,10 @@ async function courseSmoke(page,name,allUnits=false){
   for(const id of unitIds){
     await page.locator(`#lesson-list [data-course-unit="${id}"]`).click();
     await page.waitForSelector('#lesson-stage:not([hidden]) .course-lesson');
-    assert.equal(await page.locator('#lesson-stage .course-checkpoint').count(),3,`${name}: Unit ${id} must render exactly three deterministic checkpoints`);
+    assert.equal(await page.locator('#lesson-stage .course-checkpoints > .course-checkpoint').count(),3,`${name}: Unit ${id} must render exactly three canonical mastery checkpoints`);
+    assert.equal(await page.locator('#lesson-stage .course-practice-item').count(),2,`${name}: Unit ${id} must render exactly two V1.1 supplementary practice items`);
+    assert.equal(await page.locator('#lesson-stage .course-practice-item [data-course-q]').count(),0,`${name}: Unit ${id} supplementary practice must not masquerade as canonical checkpoint evidence`);
+    assert.equal(await page.locator('#lesson-stage .course-checkpoints [data-course-practice]').count(),0,`${name}: Unit ${id} canonical checkpoint region must not contain supplementary practice controls`);
     assert((await page.locator('#lesson-stage .course-teaching .course-movement').count())>=3,`${name}: Unit ${id} must render substantive teaching movements`);
     assert((await page.locator('#lesson-stage .course-scripture article').count())>=1,`${name}: Unit ${id} must render Scripture transfer`);
     if(id===1)assert.equal(await page.locator('#lesson-stage .course-preview-note').count(),0,`${name}: Unit 1 must be accessible on a clean learner state`);
@@ -59,7 +62,7 @@ async function persistenceSmoke(page,name){
 
 async function legacyMigrationSmoke(browserType,name){
   const browser=await browserType.launch({headless:true});
-  const context=await browser.newContext();
+  const context=await browser.newContext({serviceWorkers:'block'});
   await context.addInitScript(()=>{if(!localStorage.getItem('bg16-legacy-seeded')){localStorage.removeItem('koine-path-learning-v3');localStorage.setItem('koine-path-v01',JSON.stringify({done:['alphabet','article','nouns','verbs','john1'],attempts:11,correct:8,review:[],words:['λόγος']}));localStorage.setItem('bg16-legacy-seeded','1');}});
   const page=await context.newPage();
   await page.goto(BASE,{waitUntil:'domcontentloaded'});await page.waitForSelector('#main-content');
@@ -129,12 +132,14 @@ async function chromiumOfflineSmoke(){
 }
 
 for(const [name,browserType] of engines){
-  const browser=await browserType.launch({headless:true});const context=await browser.newContext({viewport:{width:1280,height:900}});const page=await context.newPage();
+  const browser=await browserType.launch({headless:true});
+  const context=await browser.newContext({viewport:{width:1280,height:900},serviceWorkers:'block'});
+  const page=await context.newPage();
   const pageErrors=[];page.on('pageerror',err=>pageErrors.push(String(err)));
   await workspaceSmoke(page,name);await courseSmoke(page,name,name==='chromium');await persistenceSmoke(page,name);
   assert.deepEqual(pageErrors,[],`${name}: uncaught page errors: ${pageErrors.join(' | ')}`);
-  await browser.close();await legacyMigrationSmoke(browserType,name);console.log(`BG16 ${name} release smoke passed.`);
+  await browser.close();await legacyMigrationSmoke(browserType,name);console.log(`V1.1.0 ${name} UI/course/migration release smoke passed with service workers isolated.`);
 }
 
 await chromiumOfflineSmoke();
-console.log('BG16-B001 cross-browser release matrix passed: all 12 mandatory workspaces in Chromium/Firefox/WebKit; Chromium exercised all 50 course units; Firefox/WebKit representative course views; isolated Chromium service-worker/offline recovery verified.');
+console.log('V1.1.0 cross-browser release matrix passed: all 12 mandatory workspaces in Chromium/Firefox/WebKit; canonical mastery checkpoints remain distinct from V1.1 supplementary practice; Chromium exercised all 50 course units; Firefox/WebKit representative course views; isolated Chromium service-worker/offline recovery verified.');
