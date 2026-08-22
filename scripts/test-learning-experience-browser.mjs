@@ -10,7 +10,7 @@ page.on('pageerror',e=>pageErrors.push(String(e)));
 
 await page.goto(BASE,{waitUntil:'domcontentloaded'});
 await page.waitForFunction(()=>window.KOINE_COURSE_UI&&window.KOINE_COURSE_ENRICHMENT?.unitCount===50);
-await page.locator('[data-view="learn"]').click();
+await page.locator('.nav [data-view="learn"]').click();
 await page.locator('[data-course-unit="1"]').click();
 await page.waitForSelector('.course-observe-card');
 
