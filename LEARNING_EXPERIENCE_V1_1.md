@@ -35,7 +35,7 @@ The v1.0 course already passed the following gates in every unit:
 V1.1 preserves the 150 canonical mastery checkpoints and adds a separate, deterministic **unscored learning-experience layer**:
 
 - 50 unit-specific reading-problem orientations;
-- 50 controlled Greek observation tasks;
+- 50 controlled observation tasks (Greek-form/text observations in language units; an explicit edition-reference observation in Unit 49 where the learning target is evidence-layer discipline);
 - 50 explicit contrast/minimal-pair tasks;
 - 100 supplementary retrieval questions;
 - 50 explain-your-reasoning prompts;
@@ -97,7 +97,7 @@ This brings the Learn workspace much closer to the original curriculum architect
 | 46 | Fluency needed an explicit stop/no-stop criterion | selective-blocker practice + historical-present restraint |
 | 47 | Long sentences needed a repeatable diagram method | finite spine with indented dependents |
 | 48 | Lexicon method needed active semantic narrowing | range-vs-contextual-sense practice |
-| 49 | Textual criticism needed evidence-layer labeling | edition fact vs manuscript evidence classification |
+| 49 | Textual criticism needed evidence-layer labeling | edition-reference observation + edition fact vs manuscript evidence classification |
 | 50 | Final practicum needed a repeatable independent procedure | cold read → morphology → syntax → tool verification → claim grading |
 
 ## Mastery firewall
@@ -113,7 +113,7 @@ V1.1 is considered structurally complete only when CI proves:
 - exactly 50 enrichment records corresponding to Units 1–50;
 - exactly 100 supplementary retrieval items;
 - unique practice IDs;
-- a controlled Greek observation in every unit;
+- a controlled observation in every unit, normally Greek and explicitly edition-referential for Unit 49's textual-evidence lesson;
 - a contrast task in every unit;
 - a reasoning prompt in every unit;
 - NFC-normalized Greek strings;
