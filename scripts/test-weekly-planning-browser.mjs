@@ -25,8 +25,9 @@ await page.evaluate(()=>{window.KOINE_GUIDANCE_ENGINE.saveProfile({sessionMinute
 plan=await page.evaluate(()=>window.KOINE_WEEKLY_PLANNER.getPlan(window.KOINE_GUIDANCE_ENGINE.snapshot().profile,window.KOINE_GUIDANCE_ENGINE.getGuidedPlan()));
 if(plan.targetMinutes!==30||plan.sessions.length!==3)throw new Error('Profile change did not recalibrate weekly capacity without backlog inflation.');
 if(plan.sessions.reduce((n,s)=>n+s.minutes,0)!==30)throw new Error('Weekly session map exceeds configured capacity.');
-await page.setViewportSize({width:390,height:844});
-const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);if(overflow>1)throw new Error(`V1.5 introduced horizontal overflow: ${overflow}px`);
+await page.setViewportSize({width:320,height:844});
+const overflow=await page.evaluate(()=>({document:document.documentElement.scrollWidth-window.innerWidth,progress:document.getElementById('progress').scrollWidth-document.getElementById('progress').clientWidth}));
+if(overflow.document>1||overflow.progress>1)throw new Error(`V1.5 introduced 320px horizontal overflow: document=${overflow.document}px progress=${overflow.progress}px`);
 if(errors.length)throw new Error(`Browser errors: ${errors.join(' | ')}`);
 await browser.close();
-console.log('V1.5 browser weekly plan, target forecast, persistence, mastery firewall, profile recalibration, and mobile reflow: PASS');
+console.log('V1.5 browser weekly plan, target forecast, persistence, mastery firewall, profile recalibration, and 320px reflow: PASS');
