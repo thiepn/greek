@@ -4,13 +4,16 @@ Interactive Biblical Greek learning app focused on active recall, morphology, vo
 
 **Live:** https://thiepn.github.io/greek/
 
-## Current beta
+## v1.0.0
 
-The five currently interactive foundation lessons are prototype content used to validate the learning loop and interface. They are not the final canonical course sequence.
+Koinē Path is production-certified as **v1.0.0**. The complete canonical course contains **50 units across 8 stages** with **150 deterministic checkpoints**, Scripture-transfer work in every unit, prerequisite-aware mastery, and integrated reading/exegesis practice.
 
-Current interactive systems include:
+The production deployment was verified against `main` commit `60b7028017dfb7cc1b3adab9b153f00ab6c72b6f`, PWA build `bg13-60b7028017df`, and certified-content fingerprint `e654a810fca0c9fbfa88c8808fa275204fba5a3806ac5ffd4f052a4ef0e9e445`.
 
-- prototype foundation lessons;
+Current production systems include:
+
+- complete 50-unit canonical Biblical Greek course;
+- 150 deterministic course checkpoints with Scripture transfer;
 - adaptive morphology laboratory;
 - frequency-aware vocabulary workspace with spaced review;
 - full 27-book Greek New Testament reader generated from the pinned SBLGNT/MorphGNT corpus;
@@ -18,19 +21,22 @@ Current interactive systems include:
 - reader-generated vocabulary cards and canonical NT-wide frequency synchronization;
 - reviewed syntax and translation laboratory covering Units 38–44;
 - secure-proxy-ready grounded AI tutor with deterministic fallback;
-- unified BG9 adaptive review scheduler across remediation, vocabulary, morphology, syntax, unit decay, reading transfer, and advanced exegesis;
-- BG10 continuous-reading fluency sessions with first-pass / analysis / reread separation;
+- unified adaptive review scheduler across remediation, vocabulary, morphology, syntax, unit decay, reading transfer, and advanced exegesis;
+- continuous-reading fluency sessions with first-pass / analysis / reread separation;
 - 1 John, Mark, and Philippians fluency programs plus whole-chapter practice;
-- BG11 Exegesis workspace for Units 48–50;
+- Exegesis workspace for Units 48–50;
 - exact-corpus lexical study profiles for all 5,461 lemmas in the pinned 137,554-token corpus;
 - 27 reviewed intermediate/exegetical cases, including five source-pinned edition-awareness cases;
-- BG12 Audio workspace with reconstructed Koinē, Erasmian, and Modern Greek profiles;
+- Audio workspace with reconstructed Koinē, Erasmian, and Modern Greek profiles;
 - profile-specific pronunciation cues, Modern Greek browser speech, listening-only drills, reader/fluency audio hooks, and local microphone shadowing;
 - adaptive learner-state engine;
 - typed remediation and review scheduling;
 - competency-based progress tracking;
 - local-first learner persistence;
-- responsive desktop, tablet, and mobile UI.
+- installable PWA and revision-aware offline corpus management;
+- responsive desktop, tablet, and mobile UI with automated accessibility/reflow validation.
+
+See [`RELEASE_CERTIFICATION.md`](./RELEASE_CERTIFICATION.md), [`RELEASE_NOTES.md`](./RELEASE_NOTES.md), and [`RELEASE_CANDIDATE.json`](./RELEASE_CANDIDATE.json) for the exact release boundary and certification metadata.
 
 ## BG1 curriculum architecture
 

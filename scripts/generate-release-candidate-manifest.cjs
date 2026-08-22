@@ -19,25 +19,29 @@ const runtimeFiles=[...runtimeSet].filter(p=>fs.existsSync(path.join(ROOT,p))&&f
 const runtime=runtimeFiles.map(p=>{const b=read(p);return{path:p,bytes:b.length,sha256:sha(b)}});
 const runtimeFingerprint=sha(runtime.map(x=>`${x.path}:${x.sha256}`).join('\n'));
 const releaseBlockers=(candidate.knownV1Blockers||[]).filter(x=>x.severity==='release-blocker');
-const technicalVerdict=process.env.BG16_TECHNICAL_VERDICT||'PENDING_VALIDATION';
-const productVerdict=technicalVerdict==='TECHNICAL_RC_CERTIFIED'?(releaseBlockers.length?'V1_RELEASE_BLOCKED':'V1_RELEASE_CERTIFIED'):'PENDING_VALIDATION';
+const technicalVerdict=process.env.BG16_TECHNICAL_VERDICT||candidate.verdicts?.technical||'PENDING_VALIDATION';
+const productVerdict=technicalVerdict==='TECHNICAL_RC_CERTIFIED'?(candidate.verdicts?.product||(releaseBlockers.length?'V1_RELEASE_BLOCKED':'V1_RELEASE_CERTIFIED')):'PENDING_VALIDATION';
+const productionVerdict=candidate.productionVerification?.status==='verified'?(candidate.verdicts?.production||'PRODUCTION_CERTIFIED'):'PENDING_MAIN_DEPLOYMENT';
 const manifest={
-  schemaVersion:2,
+  schemaVersion:3,
   candidate:candidate.candidate,
   headSha:process.env.RC_HEAD_SHA||null,
   generatedAt:new Date().toISOString(),
   frozenInputs:{
     contentSourceHead:candidate.contentSourceHead,
     certifiedContentFingerprint:candidate.certifiedContentFingerprint,
+    releaseCandidateSourceHead:candidate.releaseCandidateSourceHead||null,
+    releaseCandidateFingerprint:candidate.releaseCandidateFingerprint||null,
     corpusRevision:candidate.corpusRevision,
     apparatusRevision:candidate.apparatusRevision
   },
   verdicts:{
     technical:technicalVerdict,
     product:productVerdict,
-    production:'PENDING_MAIN_DEPLOYMENT',
+    production:productionVerdict,
     manualAssistiveTechnology:'NOT_MANUALLY_CERTIFIED'
   },
+  productionVerification:candidate.productionVerification||null,
   releaseBlockers,
   resolvedV1Blockers:candidate.resolvedV1Blockers||[],
   runtime:{fileCount:runtime.length,runtimeFingerprint,files:runtime},
@@ -48,5 +52,5 @@ manifest.releaseCandidateFingerprint=sha(JSON.stringify(semantic));
 const out=path.join(ROOT,'generated','release-candidate-manifest.json');
 fs.mkdirSync(path.dirname(out),{recursive:true});
 fs.writeFileSync(out,JSON.stringify(manifest,null,2)+'\n');
-console.log(`BG16 release candidate fingerprint: ${manifest.releaseCandidateFingerprint}`);
-console.log(`Technical verdict: ${manifest.verdicts.technical}; product verdict: ${manifest.verdicts.product}; blockers: ${releaseBlockers.length}`);
+console.log(`BG16/v1 release fingerprint: ${manifest.releaseCandidateFingerprint}`);
+console.log(`Technical verdict: ${manifest.verdicts.technical}; product verdict: ${manifest.verdicts.product}; production verdict: ${manifest.verdicts.production}; blockers: ${releaseBlockers.length}`);

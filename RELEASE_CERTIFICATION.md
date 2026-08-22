@@ -1,18 +1,20 @@
 # BG16 / BG16-B001 — Final Release Certification
 
-BG16 is the release-level verification phase for Koinē Path. BG16-B001 resolves the only product blocker found by the original certification pass: incomplete structured course content. The release gate validates the complete application across course content, scholarly data, runtime, storage migration, browser, PWA/offline, security, accessibility, and deployment boundaries.
+Koinē Path v1.0.0 is the production promotion of the fully certified `1.0.0-rc.2` build. BG16 established the release-level verification contract; BG16-B001 resolved the only product blocker found by the original certification pass: incomplete structured course content.
 
 ## Frozen certified-content input
 
-RC2 accepts only the BG16-B001 certified content snapshot:
+v1.0.0 preserves the BG16-B001 certified content snapshot:
 
 - content source head: `701ae7f3e3eaafcb8b2e33590df26ba665c8bab8`
 - certified content fingerprint: `e654a810fca0c9fbfa88c8808fa275204fba5a3806ac5ffd4f052a4ef0e9e445`
+- certified RC2 source head: `ad88a25e5d59f4ab1a02f7bd84400607aa0697d5`
+- RC2 fingerprint: `7deb0d2f913498fae9c90a95655e032b39753fb5302332185480738eb3398714`
 - MorphGNT/SBLGNT snapshot: `aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d`
 - edition-comparison apparatus revision: `c4d241a9c1c479a55b989ba35a4976c1d0b8052c`
 - canonical course: 50 units / 150 deterministic checkpoints
 
-Changing certified course or reviewed scholarly content invalidates this release input and requires a new content-QA fingerprint.
+Changing certified course or reviewed scholarly content invalidates this content snapshot and requires a new content-QA fingerprint.
 
 The content certification is an internal deterministic/editorial QA boundary. It is **not** represented as independent external scholarly peer review.
 
@@ -20,76 +22,73 @@ The content certification is an internal deterministic/editorial QA boundary. It
 
 ### 1. Technical RC certification
 
-A technical RC may pass when:
+The accepted RC passed all inherited BG2–BG15/BG16-B001 workflows, complete course checks, the full pinned corpus rebuild, clean/legacy learner-state migrations, Chromium/Firefox/WebKit smoke tests, PWA/offline validation, security/secret boundaries, accessibility automation, and deterministic RC fingerprint generation.
 
-- all inherited BG2–BG15/BG16-B001 workflows are green;
-- the complete 50-unit course contract passes;
-- the full pinned corpus rebuilds and validates;
-- the certified content fingerprint is reproduced exactly;
-- clean-state and legacy-state migration tests pass;
-- Chromium, Firefox, and WebKit smoke tests pass;
-- PWA installation prerequisites, service worker, offline shell, and corpus cache flows pass in CI;
-- security/secret and AI-boundary checks pass;
-- all registered workspaces initialize without uncaught browser errors;
-- a deterministic RC manifest/fingerprint is generated.
+Technical verdict:
+
+**`TECHNICAL_RC_CERTIFIED`**
 
 ### 2. v1.0 product certification
 
-`v1.0.0` requires technical RC certification plus **zero open release blockers**.
+v1.0.0 requires technical RC certification plus zero open release blockers. BG16-B001 supplies production content for all 50 canonical units and exactly 150 deterministic checkpoints, resolving the original course-completeness blocker.
 
-BG16-B001 supplies production content for all 50 canonical units and exactly 150 deterministic checkpoints, so the original course-completeness blocker is resolved. If the final RC2 workflow is green and no new release blocker appears, the product verdict is:
+Product verdict:
 
 **`V1_RELEASE_CERTIFIED`**
 
-This verdict means the repository candidate satisfies the declared v1 product contract. It does not mean the candidate has been deployed to production.
+Open v1 blockers: **0**.
 
 ### 3. Production certification
 
-Production certification additionally requires the accepted RC to be merged to `main` and the exact merged build to be verified at the public GitHub Pages deployment.
+Production certification requires the accepted RC to be merged to `main` and the exact deployed GitHub Pages build to be verified publicly.
 
-Because Pages deploys only from `main`, an unmerged stacked PR cannot receive production certification. Until deployment verification, the production verdict remains:
+The complete certified stack was merged through PR #20 to:
 
-**`PENDING_MAIN_DEPLOYMENT`**
+`60b7028017dfb7cc1b3adab9b153f00ab6c72b6f`
+
+After the repository Pages source was switched to GitHub Actions, Production Deployment Verification run `32540664820` / job `96951794130` verified the public deployment on 2026-08-22 at 00:45:12Z.
+
+Verified live identity:
+
+- root `/greek/` served successfully;
+- PWA deployment marker: `bg13-60b7028017df`;
+- release metadata matched the accepted RC2 content snapshot;
+- generated corpus manifest was present;
+- `John.json` was present and valid;
+- corpus revision matched `aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d`;
+- corpus coverage matched 27 books / 260 chapters / 7,927 token-bearing verses / 137,554 tokens / 5,461 lemmas.
+
+The verifier completed with:
+
+**`PRODUCTION_DEPLOYMENT_VERIFIED`**
+
+Production verdict:
+
+**`PRODUCTION_CERTIFIED`**
 
 ## Automated release matrix
 
 ### Deterministic source/data gates
 
-- BG16-B001 complete-course contract: 50 units / 150 checkpoints / Scripture transfer in every unit
-- certified content contract and frozen fingerprint
-- complete full-corpus rebuild
-- morphology, vocabulary, syntax, fluency, exegesis, pronunciation regressions
-- learning-engine migration tests
-- PWA build validation
-- accessibility contract
-- secrets/API-key scan
-- no AI → mastery write path
+- complete course contract: 50 units / 150 checkpoints / Scripture transfer in every unit;
+- certified content contract and frozen fingerprint;
+- complete full-corpus rebuild;
+- morphology, vocabulary, syntax, fluency, exegesis, and pronunciation regressions;
+- learning-engine migration tests;
+- PWA build validation;
+- accessibility contract;
+- secrets/API-key scan;
+- no AI → mastery write path.
 
 ### Cross-browser smoke matrix
 
-CI runs the generated application in current Playwright:
+The accepted RC passed current Playwright Chromium, Firefox, and WebKit coverage. The release suite verifies workspace initialization, representative and complete course rendering, current-schema persistence, legacy migration safety, project-relative URLs, and service-worker-controlled online → offline reader recovery.
 
-- Chromium
-- Firefox
-- WebKit
-
-Each browser must:
-
-1. load a clean application state;
-2. initialize the generated reader corpus;
-3. visit every registered workspace, including the production Learn workspace, without uncaught page errors;
-4. preserve current-schema learner state across reload;
-5. import the legacy prototype learning state without granting false mastery;
-6. register the service worker on localhost;
-7. reload under offline mode after the shell/current reader data has been cached;
-8. preserve learner state independently from CacheStorage;
-9. retain project-relative URL behavior compatible with GitHub Pages.
-
-BG14's deeper Chromium/axe/320px accessibility suite remains independently required.
+BG14's deeper Chromium/axe/320px accessibility suite also passed independently.
 
 ## Course-completion evidence
 
-BG16-B001 is not cleared by documentation alone. The course QA gate verifies:
+BG16-B001 verifies:
 
 - exact canonical Unit 1–50 IDs and titles;
 - at least three substantive teaching movements per unit;
@@ -101,51 +100,42 @@ BG16-B001 is not cleared by documentation alone. The course QA gate verifies:
 - anti-slogan safeguards for tense/aspect, article syntax, case functions, discourse, lexical semantics, and textual criticism;
 - locked-unit preview behavior cannot grant canonical mastery evidence.
 
-The resulting certified content fingerprint is:
+Certified content fingerprint:
 
 `e654a810fca0c9fbfa88c8808fa275204fba5a3806ac5ffd4f052a4ef0e9e445`
 
 ## Migration policy
 
-Koinē Path is local-first. Release certification therefore treats stored learner state as user data.
+Koinē Path is local-first. Stored learner state is treated as user data. The release must never solve schema incompatibility by calling `localStorage.clear()` or deleting unrelated keys.
 
-The RC must never solve schema incompatibility by calling `localStorage.clear()` or deleting unrelated keys.
-
-The currently supported explicit migration path is:
+The explicitly supported migration path is:
 
 `koine-path-v01` → `koine-path-learning-v3`
 
-Legacy completion markers import only low-confidence evidence and must not grant canonical mastery or bypass stage gates.
+Legacy completion markers import only low-confidence evidence and cannot grant canonical mastery or bypass stage gates.
 
 ## Performance boundary
 
-The full NT is not loaded at startup. Release smoke tests require the shell to initialize without fetching all 27 book chunks and require reader navigation to lazy-load the selected book.
-
-BG16 does not claim a universal millisecond performance SLA because CI hardware, browser, network, and device classes vary. The architectural release requirement is bounded startup work and absence of a mandatory full-corpus first-load download.
+The full NT is not loaded at startup. The browser lazy-loads the selected book, while offline downloads are optional and revision-aware. The release does not claim a universal millisecond SLA because hardware, browser, network, and device classes vary.
 
 ## Security boundary
 
-A release candidate must contain no OpenAI API secret. The browser's AI endpoint remains an optional server-proxy URL. Remote tutor output has no canonical mastery write path.
+The static application contains no OpenAI API secret. Remote tutoring requires the secure BG8 proxy and remains optional; deterministic/local fallback is available when no remote endpoint is configured. AI output has no canonical mastery write path.
 
-## Manual matrix that cannot be fabricated by CI
+## Manual matrix not claimed by automation
 
-The following can only be recorded as passed after actual execution on those platforms:
+The following remain **not manually certified** unless separately tested on physical platforms:
 
-- iOS Safari + installed PWA + VoiceOver
-- Android Chrome + installed PWA + TalkBack
-- Windows Firefox/Chromium + NVDA
-- physical-device virtual keyboard/orientation behavior
-- real OS-specific Modern Greek speech availability/quality
+- iOS Safari + installed PWA + VoiceOver;
+- Android Chrome + installed PWA + TalkBack;
+- Windows Firefox/Chromium + NVDA;
+- physical-device virtual keyboard/orientation behavior;
+- real OS-specific Modern Greek speech availability/quality.
 
-BG16 records these as **not manually certified** until evidence exists. This is a claim limitation, not an open v1 blocker under the current release contract.
+This is a claim limitation, not an open v1 blocker under the release contract.
 
-## Final verdict vocabulary
+## Final verdict
 
-- `TECHNICAL_RC_CERTIFIED` — automated release candidate gates pass.
-- `V1_RELEASE_BLOCKED` — one or more product release blockers remain.
-- `V1_RELEASE_CERTIFIED` — technical RC passes and blocker count is zero.
-- `PRODUCTION_CERTIFIED` — the exact accepted release is deployed and verified publicly.
+For Koinē Path **v1.0.0**:
 
-For `1.0.0-rc.2`, the expected result after a clean final workflow is:
-
-**`TECHNICAL_RC_CERTIFIED` + `V1_RELEASE_CERTIFIED` + `PENDING_MAIN_DEPLOYMENT`**
+**`TECHNICAL_RC_CERTIFIED` + `V1_RELEASE_CERTIFIED` + `PRODUCTION_CERTIFIED`**
