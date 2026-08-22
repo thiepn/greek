@@ -1,0 +1,74 @@
+name: Learning Experience Validation
+
+on:
+  pull_request:
+    paths:
+      - 'data/course-content.js'
+      - 'data/course-v1.1-enrichment.js'
+      - 'course-ui.js'
+      - 'course.css'
+      - 'course-v1.1.css'
+      - 'index.html'
+      - 'scripts/test-course-content.cjs'
+      - 'scripts/test-learning-experience.cjs'
+      - 'scripts/test-learning-experience-browser.mjs'
+      - '.github/workflows/learning-experience-validation.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'data/course-content.js'
+      - 'data/course-v1.1-enrichment.js'
+      - 'course-ui.js'
+      - 'course-v1.1.css'
+      - 'index.html'
+      - 'scripts/test-learning-experience.cjs'
+      - 'scripts/test-learning-experience-browser.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate deterministic learning-experience contract
+        run: |
+          node --check data/course-v1.1-enrichment.js
+          node --check course-ui.js
+          node --check scripts/test-learning-experience.cjs
+          node --check scripts/test-learning-experience-browser.mjs
+          node scripts/test-course-content.cjs
+          node scripts/test-learning-experience.cjs
+
+      - name: Build exact local corpus and PWA shell
+        run: |
+          node scripts/build-full-corpus.mjs
+          node scripts/validate-full-corpus.mjs
+          node scripts/build-pwa-shell.mjs
+          node scripts/validate-pwa-build.mjs
+
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Start project-path test server
+        run: |
+          mkdir -p /tmp/koine-v11
+          ln -s "$GITHUB_WORKSPACE" /tmp/koine-v11/greek
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory /tmp/koine-v11 >/tmp/koine-v11-http.log 2>&1 &
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4173/greek/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/koine-v11-http.log
+          exit 1
+
+      - name: Exercise all 50 Learn experiences and mastery firewall
+        env:
+          KOINE_LEARNING_URL: http://127.0.0.1:4173/greek/
+        run: node scripts/test-learning-experience-browser.mjs
