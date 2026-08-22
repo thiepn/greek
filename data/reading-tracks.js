@@ -1,0 +1,11 @@
+(function(root,factory){const data=factory();if(typeof module==='object'&&module.exports)module.exports=data;if(root)root.KOINE_READING_TRACKS=data;})(typeof globalThis!=='undefined'?globalThis:this,function(){
+'use strict';
+const R=(book,chapter,startVerse=null,endVerse=null,label=null)=>({book,chapter,startVerse,endVerse,label});
+const tracks={
+  'first-epistle':{id:'first-epistle',title:'First Epistle Track',stageHint:'S4+',description:'Move from short, repetitive clauses into sustained reading across 1 John.',items:[R('1John',1,1,4,'Prologue'),R('1John',1,5,10,'Light and confession'),R('1John',2,1,6,'Knowing and walking'),R('1John',2,7,11,'Love and light'),R('1John',2,15,17,'World and will'),R('1John',3,null,null,'1 John 3'),R('1John',4,null,null,'1 John 4'),R('1John',5,null,null,'1 John 5')]},
+  'mark-narrative':{id:'mark-narrative',title:'Mark Narrative Track',stageHint:'S5+',description:'Build narrative speed through compact scenes, finite verbs, and repeated Gospel vocabulary.',items:[R('Mark',1,1,8,'Opening and John'),R('Mark',1,9,13,'Baptism and wilderness'),R('Mark',1,14,20,'Kingdom and call'),R('Mark',1,21,28,'Authority in Capernaum'),R('Mark',2,1,12,'Paralytic and authority'),R('Mark',3,null,null,'Mark 3'),R('Mark',4,null,null,'Mark 4')]},
+  'philippians-discourse':{id:'philippians-discourse',title:'Philippians Discourse Track',stageHint:'S6+',description:'Practice longer clauses, participles, infinitives, argument flow, and theological discourse.',items:[R('Phil',1,1,11,'Thanksgiving and prayer'),R('Phil',1,12,18,'Gospel advance'),R('Phil',1,21,26,'Life and departure'),R('Phil',2,1,11,'Humility and Christ'),R('Phil',3,7,11,'Gain and knowing Christ'),R('Phil',4,null,null,'Philippians 4')]},
+  'john-signs-sampler':{id:'john-signs-sampler',title:'John Gospel Sampler',stageHint:'S5+',description:'Read selected Johannine narrative and discourse with progressively reduced assistance.',items:[R('John',1,1,18,'Prologue'),R('John',2,null,null,'John 2'),R('John',3,1,21,'Jesus and Nicodemus'),R('John',4,1,26,'Jesus and the Samaritan woman'),R('John',6,35,51,'Bread of life'),R('John',10,1,18,'Shepherd discourse')]}
+};
+return Object.freeze({version:'v1.6.0',source:'curated-corpus-reference-tracks',tracks});
+});
