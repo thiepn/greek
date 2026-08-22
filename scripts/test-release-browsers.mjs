@@ -62,7 +62,7 @@ async function persistenceSmoke(page,name){
 
 async function legacyMigrationSmoke(browserType,name){
   const browser=await browserType.launch({headless:true});
-  const context=await browser.newContext();
+  const context=await browser.newContext({serviceWorkers:'block'});
   await context.addInitScript(()=>{if(!localStorage.getItem('bg16-legacy-seeded')){localStorage.removeItem('koine-path-learning-v3');localStorage.setItem('koine-path-v01',JSON.stringify({done:['alphabet','article','nouns','verbs','john1'],attempts:11,correct:8,review:[],words:['λόγος']}));localStorage.setItem('bg16-legacy-seeded','1');}});
   const page=await context.newPage();
   await page.goto(BASE,{waitUntil:'domcontentloaded'});await page.waitForSelector('#main-content');
@@ -132,11 +132,13 @@ async function chromiumOfflineSmoke(){
 }
 
 for(const [name,browserType] of engines){
-  const browser=await browserType.launch({headless:true});const context=await browser.newContext({viewport:{width:1280,height:900}});const page=await context.newPage();
+  const browser=await browserType.launch({headless:true});
+  const context=await browser.newContext({viewport:{width:1280,height:900},serviceWorkers:'block'});
+  const page=await context.newPage();
   const pageErrors=[];page.on('pageerror',err=>pageErrors.push(String(err)));
   await workspaceSmoke(page,name);await courseSmoke(page,name,name==='chromium');await persistenceSmoke(page,name);
   assert.deepEqual(pageErrors,[],`${name}: uncaught page errors: ${pageErrors.join(' | ')}`);
-  await browser.close();await legacyMigrationSmoke(browserType,name);console.log(`BG16 ${name} release smoke passed.`);
+  await browser.close();await legacyMigrationSmoke(browserType,name);console.log(`V1.1.0 ${name} UI/course/migration release smoke passed with service workers isolated.`);
 }
 
 await chromiumOfflineSmoke();
