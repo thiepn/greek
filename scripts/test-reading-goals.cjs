@@ -34,7 +34,7 @@ engine.markPassageRead(passageGoal.items[0].ref);assert.equal(engine.progress(pa
 engine.unmarkPassageRead(passageGoal.items[0].ref);assert.equal(engine.progress(passageGoal,[]).completed,0);
 
 const trackGoal=engine.createTrackGoal('first-epistle');assert.equal(trackGoal.kind,'track');assert.equal(trackGoal.items.length,8);assert.equal(trackGoal.items[0].label,'Prologue');
-assert.equal(trackGoal.items[0].assistance,'R1');assert.equal(trackGoal.items[1].assistance,'R1');assert.equal(trackGoal.items[2].assistance,'R2');assert.equal(trackGoal.items[4].assistance,'R2');assert.equal(trackGoal.items[5].assistance,'R3');assert.equal(trackGoal.items[6].assistance,'R4');assert.equal(trackGoal.items[7].assistance,'R4');
+assert.equal(trackGoal.items[0].assistance,'R1');assert.equal(trackGoal.items[1].assistance,'R1');assert.equal(trackGoal.items[2].assistance,'R2');assert.equal(trackGoal.items[3].assistance,'R2');assert.equal(trackGoal.items[4].assistance,'R3');assert.equal(trackGoal.items[5].assistance,'R3');assert.equal(trackGoal.items[6].assistance,'R4');assert.equal(trackGoal.items[7].assistance,'R4');
 engine.setActive(trackGoal.id);let next=engine.next([]);assert.equal(next.item.label,'Prologue');engine.markPassageRead(next.item.ref);next=engine.next([]);assert.equal(next.item.label,'Light and confession');
 
 const material={tokens:[
@@ -44,7 +44,7 @@ const analysis=reading.difficulty(material,{knownLemma:l=>['λόγος','θεό�
 assert.equal(analysis.tokenCount,6);assert.equal(analysis.uniqueLemmas,5);assert.ok(analysis.intrinsic.score>=0&&analysis.intrinsic.score<=100);assert.ok(analysis.preparedness.score>=0&&analysis.preparedness.score<=100);assert.notEqual(analysis.intrinsic.score,analysis.preparedness.score,'intrinsic difficulty and learner preparedness must remain separate measures');assert.equal(analysis.preparedness.vocabCoverage,67);assert.equal(analysis.preparedness.grammarCoverage,67);
 const ranked=reading.rankMaterials([{id:'hard',analysis:{preparedness:{score:30},intrinsic:{score:75},tokenCount:100}},{id:'fit',analysis:{preparedness:{score:74},intrinsic:{score:42},tokenCount:120}}]);assert.equal(ranked[0].id,'fit');
 
-const assistance=Array.from({length:8},(_,i)=>reading.suggestedAssistance(i,8));assert.deepEqual(assistance,['R1','R1','R2','R2','R2','R3','R4','R4']);
+const assistance=Array.from({length:8},(_,i)=>reading.suggestedAssistance(i,8));assert.deepEqual(assistance,['R1','R1','R2','R2','R3','R3','R4','R4']);
 
 const limitStorage=new portability.MemoryStorage();const limited=new reading.ReadingGoalsEngine({tracks,storage:limitStorage,clock:()=>now});limited.setCatalog(catalog);for(let i=0;i<reading.MAX_GOALS;i++)limited.createBookGoal('Phil',{title:`Goal ${i}`});assert.throws(()=>limited.createBookGoal('Phil'),/limited to 24/);
 const coverageStorage=new portability.MemoryStorage();const coverageEngine=new reading.ReadingGoalsEngine({tracks,storage:coverageStorage,clock:()=>now});coverageEngine.setCatalog(catalog);for(let i=1;i<=501;i++)coverageEngine.markPassageRead({book:'John',chapter:1,startVerse:i,endVerse:i});assert.equal(Object.keys(coverageEngine.snapshot().coverage.passages).length,reading.MAX_PASSAGE_COVERAGE);
