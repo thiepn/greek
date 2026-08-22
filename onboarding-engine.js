@@ -33,17 +33,14 @@ const clone=v=>JSON.parse(JSON.stringify(v));
 const safe=v=>{try{return JSON.parse(v)}catch{return null}};
 const iso=d=>new Date(d).toISOString();
 class MemoryStorage{constructor(seed={}){this.map=new Map(Object.entries(seed))}getItem(k){return this.map.has(k)?this.map.get(k):null}setItem(k,v){this.map.set(k,String(v))}removeItem(k){this.map.delete(k)}}
-
-function initialState(now=new Date()){
-  return{schemaVersion:SCHEMA_VERSION,createdAt:iso(now),updatedAt:iso(now),onboarding:{status:'new',completedAt:null,skipped:false},profile:{experience:'new',goal:'read-nt',sessionMinutes:25,daysPerWeek:5},placement:{status:'not-started',answers:{},score:null,total:QUESTIONS.length,stageId:null,stageIndex:null,completedAt:null},plan:{lastGeneratedAt:null}};
-}
+function initialState(now=new Date()){return{schemaVersion:SCHEMA_VERSION,createdAt:iso(now),updatedAt:iso(now),onboarding:{status:'new',completedAt:null,skipped:false},profile:{experience:'new',goal:'read-nt',sessionMinutes:25,daysPerWeek:5},placement:{status:'not-started',answers:{},score:null,total:QUESTIONS.length,stageId:null,stageIndex:null,completedAt:null}}}
 function stageForScore(score){if(score>=14)return 7;if(score>=12)return 6;if(score>=10)return 5;if(score>=8)return 4;if(score>=6)return 3;if(score>=4)return 2;if(score>=2)return 1;return 0}
 function normalizeProfile(input,current){const next={...current,...input};if(!EXPERIENCE.includes(next.experience))next.experience='new';if(!GOALS.includes(next.goal))next.goal='read-nt';next.sessionMinutes=SESSION_MINUTES.includes(Number(next.sessionMinutes))?Number(next.sessionMinutes):25;next.daysPerWeek=Math.max(1,Math.min(7,Math.round(Number(next.daysPerWeek)||5)));return next}
 
 class GuidanceEngine{
   constructor({curriculum,learningEngine=null,storage=null,clock=()=>new Date()}={}){
     if(!curriculum?.stages?.length)throw new Error('GuidanceEngine requires KOINE_CURRICULUM.');this.curriculum=curriculum;this.learningEngine=learningEngine;this.storage=storage||((typeof localStorage!=='undefined')?localStorage:new MemoryStorage());this.clock=clock;
-    const raw=safe(this.storage.getItem(STATE_KEY)),base=initialState(this.clock());this.state=raw?.schemaVersion===SCHEMA_VERSION?{...base,...raw,onboarding:{...base.onboarding,...raw.onboarding},profile:normalizeProfile(raw.profile||{},base.profile),placement:{...base.placement,...raw.placement,answers:{...(raw.placement?.answers||{})}},plan:{...base.plan,...raw.plan}}:base;this.persist();
+    const raw=safe(this.storage.getItem(STATE_KEY)),base=initialState(this.clock());this.state=raw?.schemaVersion===SCHEMA_VERSION?{...base,...raw,onboarding:{...base.onboarding,...raw.onboarding},profile:normalizeProfile(raw.profile||{},base.profile),placement:{...base.placement,...raw.placement,answers:{...(raw.placement?.answers||{})}}}:base;this.persist();
   }
   persist(){this.state.updatedAt=iso(this.clock());this.storage.setItem(STATE_KEY,JSON.stringify(this.state))}
   snapshot(){return clone(this.state)}
@@ -63,7 +60,7 @@ class GuidanceEngine{
     const primaryMinutes=minutes===10?10:minutes===25?15:25,tasks=[{kind:'primary',view:primaryRoute.view,unitId:primaryRoute.unitId,minutes:primaryMinutes,title:rec?.title||`Begin Unit ${currentUnit}`,reason:rec?.reason||'Continue the canonical course.'}];
     if(minutes>=25){if(profile.goal==='grammar-refresh')tasks.push({kind:'support',view:'drill',minutes:5,title:'Morphology retrieval'});else if(profile.goal==='read-nt'||profile.goal==='exegesis')tasks.push({kind:'transfer',view:'read',minutes:5,title:'Greek text transfer'});else tasks.push({kind:'support',view:'review',minutes:5,title:'Targeted review'});tasks.push({kind:'vocabulary',view:'review',minutes:5,title:'Vocabulary / due review'})}
     if(minutes>=45)tasks.push({kind:'transfer',view:profile.goal==='exegesis'?'tutor':'read',minutes:10,title:profile.goal==='exegesis'?'Explain one difficult construction':'Sustained reading'});
-    const mode=placementAhead?'accelerated-validation':'canonical-path',summary=placementAhead?`Placement suggests ${placement.stageId} (${placement.stageTitle}), but the mastery engine remains authoritative. Move quickly through earlier units by using their canonical checks; no placement answer has unlocked content.`:`Follow the mastery engine from ${dash?.currentStage?.id||'S0'} with a ${minutes}-minute session budget.`;this.state.plan.lastGeneratedAt=iso(this.clock());this.persist();return{status:'ready',mode,title:mode==='accelerated-validation'?'Accelerated validation path':'Guided study path',summary,minutes,goal:profile.goal,experience:profile.experience,placement,tasks};
+    const mode=placementAhead?'accelerated-validation':'canonical-path',summary=placementAhead?`Placement suggests ${placement.stageId} (${placement.stageTitle}), but the mastery engine remains authoritative. Move quickly through earlier units by using their canonical checks; no placement answer has unlocked content.`:`Follow the mastery engine from ${dash?.currentStage?.id||'S0'} with a ${minutes}-minute session budget.`;return{status:'ready',mode,title:mode==='accelerated-validation'?'Accelerated validation path':'Guided study path',summary,minutes,goal:profile.goal,experience:profile.experience,placement,tasks};
   }
   reset(){this.storage.removeItem(STATE_KEY);this.state=initialState(this.clock());this.persist();return this.snapshot()}
 }
