@@ -1,0 +1,22 @@
+name: v1 Production Deployment Verification
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/verify-v1-production-deployment.mjs'
+      - '.github/workflows/v1-production-verification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-production:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact v1.0.0 GitHub Pages production deployment
+        run: node scripts/verify-v1-production-deployment.mjs
