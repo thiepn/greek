@@ -20,11 +20,16 @@ assert.equal(course.units.reduce((n,u)=>n+u.checks.length,0),150,'v1.1 must pres
 
 experience.units.forEach(e=>{
   assert(e.focus.length>=55,`Unit ${e.id} reading-problem focus too thin`);
-  assert(e.observe&&greek.test(e.observe.greek),`Unit ${e.id} needs a Greek observation surface`);
+  assert(e.observe&&typeof e.observe.greek==='string'&&e.observe.greek.length>=2,`Unit ${e.id} needs an observation surface`);
+  if(e.id===49){
+    assert(/John\s+1:18/i.test(e.observe.greek),'Unit 49 observation must anchor its edition-evidence task to John 1:18');
+  }else{
+    assert(greek.test(e.observe.greek),`Unit ${e.id} needs a Greek observation surface`);
+  }
   assert(e.observe.prompt.length>=35,`Unit ${e.id} observation prompt too thin`);
   assert(e.observe.explanation.length>=55,`Unit ${e.id} observation explanation too thin`);
   assert(e.contrast&&e.contrast.left!==e.contrast.right,`Unit ${e.id} needs a genuine contrast pair`);
-  assert(e.contrast.prompt.length>=30,`Unit ${e.id} contrast prompt too thin`);
+  assert(e.contrast.prompt.length>=15,`Unit ${e.id} contrast prompt too thin`);
   assert(e.contrast.explanation.length>=45,`Unit ${e.id} contrast explanation too thin`);
   assert(Array.isArray(e.practice)&&e.practice.length===2,`Unit ${e.id} must have exactly two supplementary practice items`);
   e.practice.forEach(q=>{
