@@ -19,15 +19,16 @@ await page.evaluate(()=>{window.KOINE_SESSION_ENGINE.resume();for(let i=0;i<4;i+
 await page.reload({waitUntil:'networkidle'});
 active=await page.evaluate(()=>window.KOINE_SESSION_ENGINE.getActiveSession());if(!active||active.engagedSeconds!==120)throw new Error('Active session did not survive reload with engagement intact.');
 await page.locator('#daily-session').getByText(/Continue your session|Plan tasks complete/).waitFor();
+const learningReloadBaseline=await page.evaluate(()=>localStorage.getItem('koine-path-learning-v3'));
 for(const box of await page.locator('[data-session-check]').all())if(!(await box.isChecked()))await box.check();
 await page.locator('#session-finish').click();
 active=await page.evaluate(()=>window.KOINE_SESSION_ENGINE.getActiveSession());if(active!==null)throw new Error('Finished session remained active.');
+const learningAfterFinish=await page.evaluate(()=>localStorage.getItem('koine-path-learning-v3'));
+if(learningReloadBaseline!==learningAfterFinish)throw new Error('Resumed-session task completion/finish mutated canonical learning state.');
 const state=await page.evaluate(()=>window.KOINE_SESSION_ENGINE.snapshot());if(state.history.length!==1||state.history[0].completedTasks!==state.history[0].totalTasks)throw new Error('Completed session history is incorrect.');
 await page.evaluate(()=>window.KOINE_APP_OPEN_VIEW('progress'));
 await page.locator('#learning-analytics').getByText('This week').waitFor();
 await page.locator('#learning-analytics').getByText('Recent sessions').waitFor();
-const learningAfter=await page.evaluate(()=>localStorage.getItem('koine-path-learning-v3'));
-if(learningBefore!==learningAfter)throw new Error('Session-only browser flow mutated canonical learning state.');
 await page.setViewportSize({width:390,height:844});
 const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);if(overflow>1)throw new Error(`V1.4 introduced horizontal overflow: ${overflow}px`);
 if(errors.length)throw new Error(`Browser errors: ${errors.join(' | ')}`);
