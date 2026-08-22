@@ -1,0 +1,73 @@
+name: Passage Workbench Validation
+
+on:
+  pull_request:
+    paths:
+      - 'passage-workbench-engine.js'
+      - 'passage-workbench-ui.js'
+      - 'passage-workbench.css'
+      - 'index.html'
+      - 'data-portability.js'
+      - 'data-portability-ui.js'
+      - 'scripts/test-passage-workbench.cjs'
+      - 'scripts/test-passage-workbench-browser.mjs'
+      - 'scripts/test-reading-goals.cjs'
+      - '.github/workflows/passage-workbench-validation.yml'
+      - 'PASSAGE_WORKBENCH_V1_7.md'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax checks
+        run: |
+          node --check passage-workbench-engine.js
+          node --check passage-workbench-ui.js
+          node --check data-portability.js
+          node --check scripts/test-passage-workbench.cjs
+          node --check scripts/test-passage-workbench-browser.mjs
+      - name: Validate deterministic workbench contract
+        run: |
+          node scripts/test-passage-workbench.cjs
+          node scripts/test-reading-goals.cjs
+      - name: Build and validate pinned full NT corpus
+        run: |
+          node scripts/build-full-corpus.mjs
+          node scripts/validate-full-corpus.mjs
+      - name: Build and inspect PWA shell
+        run: |
+          node scripts/build-pwa-shell.mjs
+          node - <<'NODE'
+          const p=require('./generated/pwa-shell.json');
+          for(const a of ['passage-workbench-engine.js','passage-workbench-ui.js','passage-workbench.css'])if(!p.assets.includes(a))throw new Error('PWA shell asset missing: '+a);
+          console.log('V1.7 assets are present in the generated offline shell.');
+          NODE
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local app server
+        run: |
+          python3 -m http.server 4173 > /tmp/koine-v17-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/koine-v17-http.log
+          exit 1
+      - name: Exercise passage workbench in Chromium
+        env:
+          KOINE_TEST_URL: http://127.0.0.1:4173/
+        run: node scripts/test-passage-workbench-browser.mjs
+      - name: Preserve workbench mastery firewall
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs');
+          for(const file of ['passage-workbench-engine.js','passage-workbench-ui.js']){
+            const text=fs.readFileSync(file,'utf8');
+            for(const forbidden of ['recordEvidence','recordExposure','recordHint'])if(text.includes(forbidden))throw new Error(`${file} contains forbidden mastery write path ${forbidden}`);
+          }
+          console.log('V1.7 passage-workbench mastery firewall: PASS');
+          NODE
