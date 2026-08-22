@@ -9,10 +9,9 @@ const pageErrors=[];
 page.on('pageerror',e=>pageErrors.push(String(e)));
 
 await page.goto(BASE,{waitUntil:'domcontentloaded'});
-await page.waitForFunction(()=>window.KOINE_COURSE_UI&&window.KOINE_COURSE_ENRICHMENT?.unitCount===50);
-await page.locator('.nav [data-view="learn"]').click();
-await page.locator('[data-course-unit="1"]').click();
-await page.waitForSelector('.course-observe-card');
+await page.waitForFunction(()=>window.KOINE_COURSE_UI&&window.KOINE_COURSE_ENRICHMENT?.unitCount===50&&typeof window.openView==='function');
+await page.evaluate(()=>{window.openView('learn');window.KOINE_COURSE_UI.openUnit(1)});
+await page.waitForSelector('#learn.active .course-observe-card');
 
 assert.equal(await page.locator('[data-course-practice]').count(),8,'Unit 1 should render two four-choice supplementary practice items');
 assert.equal(await page.locator('.course-practice-item').count(),2,'Unit 1 should render exactly two supplementary practice items');
