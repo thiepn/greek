@@ -1,0 +1,49 @@
+name: Intermediate Exegesis Validation
+
+on:
+  pull_request:
+    paths:
+      - 'data/exegesis-lab-data.js'
+      - 'exegesis-lab.js'
+      - 'exegesis-lab-ui.js'
+      - 'exegesis-lab.css'
+      - 'adaptive-review.js'
+      - 'scripts/build-full-corpus.mjs'
+      - 'scripts/test-exegesis-lab.cjs'
+      - 'scripts/validate-exegesis-corpus.cjs'
+      - 'index.html'
+      - 'INTERMEDIATE_EXEGESIS.md'
+      - 'ATTRIBUTION.md'
+      - '.github/workflows/intermediate-exegesis-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test exegesis engine
+        run: node scripts/test-exegesis-lab.cjs
+      - name: Check BG11 runtime syntax
+        run: |
+          node --check data/exegesis-lab-data.js
+          node --check exegesis-lab.js
+          node --check exegesis-lab-ui.js
+          node --check adaptive-review.js
+      - name: Build pinned full NT corpus and lexical index
+        run: node scripts/build-full-corpus.mjs
+      - name: Validate reviewed cases, lexical index, and apparatus pins
+        run: node scripts/validate-exegesis-corpus.cjs
+      - name: Preserve exegesis mastery boundary
+        run: |
+          ! grep -q "recordEvidence" exegesis-lab-ui.js
+          grep -q "notes never create mastery" INTERMEDIATE_EXEGESIS.md
+          grep -q "not manuscript" INTERMEDIATE_EXEGESIS.md

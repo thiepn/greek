@@ -1,0 +1,32 @@
+name: Adaptive Review Validation
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Test adaptive scheduler
+        run: node scripts/test-adaptive-review.cjs
+      - name: Check review runtime syntax
+        run: |
+          node --check adaptive-review.js
+          node --check adaptive-review-ui.js
+      - name: Preserve mastery firewall
+        run: |
+          if grep -E "markVisited.*recordEvidence|finishSession.*recordEvidence|startSession.*recordEvidence" adaptive-review.js; then
+            echo "Session tracking must not write mastery evidence."
+            exit 1
+          fi

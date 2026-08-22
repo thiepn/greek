@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 2,
+  "candidate": "1.0.0-rc.2",
+  "phase": "BG16-B001",
+  "status": "release-candidate-validation",
+  "contentSourceHead": "701ae7f3e3eaafcb8b2e33590df26ba665c8bab8",
+  "certifiedContentFingerprint": "e654a810fca0c9fbfa88c8808fa275204fba5a3806ac5ffd4f052a4ef0e9e445",
+  "corpusRevision": "aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d",
+  "apparatusRevision": "c4d241a9c1c479a55b989ba35a4976c1d0b8052c",
+  "expectedCorpus": {
+    "books": 27,
+    "chapters": 260,
+    "tokenBearingVerses": 7927,
+    "tokens": 137554,
+    "lemmas": 5461
+  },
+  "expectedCourse": {
+    "units": 50,
+    "checkpoints": 150,
+    "minimumScriptureTasksPerUnit": 1
+  },
+  "releaseVerdictPolicy": {
+    "technicalRcMayPassWithDocumentedOptionalLimitations": true,
+    "v1RequiresCompleteCanonicalCourseContent": true,
+    "productionCertificationRequiresMainDeploymentVerification": true,
+    "manualAssistiveTechnologyClaimsRequireActualManualTesting": true,
+    "internalEditorialCertificationIsNotExternalPeerReview": true
+  },
+  "knownV1Blockers": [],
+  "resolvedV1Blockers": [
+    {
+      "id": "BG16-B001",
+      "resolvedAtContentFingerprint": "e654a810fca0c9fbfa88c8808fa275204fba5a3806ac5ffd4f052a4ef0e9e445",
+      "resolution": "All 50 canonical units now have production instructional content, Scripture-transfer work, explicit safeguards, and exactly 150 deterministic checkpoints integrated with prerequisite-aware mastery evidence."
+    }
+  ],
+  "productionVerification": "pending-merge-and-pages-deploy"
+}

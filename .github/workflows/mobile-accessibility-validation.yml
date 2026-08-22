@@ -1,0 +1,71 @@
+name: Mobile Accessibility Validation
+
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - '*.css'
+      - '*.js'
+      - 'data/*.js'
+      - 'manifest.webmanifest'
+      - 'MOBILE_ACCESSIBILITY.md'
+      - 'scripts/test-accessibility-contract.cjs'
+      - 'scripts/test-accessibility-browser.mjs'
+      - 'scripts/build-pwa-shell.mjs'
+      - '.github/workflows/mobile-accessibility-validation.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - '*.css'
+      - '*.js'
+      - 'data/*.js'
+      - 'manifest.webmanifest'
+      - 'MOBILE_ACCESSIBILITY.md'
+      - 'scripts/test-accessibility-contract.cjs'
+      - 'scripts/test-accessibility-browser.mjs'
+      - 'scripts/build-pwa-shell.mjs'
+      - '.github/workflows/mobile-accessibility-validation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check accessibility runtime syntax
+        run: node --check accessibility.js
+      - name: Test accessibility contract
+        run: node scripts/test-accessibility-contract.cjs
+      - name: Build pinned full NT corpus
+        run: node scripts/build-full-corpus.mjs
+      - name: Validate pinned full NT corpus
+        run: node scripts/validate-full-corpus.mjs
+      - name: Build current PWA shell
+        run: node scripts/build-pwa-shell.mjs
+      - name: Install browser accessibility test dependencies
+        run: |
+          npm install --no-save playwright@1.55.0 @axe-core/playwright@4.10.2
+          npx playwright install --with-deps chromium
+      - name: Start local app server
+        run: |
+          python3 -m http.server 4173 > /tmp/koine-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/koine-http.log
+          exit 1
+      - name: Browser reflow, keyboard, touch and axe validation
+        env:
+          KOINE_TEST_URL: http://127.0.0.1:4173/
+        run: node scripts/test-accessibility-browser.mjs
+      - name: Preserve learner-state firewall
+        run: |
+          ! grep -Eq "recordEvidence|localStorage\.(clear|removeItem)" accessibility.js
+      - name: Preserve zoom and project-path safety
+        run: |
+          ! grep -Eqi "user-scalable\s*=\s*no|maximum-scale\s*=\s*1" index.html
+          grep -q "viewport-fit=cover" index.html

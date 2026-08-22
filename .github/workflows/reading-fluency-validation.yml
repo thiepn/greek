@@ -1,0 +1,44 @@
+name: Reading Fluency Validation
+
+on:
+  pull_request:
+    paths:
+      - 'data/fluency-programs.js'
+      - 'reading-fluency.js'
+      - 'reading-fluency-ui.js'
+      - 'reading-fluency.css'
+      - 'adaptive-review.js'
+      - 'index.html'
+      - 'scripts/test-reading-fluency.cjs'
+      - 'scripts/validate-fluency-corpus.cjs'
+      - '.github/workflows/reading-fluency-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test fluency engine
+        run: node scripts/test-reading-fluency.cjs
+      - name: Check runtime syntax
+        run: |
+          node --check reading-fluency.js
+          node --check reading-fluency-ui.js
+          node --check data/fluency-programs.js
+          node --check adaptive-review.js
+      - name: Build pinned full NT corpus
+        run: node scripts/build-full-corpus.mjs
+      - name: Validate fluency references
+        run: node scripts/validate-fluency-corpus.cjs
+      - name: Preserve speed/mastery firewall
+        run: |
+          ! grep -E "firstWpm.*recordEvidence|rereadWpm.*recordEvidence|wpm.*recordEvidence" reading-fluency.js

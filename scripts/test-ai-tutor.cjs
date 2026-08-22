@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict');
+const {AITutor,sanitizeContext,fallback,responseValid}=require('../ai-tutor.js');
+class Memory{constructor(){this.m=new Map()}getItem(k){return this.m.get(k)||null}setItem(k,v){this.m.set(k,String(v))}}
+const context=sanitizeContext({reader:{reference:'John 1:1',passage:'Ἐν ἀρχῇ ἦν ὁ λόγος.',assistance:'R2',selected:{id:'tok',form:'ἀρχῇ',lemma:'ἀρχή',parse:'noun · dative · singular · feminine',sourceParse:'----DSF-'}},syntax:{exerciseId:'x',unitId:39,reference:'John 1:1',prompt:'Why dative?',reviewedAnswer:'ἐν governs dative',explanation:'Prepositional government.',structure:['ἐν','└─ ἀρχῇ'],draft:'In beginning…',ambiguous:false},evidence:Array.from({length:40},(_,i)=>({id:`e${i}`,content:'x'.repeat(1200)}))});
+assert.equal(context.evidence.length,24);assert.equal(context.evidence[0].content.length,900);assert.equal(context.reader.selected.lemma,'ἀρχή');
+assert(responseValid({answer:'x',confidence:'grounded',evidence_ids:[],follow_up:[],boundary_note:'',disputed:false}));
+assert(!responseValid({answer:'x',confidence:'certain',evidence_ids:[],follow_up:[],boundary_note:''}));
+const fb=fallback('How do I translate this?',context);assert.match(fb.answer,/reviewed structure|Why dative/i);assert.equal(fb.confidence,'grounded');
+const generic=fallback('How do I translate this?',{});assert.match(generic.answer,/structurally|finite predication/i);
+(async()=>{const storage=new Memory();const tutor=new AITutor({storage,contextProvider:()=>context});const r=await tutor.ask('Why is this dative?');assert.equal(r.remote,false);assert.match(r.boundary_note,/fallback/i);assert.equal(tutor.history().length,2);tutor.clear();assert.equal(tutor.history().length,0);console.log('BG8 client tutor tests passed.');})().catch(e=>{console.error(e);process.exit(1)});

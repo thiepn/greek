@@ -1,0 +1,12 @@
+.curriculum-map{display:grid;border-top:1px solid var(--line)}
+.curriculum-stage{padding:24px 0;border-bottom:1px solid var(--line)}
+.curriculum-stage-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:start}
+.curriculum-stage h3{margin:4px 0 0;font:500 clamp(1.25rem,2vw,1.65rem) Georgia,"Times New Roman",serif;color:var(--ink)}
+.curriculum-stage>p{max-width:760px;margin:10px 0 16px;color:var(--muted);line-height:1.6}
+.curriculum-code{font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--bronze)}
+.curriculum-meta{display:flex;gap:8px 14px;flex-wrap:wrap;justify-content:flex-end;color:var(--muted);font-size:.75rem}
+.curriculum-meta span{white-space:nowrap}
+.curriculum-units{margin:0;padding-left:1.8rem;columns:2;column-gap:40px}
+.curriculum-units li{break-inside:avoid;padding:4px 0 4px 5px;line-height:1.45;color:var(--ink)}
+.curriculum-units li::marker{color:var(--bronze);font-variant-numeric:tabular-nums}
+@media(max-width:760px){.curriculum-stage-head{grid-template-columns:1fr}.curriculum-meta{justify-content:flex-start}.curriculum-units{columns:1}}

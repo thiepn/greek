@@ -1,0 +1,13 @@
+{
+  "name": "koine-path-ai-tutor-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node ../scripts/test-ai-worker.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.36.0"
+  }
+}
