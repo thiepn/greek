@@ -85,7 +85,7 @@ const courseSandbox={};courseSandbox.globalThis=courseSandbox;
 vm.runInNewContext(diagnostics['data/course-content.js'].text,courseSandbox,{filename:'live-course-content.js'});
 const course=courseSandbox.KOINE_COURSE_CONTENT;
 assert(course?.unitCount===50&&course.units?.length===50,`Live canonical course is incomplete: ${course?.unitCount}`);
-assert(course.units.reduce((n,u)=>n+(u.checkpoints?.length||0),0)===150,'Live canonical course does not contain exactly 150 checkpoints');
+assert(course.units.reduce((n,u)=>n+(u.checks?.length||0),0)===150,'Live canonical course does not contain exactly 150 checkpoints');
 assert(course.units.every((u,i)=>u.id===i+1),'Live canonical course unit IDs/order are invalid');
 
 const enrichmentSandbox={};enrichmentSandbox.globalThis=enrichmentSandbox;
