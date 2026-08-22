@@ -7,16 +7,28 @@ const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const candidate=JSON.parse(read('RELEASE_CANDIDATE.json'));
 const course=require('../data/course-content.js');
 
-assert.equal(candidate.schemaVersion,2);
-assert.equal(candidate.candidate,'1.0.0-rc.2');
-assert.equal(candidate.phase,'BG16-B001');
+assert.equal(candidate.schemaVersion,3);
+assert.equal(candidate.candidate,'1.0.0');
+assert.equal(candidate.phase,'BG16-production-promotion');
+assert.equal(candidate.status,'production-certified');
 assert.equal(candidate.contentSourceHead,'701ae7f3e3eaafcb8b2e33590df26ba665c8bab8');
 assert.equal(candidate.certifiedContentFingerprint,'e654a810fca0c9fbfa88c8808fa275204fba5a3806ac5ffd4f052a4ef0e9e445');
+assert.equal(candidate.releaseCandidateSourceHead,'ad88a25e5d59f4ab1a02f7bd84400607aa0697d5');
+assert.equal(candidate.releaseCandidateFingerprint,'7deb0d2f913498fae9c90a95655e032b39753fb5302332185480738eb3398714');
 assert.equal(candidate.corpusRevision,'aaed91e57c8e4a8dc9a2383e129ca5e75fe6393d');
 assert.equal(candidate.apparatusRevision,'c4d241a9c1c479a55b989ba35a4976c1d0b8052c');
-assert.equal(candidate.knownV1Blockers.filter(x=>x.severity==='release-blocker').length,0,'v1 blocker register must be empty after B001 resolution');
+assert.equal(candidate.knownV1Blockers.length,0,'v1 blocker register must be empty after B001 resolution');
 assert(candidate.resolvedV1Blockers.some(x=>x.id==='BG16-B001'),'B001 resolution must remain auditable');
-assert.equal(candidate.productionVerification,'pending-merge-and-pages-deploy');
+assert.equal(candidate.verdicts.technical,'TECHNICAL_RC_CERTIFIED');
+assert.equal(candidate.verdicts.product,'V1_RELEASE_CERTIFIED');
+assert.equal(candidate.verdicts.production,'PRODUCTION_CERTIFIED');
+assert.equal(candidate.productionVerification.status,'verified');
+assert.equal(candidate.productionVerification.mainCommit,'60b7028017dfb7cc1b3adab9b153f00ab6c72b6f');
+assert.equal(candidate.productionVerification.pwaBuild,'bg13-60b7028017df');
+assert.equal(candidate.productionVerification.verificationWorkflowRun,32540664820);
+assert.equal(candidate.productionVerification.verificationJob,96951794130);
+const live=candidate.productionVerification.liveCorpus;
+assert(live&&live.books===27&&live.chapters===260&&live.tokenBearingVerses===7927&&live.tokens===137554&&live.lemmas===5461&&live.fullCorpusIngested===true,'production corpus verification must remain frozen');
 
 const context={window:{}};vm.createContext(context);vm.runInContext(read('curriculum.js'),context);
 const curriculum=context.window.KOINE_CURRICULUM;
@@ -58,4 +70,4 @@ assert.deepEqual(clearers,[],'release code must not wipe all learner localStorag
 const secretFiles=jsFiles.filter(p=>/sk-[A-Za-z0-9_-]{20,}/.test(fs.readFileSync(p,'utf8')));
 assert.deepEqual(secretFiles,[],'release source must not contain likely OpenAI API keys');
 
-console.log(`BG16-B001 release contract passed: ${course.units.length} course units, 150 checkpoints, ${candidate.knownV1Blockers.length} registered v1 blockers.`);
+console.log(`v1.0.0 production release contract passed: ${course.units.length} course units, 150 checkpoints, ${candidate.knownV1Blockers.length} registered v1 blockers, ${candidate.verdicts.production}.`);
