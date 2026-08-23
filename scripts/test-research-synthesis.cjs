@@ -56,6 +56,6 @@ for(const asset of ['research-synthesis.css','research-synthesis-engine.js','res
 assert.ok(html.indexOf('corpus-research-engine.js')<html.indexOf('research-synthesis-engine.js'));
 assert.ok(html.indexOf('corpus-research-ui.js')<html.indexOf('research-synthesis-ui.js'));
 assert.ok(html.indexOf('corpus-research-portability.js')<html.indexOf('research-synthesis-portability.js')&&html.indexOf('research-synthesis-portability.js')<html.indexOf('data-portability-ui.js'));
-assert.ok(guard.includes("appVersion:'v1.9-feature'"));assert.ok(guard.includes('validateSynthesisStores'));
+assert.ok(guard.includes("backup.appVersion='v1.9-feature'"));assert.ok(guard.includes('validateSynthesisStores'));
 assert.ok(!source.includes('truthScore')&&!source.includes('qualityScore'));
 console.log('V1.9 layered claims, evidence snapshots, citation graph, alternative readings, gap detection, dossier export, mastery firewall, and backup integration: PASS');
