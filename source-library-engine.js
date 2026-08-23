@@ -56,14 +56,22 @@ function normalizeSource(input={}){
     annotations:(Array.isArray(input.annotations)?input.annotations:[]).slice(0,MAX_ANNOTATIONS).map(a=>({id:clean(a.id,180),locator:clean(a.locator,500),note:clean(a.note),linkedProjectId:a.linkedProjectId?clean(a.linkedProjectId,180):null,createdAt:clean(a.createdAt,40),updatedAt:clean(a.updatedAt,40)}))
   };
 }
+function bibliographicFingerprint(source){return`bib:${fold(source.title)}|${fold(authorShort(source))}|${fold(source.year)}`}
 function fingerprint(source){
   const doi=normalizeDoi(source.doi),isbn=normalizeIsbn(source.isbn);
   if(doi)return`doi:${doi}`;if(isbn)return`isbn:${isbn}`;
-  return`bib:${fold(source.title)}|${fold(authorShort(source))}|${fold(source.year)}`;
+  return bibliographicFingerprint(source);
 }
 function duplicateCandidates(sources,input){
-  const src=normalizeSource(input),fp=fingerprint(src);
-  return sources.filter(s=>fingerprint(s)===fp).map(s=>({id:s.id,reason:fp.startsWith('doi:')?'doi':fp.startsWith('isbn:')?'isbn':'bibliographic-key',citationKey:s.citationKey,title:s.title}));
+  const src=normalizeSource(input),doi=normalizeDoi(src.doi),isbn=normalizeIsbn(src.isbn),bib=bibliographicFingerprint(src),matches=[];
+  for(const s of sources){
+    let reason=null;
+    if(doi&&normalizeDoi(s.doi)===doi)reason='doi';
+    else if(isbn&&normalizeIsbn(s.isbn)===isbn)reason='isbn';
+    else if(bibliographicFingerprint(s)===bib)reason='bibliographic-key';
+    if(reason)matches.push({id:s.id,reason,citationKey:s.citationKey,title:s.title});
+  }
+  return matches;
 }
 function keyStem(source){
   const a=fold(authorShort(source)).split(' ')[0]||'anon',y=String(source.year||'nd').replace(/[^0-9a-z]/gi,'')||'nd',word=fold(source.title).split(' ').find(x=>x.length>3)||'source';
