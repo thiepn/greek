@@ -30,7 +30,8 @@ assert.equal(docx[0],0x50);assert.equal(docx[1],0x4b);assert.equal(docx[2],0x03)
 const docxText=Buffer.from(docx).toString('utf8');
 for(const required of ['[Content_Types].xml','word/document.xml','word/styles.xml','word/footnotes.xml','word/_rels/document.xml.rels'])assert.ok(docxText.includes(required),`DOCX missing ${required}`);
 assert.ok(docxText.includes('w:footnoteReference w:id="1"'));assert.ok(docxText.includes('Greek Grammar'));
-const endDocx=pkg.generateDocx({markdown:markdown.replace(/\[\^1\]/g,'[1]').replace(/^\[\^1\]:/m,'1.'),submissionProfile:profile,publicationProfile:{...publicationProfile,placement:'endnotes'},metadata:{title:'Endnotes',createdAt:'2026-08-23T17:30:00Z'}});const endText=Buffer.from(endDocx).toString('utf8');assert.ok(endText.includes('word/endnotes.xml'));assert.ok(endText.includes('w:endnoteReference w:id="1"'));
+const endMarkdown=markdown.replace(/^\[\^1\]:/m,'1.').replace(/\[\^1\]/g,'[1]');
+const endDocx=pkg.generateDocx({markdown:endMarkdown,submissionProfile:profile,publicationProfile:{...publicationProfile,placement:'endnotes'},metadata:{title:'Endnotes',createdAt:'2026-08-23T17:30:00Z'}});const endText=Buffer.from(endDocx).toString('utf8');assert.ok(endText.includes('word/endnotes.xml'));assert.ok(endText.includes('w:endnoteReference w:id="1"'));
 
 const pdf=pkg.pdfFromJpegs([{data:new Uint8Array([0xff,0xd8,0xff,0xd9]),width:10,height:10},{data:new Uint8Array([0xff,0xd8,0xff,0xd9]),width:10,height:10}],pkg.PAGE_SIZES.A4);const pdfText=Buffer.from(pdf).toString('latin1');assert.ok(pdfText.startsWith('%PDF-1.4'));assert.match(pdfText,/\/Count 2/);assert.ok(pdfText.endsWith('%%EOF\n'));
 
