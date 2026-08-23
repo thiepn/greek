@@ -46,8 +46,9 @@ const backup=await page.evaluate(()=>JSON.parse(window.KoineDataPortability.seri
 
 const downloadPromise=page.waitForEvent('download');await page.locator('#research-export').click();const download=await downloadPromise;if(!download.suggestedFilename().endsWith('.md'))throw new Error('Research export was not Markdown.');
 
-await page.evaluate(()=>window.KOINE_APP_OPEN_VIEW('workbench'));
-await page.getByRole('heading',{name:'John 1 research project',exact:true}).waitFor({timeout:10000});
+await page.evaluate(()=>{window.KOINE_APP_OPEN_VIEW('workbench');window.KOINE_PASSAGE_WORKBENCH_UI.render()});
+await page.locator('#wb-title-live').waitFor({timeout:10000});
+if(await page.locator('#wb-title-live').inputValue()!=='John 1 research project')throw new Error('V1.7 active project did not render before research-bridge validation.');
 await page.locator('#workbench-research-panel').getByRole('heading',{name:'Research notebook',exact:true}).waitFor();
 if(await page.locator('#workbench-research-panel .workbench-research-link').count()<3)throw new Error('V1.7 workbench bridge did not surface linked V1.8 research.');
 learningAfter=await page.evaluate(()=>localStorage.getItem('koine-path-learning-v3'));if(learningAfter!==learningBefore)throw new Error('Workbench research bridge mutated canonical learning state.');
