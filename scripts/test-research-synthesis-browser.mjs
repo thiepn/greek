@@ -16,7 +16,7 @@ const fixture=await page.evaluate(()=>{
     r.addEntry({provenance:'external',title:'Reference grammar',citation:'Example Author, Reference Grammar, 2nd ed.',locator:'§12',url:'https://example.com/grammar',note:'External terminology note.',linkedProjectId:p.id})
   ];return{projectId:p.id,entryIds:entries.map(e=>e.id)};
 });
-await page.evaluate(()=>window.KOINE_APP_OPEN_VIEW('synthesis'));
+await page.evaluate(()=>{window.KOINE_APP_OPEN_VIEW('synthesis');window.KOINE_RESEARCH_SYNTHESIS_UI.render()});
 await page.getByRole('heading',{name:'Turn research into an auditable argument.',exact:true}).waitFor();
 await page.locator('#syn-new-title').fill('John 1 Exegetical Dossier');
 await page.locator('#syn-new-project').selectOption(fixture.projectId);
