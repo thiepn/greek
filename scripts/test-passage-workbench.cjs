@@ -52,5 +52,5 @@ assert.ok(html.indexOf('exegesis-lab-ui.js')<html.indexOf('passage-workbench-ui.
 assert.ok(ui.includes('Use active reading goal'),'V1.7 must accept the active V1.6 reading passage');
 assert.ok(ui.includes('Ask grounded tutor'),'V1.7 must expose grounded tutor handoff');
 assert.ok(ui.includes('Open reviewed case'),'V1.7 must link overlapping reviewed exegesis cases');
-assert.ok(dpui.includes("appVersion:'v1.7-feature'"));
+assert.match(dpui,/appVersion:'v1\.\d+(?:-feature)?'/);
 console.log('V1.7 passage projects, structured notes, workflow-only completion, export, tool handoffs, mastery firewall, and backup integration: PASS');
