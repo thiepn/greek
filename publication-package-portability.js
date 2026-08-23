@@ -7,6 +7,6 @@ dp.validateStores=stores=>{validateSubmissionStores(stores);return originalValid
 dp.parseBackup=input=>{const backup=originalParse(input);validateSubmissionStores(backup.stores);return backup};
 dp.inspectBackup=input=>{const backup=dp.parseBackup(input),text=typeof input==='string'?input:JSON.stringify(input);return{product:backup.product,schemaVersion:backup.schemaVersion,appVersion:backup.appVersion||null,exportedAt:backup.exportedAt||null,keys:Object.keys(backup.stores),keyCount:Object.keys(backup.stores).length,bytes:new TextEncoder().encode(text).length}};
 dp.restoreBackup=(storage,input,options)=>{dp.parseBackup(input);return originalRestore(storage,input,options)};
-dp.serializeBackup=(storage,options={})=>{const text=originalSerialize(storage,options),backup=JSON.parse(text);backup.appVersion='v1.12-feature';return JSON.stringify(backup,null,2)};
+dp.serializeBackup=(storage,options={})=>{const text=originalSerialize(storage,options),backup=JSON.parse(text);if(storage?.getItem?.(KEY)!==null)backup.appVersion='v1.12-feature';return JSON.stringify(backup,null,2)};
 window.KOINE_PUBLICATION_PACKAGE_PORTABILITY={validateSubmissionStores};
 })();
