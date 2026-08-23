@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'publication-package-engine.js'
+      - 'publication-package-output-hardening.js'
       - 'publication-package-ui.js'
       - 'publication-package.css'
       - 'publication-package-portability.js'
@@ -36,6 +37,7 @@ jobs:
       - name: Syntax checks
         run: |
           node --check publication-package-engine.js
+          node --check publication-package-output-hardening.js
           node --check publication-package-ui.js
           node --check publication-package-portability.js
           node --check scripts/test-publication-packages.cjs
@@ -57,7 +59,7 @@ jobs:
           node scripts/build-pwa-shell.mjs
           node - <<'NODE'
           const p=require('./generated/pwa-shell.json');
-          for(const a of ['publication-package-engine.js','publication-package-ui.js','publication-package.css','publication-package-portability.js'])if(!p.assets.includes(a))throw new Error('PWA shell asset missing: '+a);
+          for(const a of ['publication-package-engine.js','publication-package-output-hardening.js','publication-package-ui.js','publication-package.css','publication-package-portability.js'])if(!p.assets.includes(a))throw new Error('PWA shell asset missing: '+a);
           console.log('V1.12 publication-package assets are present in the generated offline shell.');
           NODE
       - name: Install Chromium
@@ -78,7 +80,7 @@ jobs:
         run: |
           node - <<'NODE'
           const fs=require('node:fs');
-          for(const file of ['publication-package-engine.js','publication-package-ui.js']){
+          for(const file of ['publication-package-engine.js','publication-package-output-hardening.js','publication-package-ui.js']){
             const text=fs.readFileSync(file,'utf8');
             for(const forbidden of ['recordEvidence','recordExposure','recordHint'])if(text.includes(forbidden))throw new Error(`${file} contains forbidden mastery write path ${forbidden}`);
             for(const forbidden of ['authorityScore','qualityScore','truthScore','consensusScore','readinessScore'])if(text.includes(forbidden))throw new Error(`${file} contains forbidden authority/readiness scoring path ${forbidden}`);
