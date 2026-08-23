@@ -1,0 +1,218 @@
+(function(root,factory){
+  const api=factory();
+  if(typeof module==='object'&&module.exports)module.exports=api;
+  if(root)root.KoinePublication=api;
+})(typeof globalThis!=='undefined'?globalThis:this,function(){
+'use strict';
+
+const STORAGE_KEY='koine-path-publication-profiles-v1';
+const SCHEMA_VERSION=1;
+const MAX_PROFILES=20;
+const MAX_TEXT=12000;
+const STYLE_IDS=['koine-author-date','koine-notes-bibliography','koine-biblical-studies-notes'];
+const PLACEMENTS=['parenthetical','footnotes','endnotes'];
+const BIB_TEMPLATES=['standard','keyed','annotated'];
+const clone=v=>JSON.parse(JSON.stringify(v));
+const iso=d=>new Date(d).toISOString();
+const clean=(v,n=MAX_TEXT)=>String(v??'').trim().slice(0,n);
+const safe=s=>{try{return JSON.parse(s)}catch{return null}};
+
+class MemoryStorage{
+  constructor(seed={}){this.m=new Map(Object.entries(seed))}
+  getItem(k){return this.m.has(k)?this.m.get(k):null}
+  setItem(k,v){this.m.set(k,String(v))}
+}
+
+function personName(p,{bibliography=false}={}){
+  if(!p)return'Anonymous';
+  if(p.literal)return p.literal;
+  const family=clean(p.family,120),given=clean(p.given,160);
+  return bibliography?[family,given].filter(Boolean).join(', '):([given,family].filter(Boolean).join(' ')||'Anonymous');
+}
+function primaryContributor(s){return s.authors?.[0]||s.editors?.[0]||null}
+function contributorShort(s){const p=primaryContributor(s);return p?.family||p?.literal||'Anonymous'}
+function contributorList(s,{bibliography=false}={}){
+  const arr=(s.authors?.length?s.authors:s.editors)||[];
+  if(!arr.length)return'Anonymous';
+  if(arr.length===1)return personName(arr[0],{bibliography});
+  if(arr.length===2)return`${personName(arr[0],{bibliography})} and ${personName(arr[1])}`;
+  return`${personName(arr[0],{bibliography})} et al.`;
+}
+function title(s){return clean(s.title,600)+(s.subtitle?`: ${clean(s.subtitle,500)}`:'')}
+function shortTitle(s){const t=title(s).replace(/[.!?]+$/,'');return t.length<=48?t:t.slice(0,45).replace(/\s+\S*$/,'')+'…'}
+function locatorSuffix(locator){locator=clean(locator,500);return locator?`, ${locator}`:''}
+function publicationPlace(s){return[s.place,s.publisher].filter(Boolean).join(': ')}
+function style(id){
+  if(!STYLE_IDS.includes(id))throw new Error('Unknown citation style.');
+  return{
+    id,
+    name:id==='koine-author-date'?'Koinē Author–Date':id==='koine-notes-bibliography'?'Koinē Notes–Bibliography':'Koinē Biblical Studies Notes',
+    certification:'Koinē house template; not CSL/SBL/Chicago certified.'
+  };
+}
+function bibliographyEntry(s,styleId='koine-notes-bibliography'){
+  style(styleId);
+  const who=contributorList(s,{bibliography:true}),year=s.year||'n.d.',t=title(s);
+  const container=s.containerTitle?`${s.containerTitle}${s.volume?` ${s.volume}`:''}${s.issue?` (${s.issue})`:''}${s.pages?`: ${s.pages}`:''}`:'';
+  const pub=publicationPlace(s),id=s.doi?`https://doi.org/${s.doi}`:s.url||'';
+  if(styleId==='koine-author-date')return`${who}. ${year}. ${t}.${container?` ${container}.`:''}${pub?` ${pub}.`:''}${id?` ${id}`:''}`.replace(/\s+/g,' ').trim();
+  return`${who}. ${t}.${container?` ${container}.`:''}${pub?` ${pub}, ${year}.`:` ${year}.`}${id?` ${id}`:''}`.replace(/\s+/g,' ').trim();
+}
+function parentheticalCitation(s,locator='',styleId='koine-author-date'){
+  style(styleId);
+  if(styleId==='koine-author-date')return`(${contributorShort(s)} ${s.year||'n.d.'}${locatorSuffix(locator)})`;
+  return`(${contributorShort(s)}, ${shortTitle(s)}${locatorSuffix(locator)})`;
+}
+function noteCitation(s,{locator='',styleId='koine-notes-bibliography',short=false}={}){
+  style(styleId);
+  if(short)return`${contributorShort(s)}, ${shortTitle(s)}${locatorSuffix(locator)}.`;
+  const who=contributorList(s),t=title(s),container=s.containerTitle?`, ${s.containerTitle}${s.volume?` ${s.volume}`:''}${s.issue?` (${s.issue})`:''}`:'';
+  const pub=publicationPlace(s),year=s.year||'n.d.',id=s.doi?`https://doi.org/${s.doi}`:s.url||'';
+  return`${who}, ${t}${container}${pub?` (${pub}, ${year})`:` (${year})`}${locatorSuffix(locator)}${id?`, ${id}`:''}.`;
+}
+
+function defaultProfile(now=new Date()){
+  const t=iso(now);
+  return{
+    id:`profile.${Date.now()}.default`,name:'Academic dossier',styleId:'koine-notes-bibliography',placement:'footnotes',bibliographyTemplate:'standard',
+    includeBibliography:true,includeEvidenceAppendix:true,includeAlternativeReadings:true,includeTheologicalSynthesis:true,includeLimitations:true,includeTitlePage:true,
+    includeSourceNotes:false,includeCitationKeys:false,bibliographyHeading:'Bibliography',notesHeading:'Notes',document:{title:'',subtitle:'',author:'',date:''},createdAt:t,updatedAt:t
+  };
+}
+function normalizeProfile(input={},now=new Date()){
+  const base=defaultProfile(now);
+  const p={...base,...clone(input),document:{...base.document,...clone(input.document||{})}};
+  if(!STYLE_IDS.includes(p.styleId)||!PLACEMENTS.includes(p.placement)||!BIB_TEMPLATES.includes(p.bibliographyTemplate))throw new Error('Publication profile has unsupported style settings.');
+  p.name=clean(p.name,180)||'Publication profile';
+  p.bibliographyHeading=clean(p.bibliographyHeading,120)||'Bibliography';
+  p.notesHeading=clean(p.notesHeading,120)||'Notes';
+  for(const k of ['title','subtitle','author','date'])p.document[k]=clean(p.document[k],500);
+  for(const k of ['includeBibliography','includeEvidenceAppendix','includeAlternativeReadings','includeTheologicalSynthesis','includeLimitations','includeTitlePage','includeSourceNotes','includeCitationKeys'])p[k]=Boolean(p[k]);
+  return p;
+}
+function initial(now){const p=defaultProfile(now);return{schemaVersion:SCHEMA_VERSION,activeProfileId:p.id,profiles:[p],createdAt:iso(now),updatedAt:iso(now)}}
+function validateProfile(p){
+  if(!p||typeof p.id!=='string'||typeof p.name!=='string'||p.name.length>180||!STYLE_IDS.includes(p.styleId)||!PLACEMENTS.includes(p.placement)||!BIB_TEMPLATES.includes(p.bibliographyTemplate)||!p.document||typeof p.document!=='object')throw new Error('Publication profile is malformed.');
+  for(const k of ['title','subtitle','author','date'])if(typeof p.document[k]!=='string'||p.document[k].length>500)throw new Error('Publication document metadata is malformed.');
+  for(const k of ['includeBibliography','includeEvidenceAppendix','includeAlternativeReadings','includeTheologicalSynthesis','includeLimitations','includeTitlePage','includeSourceNotes','includeCitationKeys'])if(typeof p[k]!=='boolean')throw new Error('Publication profile flags are malformed.');
+  return true;
+}
+function validateState(s){
+  if(s?.schemaVersion!==SCHEMA_VERSION||!Array.isArray(s.profiles)||s.profiles.length>MAX_PROFILES)throw new Error('Publication-profile state has an unsupported schema or bound.');
+  s.profiles.forEach(validateProfile);
+  if(s.activeProfileId!==null&&!s.profiles.some(p=>p.id===s.activeProfileId))throw new Error('Active publication profile is missing.');
+  return true;
+}
+
+function evidenceSourceMap(dossier,resolveSource){
+  const map=new Map();
+  for(const e of dossier?.evidence||[]){
+    if(e.sourceKind!=='research-entry')continue;
+    const linked=resolveSource?.(e.sourceId);
+    if(linked?.source)map.set(e.id,{source:linked.source,link:linked.link,evidence:e});
+  }
+  return map;
+}
+function citationOccurrences(dossier,resolveSource){
+  const map=evidenceSourceMap(dossier,resolveSource),seen=new Set(),out=[];
+  for(const claim of dossier?.claims||[]){
+    for(const link of (dossier.links||[]).filter(l=>l.claimId===claim.id)){
+      const row=map.get(link.evidenceId);if(!row)continue;
+      const sourceId=row.source.id,first=!seen.has(sourceId);seen.add(sourceId);
+      out.push({claimId:claim.id,evidenceId:link.evidenceId,relation:link.relation,source:row.source,locator:row.link?.locator||row.evidence?.citation?.locator||'',first});
+    }
+  }
+  return out;
+}
+function sourceIdsForDossier(dossier,resolveSource){const ids=[];for(const x of evidenceSourceMap(dossier,resolveSource).values())if(!ids.includes(x.source.id))ids.push(x.source.id);return ids}
+function sortSources(sources){
+  return sources.slice().sort((a,b)=>`${contributorShort(a)}|${a.year||''}|${a.title}`.localeCompare(`${contributorShort(b)}|${b.year||''}|${b.title}`));
+}
+function bibliographyLines(sources,profile){
+  profile=normalizeProfile(profile);
+  return sortSources(sources).map(s=>{
+    let line=bibliographyEntry(s,profile.styleId);
+    if(profile.includeCitationKeys)line=`@${s.citationKey} — ${line}`;
+    if(profile.bibliographyTemplate==='annotated'&&profile.includeSourceNotes&&s.notes)line+=`\n  ${s.notes}`;
+    if(profile.bibliographyTemplate==='keyed'&&!profile.includeCitationKeys)line=`@${s.citationKey} — ${line}`;
+    return line;
+  });
+}
+function escHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function sectionText(d,key,label){const v=d.sections?.[key]||'';return v?`## ${label}\n\n${v}\n`:''}
+
+function renderMarkdown({dossier,sources=[],resolveSource,profile}){
+  if(!dossier)throw new Error('Publication export needs an active dossier.');
+  profile=normalizeProfile(profile);
+  const occurrences=citationOccurrences(dossier,resolveSource),byClaim=new Map();
+  for(const o of occurrences){if(!byClaim.has(o.claimId))byClaim.set(o.claimId,[]);byClaim.get(o.claimId).push(o)}
+  const notes=[];let n=0;
+  const marker=o=>{
+    if(profile.placement==='parenthetical')return parentheticalCitation(o.source,o.locator,profile.styleId);
+    n++;const text=noteCitation(o.source,{locator:o.locator,styleId:profile.styleId,short:!o.first});notes.push({n,text});
+    return profile.placement==='footnotes'?`[^${n}]`:`[${n}]`;
+  };
+  const docTitle=profile.document.title||dossier.title;
+  let out=`# ${docTitle}\n\n`;
+  if(profile.includeTitlePage){if(profile.document.subtitle)out+=`*${profile.document.subtitle}*\n\n`;if(profile.document.author)out+=`${profile.document.author}\n\n`;if(profile.document.date)out+=`${profile.document.date}\n\n`}
+  out+=sectionText(dossier,'question','Research question')+sectionText(dossier,'context','Context')+sectionText(dossier,'thesis','Thesis');
+  out+='## Claims\n\n';
+  for(const c of dossier.claims||[]){const cites=(byClaim.get(c.id)||[]).map(marker).join(' ');out+=`- **${c.layer.replaceAll('-',' ')}** · confidence ${c.confidence} · ${c.contestation}\n  - ${c.text}${cites?` ${cites}`:''}\n`}
+  if(profile.includeAlternativeReadings&&dossier.readings?.length){out+='\n## Alternative readings\n\n';for(const r of dossier.readings)out+=`- **${r.title}** — ${r.summary||'_No summary._'}\n`}
+  out+='\n'+sectionText(dossier,'argument','Argument outline')+sectionText(dossier,'conclusion','Conclusion');
+  if(profile.includeTheologicalSynthesis)out+=sectionText(dossier,'theologicalSynthesis','Theological synthesis');
+  if(profile.includeLimitations)out+=sectionText(dossier,'limitations','Limitations / unresolved questions');
+  if(profile.placement==='footnotes'&&notes.length){out+=`\n## ${profile.notesHeading}\n\n`;for(const x of notes)out+=`[^${x.n}]: ${x.text}\n`}
+  if(profile.placement==='endnotes'&&notes.length){out+=`\n## ${profile.notesHeading}\n\n`;for(const x of notes)out+=`${x.n}. ${x.text}\n`}
+  if(profile.includeEvidenceAppendix&&dossier.evidence?.length){out+='\n## Evidence appendix\n\n';for(const e of dossier.evidence)out+=`- **${e.title}** — ${e.provenance}${e.refs?.length?` — ${e.refs.map(r=>`${r.book} ${r.chapter}:${r.startVerse}${r.endVerse!==r.startVerse?`–${r.endVerse}`:''}`).join('; ')}`:''}\n`}
+  if(profile.includeBibliography){const lines=bibliographyLines(sources,profile);out+=`\n## ${profile.bibliographyHeading}\n\n${lines.map(x=>`- ${x.replace(/\n/g,'\n  ')}`).join('\n')||'_None._'}\n`}
+  out+=`\n---\nCitation formatting: ${style(profile.styleId).name}. ${style(profile.styleId).certification}\n`;
+  return out;
+}
+function inlineHtml(v){
+  return escHtml(v).replace(/\[\^(\d+)\]/g,'<sup><a href="#note-$1">$1</a></sup>').replace(/\[(\d+)\]/g,'<sup><a href="#note-$1">$1</a></sup>');
+}
+function renderHtml(args){
+  const md=renderMarkdown(args),profile=normalizeProfile(args.profile),lines=md.split(/\n/),html=[];let list=false,notesList=false;
+  const close=()=>{if(list){html.push('</ul>');list=false}if(notesList){html.push('</ol>');notesList=false}};
+  for(const line of lines){
+    const foot=line.match(/^\[\^(\d+)\]:\s*(.*)$/),end=line.match(/^(\d+)\.\s+(.*)$/);
+    if(foot||end){if(list){html.push('</ul>');list=false}if(!notesList){html.push('<ol class="publication-notes">');notesList=true}const m=foot||end;html.push(`<li id="note-${m[1]}">${inlineHtml(m[2])}</li>`);continue}
+    if(line.startsWith('# ')){close();html.push(`<h1>${inlineHtml(line.slice(2))}</h1>`)}
+    else if(line.startsWith('## ')){close();html.push(`<h2>${inlineHtml(line.slice(3))}</h2>`)}
+    else if(line.startsWith('- ')){if(notesList){html.push('</ol>');notesList=false}if(!list){html.push('<ul>');list=true}html.push(`<li>${inlineHtml(line.slice(2))}</li>`)}
+    else if(line.trim()){close();html.push(`<p>${inlineHtml(line)}</p>`)}
+    else if(list){html.push('</ul>');list=false}
+  }
+  close();
+  const titleText=profile.document.title||args.dossier.title;
+  return`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escHtml(titleText)}</title><style>body{max-width:48rem;margin:3rem auto;padding:0 1.25rem;font:17px/1.6 Georgia,serif;color:#171717}h1,h2{line-height:1.2}h2{margin-top:2.5rem}li{margin:.45rem 0}p{margin:.75rem 0}sup{font-size:.7em}.publication-notes{padding-left:1.4rem}@media print{body{margin:0;max-width:none}}</style></head><body>${html.join('\n')}</body></html>`;
+}
+function renderText(args){return renderMarkdown(args).replace(/^#{1,6}\s+/gm,'').replace(/\*\*/g,'').replace(/\*/g,'').replace(/\[\^(\d+)\]/g,'[$1]').replace(/^\[\^(\d+)\]:/gm,'$1.').trim()+'\n'}
+
+class PublicationEngine{
+  constructor({storage=null,clock=()=>new Date()}={}){
+    this.storage=storage||((typeof localStorage!=='undefined')?localStorage:new MemoryStorage());this.clock=clock;
+    const saved=safe(this.storage.getItem(STORAGE_KEY));if(saved){try{validateState(saved);this.state=saved}catch{this.state=initial(clock())}}else this.state=initial(clock());this.persist();
+  }
+  persist(){this.state.updatedAt=iso(this.clock());this.storage.setItem(STORAGE_KEY,JSON.stringify(this.state))}
+  snapshot(){return clone(this.state)}
+  listProfiles(){return clone(this.state.profiles)}
+  getProfile(id=this.state.activeProfileId){const p=this.state.profiles.find(x=>x.id===id);return p?clone(p):null}
+  createProfile(input={}){
+    if(this.state.profiles.length>=MAX_PROFILES)throw new Error(`Publication profiles are limited to ${MAX_PROFILES}.`);
+    const now=this.clock(),p=normalizeProfile({...input,id:`profile.${Date.now()}.${Math.random().toString(36).slice(2,7)}`,createdAt:iso(now),updatedAt:iso(now)},now);
+    this.state.profiles.unshift(p);this.state.activeProfileId=p.id;this.persist();return clone(p);
+  }
+  updateProfile(id,patch={}){
+    const i=this.state.profiles.findIndex(x=>x.id===id);if(i<0)throw new Error('Unknown publication profile.');
+    const old=this.state.profiles[i],p=normalizeProfile({...old,...clone(patch),document:{...old.document,...clone(patch.document||{})}},this.clock());
+    p.id=id;p.createdAt=old.createdAt;p.updatedAt=iso(this.clock());this.state.profiles[i]=p;this.persist();return clone(p);
+  }
+  setActive(id){if(!this.state.profiles.some(p=>p.id===id))throw new Error('Unknown publication profile.');this.state.activeProfileId=id;this.persist();return this.getProfile(id)}
+  deleteProfile(id){if(this.state.profiles.length<=1)throw new Error('Keep at least one publication profile.');this.state.profiles=this.state.profiles.filter(p=>p.id!==id);if(this.state.activeProfileId===id)this.state.activeProfileId=this.state.profiles[0].id;this.persist()}
+  exportPublication(args){const profile=args.profile||this.getProfile();if(args.format==='html')return renderHtml({...args,profile});if(args.format==='text')return renderText({...args,profile});return renderMarkdown({...args,profile})}
+}
+
+return{STORAGE_KEY,SCHEMA_VERSION,MAX_PROFILES,STYLE_IDS,PLACEMENTS,BIB_TEMPLATES,MemoryStorage,style,bibliographyEntry,parentheticalCitation,noteCitation,defaultProfile,normalizeProfile,validateProfile,validateState,evidenceSourceMap,citationOccurrences,sourceIdsForDossier,bibliographyLines,renderMarkdown,renderHtml,renderText,PublicationEngine};
+});

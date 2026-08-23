@@ -1,0 +1,85 @@
+name: Citation Style & Publication Validation
+
+on:
+  pull_request:
+    paths:
+      - 'publication-engine.js'
+      - 'publication-ui.js'
+      - 'publication.css'
+      - 'publication-portability.js'
+      - 'source-library-engine.js'
+      - 'source-library-ui.js'
+      - 'source-library-synthesis-bridge.js'
+      - 'research-synthesis-engine.js'
+      - 'research-synthesis-ui.js'
+      - 'index.html'
+      - 'data-portability-ui.js'
+      - 'scripts/test-publication.cjs'
+      - 'scripts/test-publication-browser.mjs'
+      - 'scripts/test-source-library.cjs'
+      - 'scripts/test-research-synthesis.cjs'
+      - 'scripts/test-corpus-research.cjs'
+      - 'scripts/test-passage-workbench.cjs'
+      - '.github/workflows/publication-validation.yml'
+      - 'PUBLICATION_V1_11.md'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax checks
+        run: |
+          node --check publication-engine.js
+          node --check publication-ui.js
+          node --check publication-portability.js
+          node --check scripts/test-publication.cjs
+          node --check scripts/test-publication-browser.mjs
+      - name: Validate deterministic publication contract
+        run: |
+          node scripts/test-publication.cjs
+          node scripts/test-source-library.cjs
+          node scripts/test-research-synthesis.cjs
+          node scripts/test-corpus-research.cjs
+          node scripts/test-passage-workbench.cjs
+      - name: Build and validate pinned full NT corpus
+        run: |
+          node scripts/build-full-corpus.mjs
+          node scripts/validate-full-corpus.mjs
+      - name: Build and inspect PWA shell
+        run: |
+          node scripts/build-pwa-shell.mjs
+          node - <<'NODE'
+          const p=require('./generated/pwa-shell.json');
+          for(const a of ['publication-engine.js','publication-ui.js','publication.css','publication-portability.js'])if(!p.assets.includes(a))throw new Error('PWA shell asset missing: '+a);
+          console.log('V1.11 publication assets are present in the generated offline shell.');
+          NODE
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local app server
+        run: |
+          python3 -m http.server 4173 > /tmp/koine-v111-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/koine-v111-http.log
+          exit 1
+      - name: Exercise publication workflow in Chromium
+        env:
+          KOINE_TEST_URL: http://127.0.0.1:4173/
+        run: node scripts/test-publication-browser.mjs
+      - name: Preserve publication mastery and authority firewalls
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs');
+          for(const file of ['publication-engine.js','publication-ui.js']){
+            const text=fs.readFileSync(file,'utf8');
+            for(const forbidden of ['recordEvidence','recordExposure','recordHint'])if(text.includes(forbidden))throw new Error(`${file} contains forbidden mastery write path ${forbidden}`);
+            for(const forbidden of ['authorityScore','qualityScore','truthScore','consensusScore'])if(text.includes(forbidden))throw new Error(`${file} contains forbidden research-authority score ${forbidden}`);
+          }
+          console.log('V1.11 publication mastery/authority firewall: PASS');
+          NODE
