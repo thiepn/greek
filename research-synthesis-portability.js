@@ -7,5 +7,5 @@ dp.validateStores=stores=>{validateSynthesisStores(stores);return originalValida
 dp.parseBackup=input=>{const backup=originalParse(input);validateSynthesisStores(backup.stores);return backup};
 dp.inspectBackup=input=>{const backup=dp.parseBackup(input),text=typeof input==='string'?input:JSON.stringify(input);return{product:backup.product,schemaVersion:backup.schemaVersion,appVersion:backup.appVersion||null,exportedAt:backup.exportedAt||null,keys:Object.keys(backup.stores),keyCount:Object.keys(backup.stores).length,bytes:new TextEncoder().encode(text).length}};
 dp.restoreBackup=(storage,input,options)=>{dp.parseBackup(input);return originalRestore(storage,input,options)};
-dp.serializeBackup=(storage,options={})=>originalSerialize(storage,{...options,appVersion:'v1.9-feature'});
+dp.serializeBackup=(storage,options={})=>{const text=originalSerialize(storage,options),backup=JSON.parse(text);backup.appVersion='v1.9-feature';return JSON.stringify(backup,null,2)};
 })();
