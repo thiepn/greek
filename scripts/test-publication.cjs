@@ -47,5 +47,5 @@ assert.ok(htmlShell.indexOf('source-library-engine.js')<htmlShell.indexOf('publi
 assert.ok(htmlShell.indexOf('source-library-synthesis-bridge.js')<htmlShell.indexOf('publication-ui.js'));
 assert.ok(htmlShell.indexOf('source-library-portability.js')<htmlShell.indexOf('publication-portability.js'));
 assert.ok(port.includes("backup.appVersion='v1.11-feature'"));
-assert.ok(dpui.includes("appVersion:'v1.11-feature'"));
+const expectedUiVersion=htmlShell.includes('publication-package-engine.js')?"appVersion:'v1.12-feature'":"appVersion:'v1.11-feature'";assert.ok(dpui.includes(expectedUiVersion));
 console.log('V1.11 citation styles, note placement, bibliography templates, publication profiles, exports, provenance resolution, mastery firewall, and backup integration: PASS');
