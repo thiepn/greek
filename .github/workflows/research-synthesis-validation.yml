@@ -1,0 +1,80 @@
+name: Research Synthesis & Dossier Validation
+
+on:
+  pull_request:
+    paths:
+      - 'research-synthesis-engine.js'
+      - 'research-synthesis-ui.js'
+      - 'research-synthesis.css'
+      - 'research-synthesis-portability.js'
+      - 'corpus-research-engine.js'
+      - 'corpus-research-ui.js'
+      - 'passage-workbench-engine.js'
+      - 'passage-workbench-ui.js'
+      - 'index.html'
+      - 'data-portability.js'
+      - 'corpus-research-portability.js'
+      - 'scripts/test-research-synthesis.cjs'
+      - 'scripts/test-research-synthesis-browser.mjs'
+      - 'scripts/test-corpus-research.cjs'
+      - 'scripts/test-passage-workbench.cjs'
+      - '.github/workflows/research-synthesis-validation.yml'
+      - 'RESEARCH_SYNTHESIS_V1_9.md'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax checks
+        run: |
+          node --check research-synthesis-engine.js
+          node --check research-synthesis-ui.js
+          node --check research-synthesis-portability.js
+          node --check scripts/test-research-synthesis.cjs
+          node --check scripts/test-research-synthesis-browser.mjs
+      - name: Validate deterministic synthesis contract
+        run: |
+          node scripts/test-research-synthesis.cjs
+          node scripts/test-corpus-research.cjs
+          node scripts/test-passage-workbench.cjs
+      - name: Build and validate pinned full NT corpus
+        run: |
+          node scripts/build-full-corpus.mjs
+          node scripts/validate-full-corpus.mjs
+      - name: Build and inspect PWA shell
+        run: |
+          node scripts/build-pwa-shell.mjs
+          node - <<'NODE'
+          const p=require('./generated/pwa-shell.json');
+          for(const a of ['research-synthesis-engine.js','research-synthesis-ui.js','research-synthesis.css','research-synthesis-portability.js'])if(!p.assets.includes(a))throw new Error('PWA shell asset missing: '+a);
+          console.log('V1.9 synthesis assets are present in the generated offline shell.');
+          NODE
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local app server
+        run: |
+          python3 -m http.server 4173 > /tmp/koine-v19-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/koine-v19-http.log
+          exit 1
+      - name: Exercise research synthesis in Chromium
+        env:
+          KOINE_TEST_URL: http://127.0.0.1:4173/
+        run: node scripts/test-research-synthesis-browser.mjs
+      - name: Preserve synthesis mastery firewall
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs');
+          for(const file of ['research-synthesis-engine.js','research-synthesis-ui.js']){
+            const text=fs.readFileSync(file,'utf8');
+            for(const forbidden of ['recordEvidence','recordExposure','recordHint'])if(text.includes(forbidden))throw new Error(`${file} contains forbidden mastery write path ${forbidden}`);
+          }
+          console.log('V1.9 research-synthesis mastery firewall: PASS');
+          NODE
