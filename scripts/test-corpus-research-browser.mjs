@@ -42,7 +42,8 @@ const linked=await page.evaluate(()=>{const p=window.KOINE_PASSAGE_WORKBENCH.get
 learningAfter=await page.evaluate(()=>localStorage.getItem('koine-path-learning-v3'));if(learningAfter!==learningBefore)throw new Error('Saving research notes mutated canonical learning state.');
 
 const malformedRejected=await page.evaluate(()=>{try{window.KoineDataPortability.validateStores({'koine-path-corpus-research-v1':JSON.stringify({schemaVersion:99,savedSearches:[],comparisons:[],entries:[]})});return false}catch{return true}});if(!malformedRejected)throw new Error('V1.8 portability guard accepted malformed research state.');
-const backup=await page.evaluate(()=>JSON.parse(window.KoineDataPortability.serializeBackup(localStorage,{appVersion:'old'})));if(backup.appVersion!=='v1.8-feature'||!backup.stores['koine-path-corpus-research-v1'])throw new Error('V1.8 backup export did not include guarded research state/version.');
+const backupState=await page.evaluate(()=>({backup:JSON.parse(window.KoineDataPortability.serializeBackup(localStorage,{appVersion:'old'})),hasSynthesis:Boolean(window.KoineResearchSynthesis)}));
+const expectedBackupVersion=backupState.hasSynthesis?'v1.9-feature':'v1.8-feature';if(backupState.backup.appVersion!==expectedBackupVersion||!backupState.backup.stores['koine-path-corpus-research-v1'])throw new Error(`V1.8 backup export did not preserve research state/current feature version: expected ${expectedBackupVersion}, got ${backupState.backup.appVersion}.`);
 
 const downloadPromise=page.waitForEvent('download');await page.locator('#research-export').click();const download=await downloadPromise;if(!download.suggestedFilename().endsWith('.md'))throw new Error('Research export was not Markdown.');
 
