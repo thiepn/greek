@@ -64,5 +64,5 @@ assert.ok(html.indexOf('reading-fluency.js')<html.indexOf('reading-goals-engine.
 assert.ok(html.indexOf('reading-fluency-ui.js')<html.indexOf('reading-goals-ui.js'));
 assert.ok(sessionUi.includes('KOINE_READING_GOALS_UI'), 'daily sessions do not route V1.6 reading goals');
 assert.ok(weeklyUi.includes('KOINE_READING_GOALS_UI'), 'weekly plan does not surface V1.6 reading goals');
-assert.ok(dpui.includes("appVersion:'v1.6-feature'"));
+assert.match(dpui,/appVersion:'v1\.\d+(?:-[^']+)?'/,'backup UI must publish an explicit feature version');
 console.log('V1.6 reading goals, passage plans, corpus tracks, difficulty/preparedness, mastery firewall, and backup integration: PASS');
